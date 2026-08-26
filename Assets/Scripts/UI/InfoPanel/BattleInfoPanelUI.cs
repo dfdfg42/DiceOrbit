@@ -274,7 +274,9 @@ namespace DiceOrbit.UI
         {
             // ── Header ──
             SetText(nameText, d.Name);
-            SetText(hpText, $"HP {d.CurrentHp}/{d.MaxHp}" + (d.Armor > 0 ? $"   방어도 {d.Armor}" : ""));
+            SetText(hpText, $"HP {d.CurrentHp}/{d.MaxHp}"
+                + (d.Attack > 0 ? $"   공격력 {d.Attack}" : "")
+                + (d.Armor > 0 ? $"   방어도 {d.Armor}" : ""));
 
             // 상태이상 라인 (체력 바로 아래): 별도 섹션 대신 헤더에 요약 — 없으면 "상태이상 없음"
             // 설명이 있는 상태이상은 키워드 링크(<link="kw:...">)로 감싸 KeywordLinkHover가

@@ -11,6 +11,7 @@ namespace DiceOrbit.UI
         public readonly int CurrentHp;
         public readonly int MaxHp;
         public readonly int Armor;
+        public readonly int Attack;                                          // 기본 공격력 (0이면 표기 생략 — 스탯 없는 몬스터 등)
         public readonly string FlavorText;                                   // 프로필 원문 (서식 없음)
         public readonly string ActivesLabel;                                 // 액티브 섹션 제목 (캐릭터 "액티브" / 몬스터 "다음 행동")
         public readonly IReadOnlyList<SkillInfoData> Actives;
@@ -23,9 +24,10 @@ namespace DiceOrbit.UI
             string activesLabel,
             IReadOnlyList<SkillInfoData> actives, IReadOnlyList<PassiveInfoData> passives,
             IReadOnlyList<ModifierInfoData> modifiers,
-            IReadOnlyList<TooltipKeywordFormatter.StatusDisplayData> statuses, TileInfoData? currentTile)
+            IReadOnlyList<TooltipKeywordFormatter.StatusDisplayData> statuses, TileInfoData? currentTile,
+            int attack = 0)
         {
-            Name = name; CurrentHp = currentHp; MaxHp = maxHp; Armor = armor; FlavorText = flavorText;
+            Name = name; CurrentHp = currentHp; MaxHp = maxHp; Armor = armor; Attack = attack; FlavorText = flavorText;
             ActivesLabel = activesLabel;
             Actives = actives; Passives = passives; Modifiers = modifiers;
             Statuses = statuses; CurrentTile = currentTile;
