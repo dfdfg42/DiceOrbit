@@ -25,8 +25,8 @@ namespace DiceOrbit.UI
         [SerializeField] private Image intentIcon;
         [SerializeField] private TextMeshProUGUI intentText;
 
-        [Header("의도 설명 — 말풍선 옆에 다음 기술을 짧은 글로 (MonsterIntentText)")]
-        [Tooltip("설명 칩 루트 (말풍선 오른쪽). 요약이 없는 기술이면 숨긴다")]
+        [Header("의도 설명 — 말풍선 옆에 다음 기술의 설명을 그대로 (MonsterIntentText)")]
+        [Tooltip("설명 칩 루트 (말풍선 오른쪽). 설명이 없는 기술이면 숨긴다")]
         [SerializeField] private RectTransform intentSummaryRoot;
         [SerializeField] private TextMeshProUGUI intentSummaryText;
         [Tooltip("글이 이 폭을 넘으면 줄을 바꾼다 (캔버스 단위)")]
@@ -373,7 +373,7 @@ namespace DiceOrbit.UI
         }
 
         /// <summary>
-        /// 말풍선 옆 설명 칩 — 다음 기술의 요약 글. 의도가 바뀌었거나 일정 시간이 지났을 때만 다시 계산한다
+        /// 말풍선 옆 설명 칩 — 다음 기술의 설명 글. 의도가 바뀌었거나 일정 시간이 지났을 때만 다시 계산한다
         /// ({피해}는 대상·상태에 따라 달라지지만 매 프레임 시뮬레이션할 일은 아니다).
         /// </summary>
         private void UpdateIntentSummary(bool intentChanged)
@@ -437,14 +437,14 @@ namespace DiceOrbit.UI
                 nameRect.anchoredPosition = new Vector2(nameRect.anchoredPosition.x, y);
         }
 
-        /// <summary>요약이 비어 있는 기술 — 칩을 띄우지 않고 한 번 알린다 (기술 이름 같은 다른 글로 대체하지 않는다).</summary>
+        /// <summary>설명이 비어 있는 기술 — 칩을 띄우지 않고 한 번 알린다 (기술 이름 같은 다른 글로 대체하지 않는다).</summary>
         private void ReportMissingSummary()
         {
             var data = monster != null ? monster.NextSkill?.skillData : null;
             if (data == null) return;
             string key = monster.name + "/" + data.SkillName;
             if (ReportedMissingSummary.Add(key))
-                Debug.LogError($"[MonsterUI] '{monster.name}'의 기술 '{data.SkillName}'에 의도 요약(intentSummary)이 없습니다 — 몬스터 프리셋에서 채우세요.", monster);
+                Debug.LogError($"[MonsterUI] '{monster.name}'의 기술 '{data.SkillName}'에 설명(description)이 없습니다 — 몬스터 프리셋에서 채우세요.", monster);
         }
         
         private void SetIntentVisible(bool visible)

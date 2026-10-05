@@ -28,9 +28,10 @@ namespace DiceOrbit.Data.MonsterPresets.Wave4.Shared
         [SerializeField] private int duration = 2;
 
         public override string SkillName => string.IsNullOrEmpty(skillLabel) ? "디버프" : skillLabel;
+        // 말풍선 옆 칩에 그대로 뜨는 글 — 한두 줄 (첫 줄 = 무슨 일, 둘째 줄 = 부연). 수치는 설정값에서 온다.
         public override string Description => kind == DebuffKind.Vulnerable
-            ? $"무작위 캐릭터 1명이 {duration}턴 동안 받는 피해가 {percent}% 증가합니다."
-            : $"무작위 캐릭터 1명이 {duration}턴 동안 주는 피해가 {percent}% 감소합니다.";
+            ? $"취약 {duration}턴 · 1명\n받는 피해 {percent}% 증가"
+            : $"쇠약 {duration}턴 · 1명\n주는 피해 {percent}% 감소";
 
         public override int GetPreviewDamage() => 0;
 

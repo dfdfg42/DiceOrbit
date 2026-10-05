@@ -5,15 +5,16 @@ using DiceOrbit.Data;
 namespace DiceOrbit.UI
 {
     /// <summary>
-    /// 몬스터가 다음에 쓸 기술을 짧은 글로 풀어 준다 (2026-10-05).
-    /// 글은 기술마다 직접 써 둔 한두 줄(<see cref="SkillData.IntentSummary"/>)이고, 그 안의 <c>{피해}</c>만 지금 상황의 예상 피해로 바뀐다 —
-    /// 취약·쇠약·방어도 같은 보정이 반영된 숫자라 정보 패널의 "예상 피해"와 언제나 같다.
+    /// 몬스터가 다음에 쓸 기술의 설명 글 (2026-10-05).
+    /// 글은 기술의 설명(<see cref="SkillData.Description"/>) 그대로다 — 간결한 한두 줄. 그 안의 <c>{피해}</c>만 지금 상황의 예상 피해
+    /// (취약·쇠약·방어도 같은 보정 반영)로 바뀐다.
     ///
-    /// 쓰는 곳: 머리 위 의도 말풍선 옆 설명 칩(MonsterUI), 몬스터 턴의 행동 말풍선(MonsterActionLabel), 정보 패널(UnitInfoBuilder).
+    /// 몬스터 기술을 보여 주는 곳은 전부 여기를 거친다 — 머리 위 의도 말풍선 옆 설명 칩(MonsterUI), 몬스터 턴의 행동 말풍선(MonsterActionLabel),
+    /// 정보 패널(UnitInfoBuilder). 그래서 어디서나 같은 글, 같은 숫자가 나온다.
     /// </summary>
     public static class MonsterIntentText
     {
-        /// <summary>요약 글에서 예상 피해로 바뀌는 자리.</summary>
+        /// <summary>설명 글에서 예상 피해로 바뀌는 자리.</summary>
         public const string DamageToken = "{피해}";
 
         /// <summary>둘째 줄(조건·부연)은 작고 흐리게.</summary>
@@ -37,11 +38,11 @@ namespace DiceOrbit.UI
             return CombatPipeline.Instance.SimulateCalculation(new AttackContext(monster, target, data.SkillName, baseDamage));
         }
 
-        /// <summary>요약 글 (줄바꿈 포함, 서식 없음). 기술에 요약이 없으면 빈 문자열.</summary>
+        /// <summary>설명 글 (줄바꿈 포함, 서식 없음, {피해} 치환됨). 기술에 설명이 없으면 빈 문자열.</summary>
         public static string Summary(Monster monster)
         {
             var data = monster != null ? monster.NextSkill?.skillData : null;
-            string template = data != null ? data.IntentSummary : null;
+            string template = data != null ? data.Description : null;
             if (string.IsNullOrWhiteSpace(template)) return string.Empty;
 
             template = template.Trim();

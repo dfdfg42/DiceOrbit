@@ -73,13 +73,8 @@ namespace DiceOrbit.UI
                 if (names.Count > 0) targetsText = "대상: " + string.Join(", ", names);
             }
 
-            // 설명 + 예상 피해 (말풍선 옆 요약의 {피해}와 같은 계산)
-            string desc = (data.Description ?? string.Empty).Trim();
-            int shown = MonsterIntentText.PreviewDamage(m);
-            if (shown > 0)
-                desc = string.IsNullOrEmpty(desc) ? $"예상 피해: {shown}" : $"{desc}\n예상 피해: {shown}";
-
-            result.Add(new SkillInfoData(data.SkillName, targetsText, desc));
+            // 설명 — 말풍선 옆 칩과 같은 글 ({피해}는 지금 상황의 예상 피해로 바뀌어 들어 있다)
+            result.Add(new SkillInfoData(data.SkillName, targetsText, MonsterIntentText.Summary(m)));
             return result;
         }
 
@@ -149,12 +144,8 @@ namespace DiceOrbit.UI
                 if (names.Count > 0) line2 += $" → {string.Join(", ", names)}";
             }
 
-            // 예상 피해 (파이프라인 시뮬레이션 — 패시브/모디파이어 반영)
-            int shown = MonsterIntentText.PreviewDamage(m);
-            if (shown > 0) line2 += $" (예상 {shown})";
-
-            // 스킬 설명 (은은한 회색으로 한 줄)
-            string desc = (data.Description ?? string.Empty).Trim();
+            // 스킬 설명 (은은한 회색) — 말풍선 옆 칩과 같은 글, 예상 피해가 들어 있다
+            string desc = MonsterIntentText.Summary(m);
             if (!string.IsNullOrEmpty(desc))
                 return $"{line1}\n{line2}\n<color=#B3B3B3>{desc}</color>";
 
@@ -244,10 +235,7 @@ namespace DiceOrbit.UI
                 if (names.Count > 0) line += $" → {string.Join(", ", names)}";
             }
 
-            int shown = MonsterIntentText.PreviewDamage(m);
-            if (shown > 0) line += $" (예상 {shown})";
-
-            string desc = (data.Description ?? string.Empty).Trim();
+            string desc = MonsterIntentText.Summary(m);   // 말풍선 옆 칩과 같은 글 (예상 피해 포함)
             return string.IsNullOrEmpty(desc) ? $"<b>{line}</b>" : $"<b>{line}\n{desc}</b>";
         }
 
