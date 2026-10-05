@@ -55,7 +55,7 @@ namespace DiceOrbit.UI.Skin
     /// <summary>버튼 역할 — 역할마다 전용 4상태 스프라이트.</summary>
     public enum SkinButton
     {
-        EndTurn = 100, Move = 101, CancelAction = 102, RollDice = 103,
+        EndTurn = 100, Move = 101, CancelAction = 102,   // 103(RollDice)은 삭제 — 주사위는 자동으로 굴린다 (번호 재사용 금지)
         RecruitCancel = 200, RecruitSelect = 201,
         RewardContinue = 300, RewardSkip = 301, RewardChoiceCard = 302, RewardPortrait = 303,   // 주 버튼 · 보조(건너뛰기) · 선택 카드(선택 = Pressed) · 파티 초상 프레임
         Goods = 400, ShopSwap = 401, ShopLeave = 402, EventMain = 403, EventSkip = 404, Restart = 405, TutorialStart = 406, TutorialSkip = 407, ShopChoice = 408, ShopStepCancel = 409,
@@ -152,6 +152,15 @@ namespace DiceOrbit.UI.Skin
         public Sprite FamilyDice;
         public Sprite FamilyCombo;
         public Sprite FamilySurvival;
+
+        [Header("전투 머리 위 표시 — 이동 토큰 · 콤보 보석 (CharacterActionStrip, Tools/cut_hud_tokens.py)")]
+        public Sprite MoveToken;            // 이번 턴에 아직 움직일 수 있다
+        public Sprite MoveTokenSpent;       // 이동을 썼다
+        public Sprite ComboGemEmpty;        // 콤보 1·2단계 자리 — 비어 있음
+        public Sprite ComboGemLit;          // 채워짐
+        public Sprite ComboFinisherEmpty;   // 3단계(마무리) 자리 — 별
+        public Sprite ComboFinisherLit;
+        public Sprite TokenPlate;           // 받침판 (9-slice 캡슐)
 
         [Header("도형")]
         public Sprite Circle;   // 흰 원 — 경로 점·배지 링·상태 칩처럼 틴트가 필요한 원형 전용

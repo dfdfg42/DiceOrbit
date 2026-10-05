@@ -3236,6 +3236,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DiceOrbit.UI.UiSkinImage
   part: 112
+  borderScaleOverride: 0
 --- !u!114 &180476990
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5141,6 +5142,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DiceOrbit.UI.UiSkinImage
   part: 403
+  borderScaleOverride: 0
 --- !u!1 &316169698
 GameObject:
   m_ObjectHideFlags: 0
@@ -6390,7 +6392,6 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1164803136}
-  - {fileID: 723251452}
   - {fileID: 451284318}
   - {fileID: 2080975782}
   m_Father: {fileID: 810494362}
@@ -6452,9 +6453,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DiceOrbit.UI.DiceUI
   diceContainer: {fileID: 1164803136}
   diceElementPrefab: {fileID: 3941900214610730029, guid: 0220f003ae4b6cf44ac05293b713b047, type: 3}
-  rollButton: {fileID: 723251453}
   rollAnimator: {fileID: 396733016}
-  autoHideRollButton: 1
   useRollAnimation: 1
   panelCanvasGroup: {fileID: 0}
 --- !u!114 &396733016
@@ -6497,6 +6496,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DiceOrbit.UI.UiSkinImage
   part: 101
+  borderScaleOverride: 0
 --- !u!1 &400005822
 GameObject:
   m_ObjectHideFlags: 0
@@ -7731,6 +7731,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DiceOrbit.UI.UiSkinImage
   part: 404
+  borderScaleOverride: 0
 --- !u!1 &462529402
 GameObject:
   m_ObjectHideFlags: 0
@@ -7849,6 +7850,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DiceOrbit.UI.UiSkinImage
   part: 111
+  borderScaleOverride: 0
 --- !u!114 &476586819
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8376,143 +8378,6 @@ Transform:
   - {fileID: 1389193567}
   m_Father: {fileID: 2044874085}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &502744066
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 502744067}
-  - component: {fileID: 502744069}
-  - component: {fileID: 502744068}
-  m_Layer: 5
-  m_Name: Text (TMP)
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!224 &502744067
-RectTransform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 502744066}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 723251452}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.279, y: 0.158}
-  m_AnchorMax: {x: 0.95, y: 0.586}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
-  m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &502744068
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 502744066}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
-  m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 0
-  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
-  m_Maskable: 1
-  m_OnCullStateChanged:
-    m_PersistentCalls:
-      m_Calls: []
-  m_text: "\uC8FC\uC0AC\uC704 \uAD74\uB9AC\uAE30"
-  m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: cf28f73ff3468314a93a84c3bfe4b8d9, type: 2}
-  m_sharedMaterial: {fileID: 4931467027632299308, guid: cf28f73ff3468314a93a84c3bfe4b8d9, type: 2}
-  m_fontSharedMaterials: []
-  m_fontMaterial: {fileID: 0}
-  m_fontMaterials: []
-  m_fontColor32:
-    serializedVersion: 2
-    rgba: 4284236363
-  m_fontColor: {r: 0.294, g: 0.259, b: 0.361, a: 1}
-  m_enableVertexGradient: 0
-  m_colorMode: 3
-  m_fontColorGradient:
-    topLeft: {r: 1, g: 1, b: 1, a: 1}
-    topRight: {r: 1, g: 1, b: 1, a: 1}
-    bottomLeft: {r: 1, g: 1, b: 1, a: 1}
-    bottomRight: {r: 1, g: 1, b: 1, a: 1}
-  m_fontColorGradientPreset: {fileID: 0}
-  m_spriteAsset: {fileID: 0}
-  m_tintAllSprites: 0
-  m_StyleSheet: {fileID: 0}
-  m_TextStyleHashCode: -1183493901
-  m_overrideHtmlColors: 0
-  m_faceColor:
-    serializedVersion: 2
-    rgba: 4294967295
-  m_fontSize: 28
-  m_fontSizeBase: 28
-  m_fontWeight: 400
-  m_enableAutoSizing: 0
-  m_fontSizeMin: 0
-  m_fontSizeMax: 0
-  m_fontStyle: 1
-  m_HorizontalAlignment: 2
-  m_VerticalAlignment: 512
-  m_textAlignment: 65535
-  m_characterSpacing: 0
-  m_characterHorizontalScale: 1
-  m_wordSpacing: 0
-  m_lineSpacing: 0
-  m_lineSpacingMax: 0
-  m_paragraphSpacing: 0
-  m_charWidthMaxAdj: 0
-  m_TextWrappingMode: 0
-  m_wordWrappingRatios: 0.4
-  m_overflowMode: 0
-  m_linkedTextComponent: {fileID: 0}
-  parentLinkedComponent: {fileID: 0}
-  m_enableKerning: 0
-  m_ActiveFontFeatures: 
-  m_enableExtraPadding: 0
-  checkPaddingRequired: 0
-  m_isRichText: 1
-  m_EmojiFallbackSupport: 1
-  m_parseCtrlCharacters: 1
-  m_isOrthographic: 1
-  m_isCullingEnabled: 0
-  m_horizontalMapping: 0
-  m_verticalMapping: 0
-  m_uvLineOffset: 0
-  m_geometrySortingOrder: 0
-  m_IsTextObjectScaleStatic: 0
-  m_VertexBufferAutoSizeReduction: 0
-  m_useMaxVisibleDescender: 1
-  m_pageToDisplay: 1
-  m_margin: {x: 0, y: 0, z: 0, w: 0}
-  m_isUsingLegacyAnimationComponent: 0
-  m_isVolumetricText: 0
-  m_hasFontAssetChanged: 0
-  m_baseMaterial: {fileID: 0}
-  m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
---- !u!222 &502744069
-CanvasRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 502744066}
-  m_CullTransparentMesh: 1
 --- !u!1 &506806377
 GameObject:
   m_ObjectHideFlags: 0
@@ -9021,6 +8886,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DiceOrbit.UI.UiSkinImage
   part: 200
+  borderScaleOverride: 0
 --- !u!114 &560183496
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9149,6 +9015,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DiceOrbit.UI.UiSkinImage
   part: 402
+  borderScaleOverride: 0
 --- !u!1 &561405522
 GameObject:
   m_ObjectHideFlags: 0
@@ -9517,6 +9384,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DiceOrbit.UI.UiSkinImage
   part: 113
+  borderScaleOverride: 0
 --- !u!114 &606799623
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10968,141 +10836,6 @@ MonoBehaviour:
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
---- !u!1 &723251451
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 723251452}
-  - component: {fileID: 723251455}
-  - component: {fileID: 723251454}
-  - component: {fileID: 723251453}
-  - component: {fileID: 723251456}
-  m_Layer: 5
-  m_Name: Roll Dice
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!224 &723251452
-RectTransform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 723251451}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 502744067}
-  m_Father: {fileID: 396733012}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 5}
-  m_SizeDelta: {x: 340, y: 108.3}
-  m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &723251453
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 723251451}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Button
-  m_Navigation:
-    m_Mode: 3
-    m_WrapAround: 0
-    m_SelectOnUp: {fileID: 0}
-    m_SelectOnDown: {fileID: 0}
-    m_SelectOnLeft: {fileID: 0}
-    m_SelectOnRight: {fileID: 0}
-  m_Transition: 2
-  m_Colors:
-    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
-    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
-    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
-    m_ColorMultiplier: 1
-    m_FadeDuration: 0.1
-  m_SpriteState:
-    m_HighlightedSprite: {fileID: 21300000, guid: 41a622aa354059542bf3ea5492ca0673, type: 3}
-    m_PressedSprite: {fileID: 21300000, guid: b517fcb614f4e824c927e868e77e7673, type: 3}
-    m_SelectedSprite: {fileID: 21300000, guid: 41a622aa354059542bf3ea5492ca0673, type: 3}
-    m_DisabledSprite: {fileID: 21300000, guid: 0542a586e25f536479c671ae803700b1, type: 3}
-  m_AnimationTriggers:
-    m_NormalTrigger: Normal
-    m_HighlightedTrigger: Highlighted
-    m_PressedTrigger: Pressed
-    m_SelectedTrigger: Selected
-    m_DisabledTrigger: Disabled
-  m_Interactable: 1
-  m_TargetGraphic: {fileID: 723251454}
-  m_OnClick:
-    m_PersistentCalls:
-      m_Calls: []
---- !u!114 &723251454
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 723251451}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
-  m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
-  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
-  m_Maskable: 1
-  m_OnCullStateChanged:
-    m_PersistentCalls:
-      m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: dd9861cf3041b414fa0803347b7ad46b, type: 3}
-  m_Type: 0
-  m_PreserveAspect: 1
-  m_FillCenter: 1
-  m_FillMethod: 4
-  m_FillAmount: 1
-  m_FillClockwise: 1
-  m_FillOrigin: 0
-  m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 4.84
---- !u!222 &723251455
-CanvasRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 723251451}
-  m_CullTransparentMesh: 1
---- !u!114 &723251456
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 723251451}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6600c4fbcbd20544b8ae792ba753ce5f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::DiceOrbit.UI.UiSkinButton
-  button: 103
 --- !u!1 &724723937
 GameObject:
   m_ObjectHideFlags: 0
@@ -13310,6 +13043,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DiceOrbit.UI.UiSkinImage
   part: 401
+  borderScaleOverride: 0
 --- !u!114 &894461709
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13819,6 +13553,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DiceOrbit.UI.UiSkinImage
   part: 102
+  borderScaleOverride: 0
 --- !u!1 &914833060
 GameObject:
   m_ObjectHideFlags: 0
@@ -15498,6 +15233,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DiceOrbit.UI.UiSkinImage
   part: 302
+  borderScaleOverride: 0
 --- !u!114 &1064886513
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -16220,6 +15956,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DiceOrbit.UI.UiSkinImage
   part: 104
+  borderScaleOverride: 0
 --- !u!114 &1095797030
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -17421,6 +17158,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DiceOrbit.UI.UiSkinImage
   part: 112
+  borderScaleOverride: 0
 --- !u!114 &1204204125
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -17531,6 +17269,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DiceOrbit.UI.UiSkinImage
   part: 112
+  borderScaleOverride: 0
 --- !u!114 &1208918286
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -18038,6 +17777,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DiceOrbit.UI.UiSkinImage
   part: 400
+  borderScaleOverride: 0
 --- !u!114 &1256713490
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -18195,6 +17935,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DiceOrbit.UI.UiSkinImage
   part: 103
+  borderScaleOverride: 0
 --- !u!1 &1279031967
 GameObject:
   m_ObjectHideFlags: 0
@@ -18267,6 +18008,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DiceOrbit.UI.UiSkinImage
   part: 201
+  borderScaleOverride: 0
 --- !u!114 &1279031971
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -19632,6 +19374,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DiceOrbit.UI.UiSkinImage
   part: 108
+  borderScaleOverride: 0
 --- !u!1 &1379319586
 GameObject:
   m_ObjectHideFlags: 0
@@ -21212,6 +20955,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DiceOrbit.UI.UiSkinImage
   part: 900
+  borderScaleOverride: 0
 --- !u!114 &1522905642
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -21398,6 +21142,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DiceOrbit.UI.UiSkinImage
   part: 112
+  borderScaleOverride: 0
 --- !u!114 &1528654353
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -21731,6 +21476,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DiceOrbit.UI.UiSkinImage
   part: 307
+  borderScaleOverride: 0
 --- !u!114 &1554855977
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -22368,6 +22114,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DiceOrbit.UI.UiSkinImage
   part: 114
+  borderScaleOverride: 0
 --- !u!1 &1605391424
 GameObject:
   m_ObjectHideFlags: 0
@@ -22787,6 +22534,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DiceOrbit.UI.UiSkinImage
   part: 401
+  borderScaleOverride: 0
 --- !u!114 &1632323651
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -23734,7 +23482,6 @@ MonoBehaviour:
   panel: {fileID: 1377115573}
   faceGrid: {fileID: 106734351}
   effectRow: {fileID: 589656302}
-  dieFaceSprite: {fileID: 21300000, guid: 60d8e064b93210c47a6a25042ef8ced8, type: 3}
   font: {fileID: 11400000, guid: a06b2e2193801ca408e97a94d9077837, type: 2}
   aboveOffset: {x: 0, y: 140}
 --- !u!1 &1701387236
@@ -23817,6 +23564,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DiceOrbit.UI.UiSkinImage
   part: 308
+  borderScaleOverride: 0
 --- !u!114 &1704002874
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -24722,6 +24470,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DiceOrbit.UI.UiSkinImage
   part: 112
+  borderScaleOverride: 0
 --- !u!114 &1765069327
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -25890,6 +25639,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DiceOrbit.UI.UiSkinImage
   part: 113
+  borderScaleOverride: 0
 --- !u!114 &1881269779
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -26758,6 +26508,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DiceOrbit.UI.UiSkinImage
   part: 100
+  borderScaleOverride: 0
 --- !u!1 &1971101200
 GameObject:
   m_ObjectHideFlags: 0
@@ -27473,6 +27224,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DiceOrbit.UI.UiSkinImage
   part: 111
+  borderScaleOverride: 0
 --- !u!114 &2018290680
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -28283,6 +28035,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DiceOrbit.UI.UiSkinImage
   part: 300
+  borderScaleOverride: 0
 --- !u!114 &2106608389
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -28716,7 +28469,6 @@ MonoBehaviour:
   inCombat: 0
   activeMonsters: []
   turnCount: 0
-  rollDiceButton: {fileID: 723251453}
   endTurnButton: {fileID: 451284319}
   turnCountText: {fileID: 758120398}
   turnCounterRoot: {fileID: 1095797027}

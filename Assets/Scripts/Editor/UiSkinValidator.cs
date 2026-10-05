@@ -70,6 +70,13 @@ namespace DiceOrbit.EditorTools
             CheckPresent(issues, skin.FamilyDice,      nameof(skin.FamilyDice));
             CheckPresent(issues, skin.FamilyCombo,     nameof(skin.FamilyCombo));
             CheckPresent(issues, skin.FamilySurvival,  nameof(skin.FamilySurvival));
+            CheckPresent(issues, skin.MoveToken,          nameof(skin.MoveToken));
+            CheckPresent(issues, skin.MoveTokenSpent,     nameof(skin.MoveTokenSpent));
+            CheckPresent(issues, skin.ComboGemEmpty,      nameof(skin.ComboGemEmpty));
+            CheckPresent(issues, skin.ComboGemLit,        nameof(skin.ComboGemLit));
+            CheckPresent(issues, skin.ComboFinisherEmpty, nameof(skin.ComboFinisherEmpty));
+            CheckPresent(issues, skin.ComboFinisherLit,   nameof(skin.ComboFinisherLit));
+            CheckPresent(issues, skin.TokenPlate,         nameof(skin.TokenPlate));
             CheckPresent(issues, skin.Circle,          nameof(skin.Circle));
             CheckPresent(issues, skin.ZonePlate,       nameof(skin.ZonePlate));
             return issues;

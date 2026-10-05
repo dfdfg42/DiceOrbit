@@ -34,30 +34,12 @@ namespace DiceOrbit.UI
         [SerializeField] private bool stackSameTile = true;
         [SerializeField] private float perIndexYStep = 0.35f; // 같은 타일 캐릭터 1명당 올릴 Y(월드)
 
-        [Header("Combo Pips (3단계 콤보 표시, 2026-08-28)")]
-        [Tooltip("첫 핍 위치 — 이동 아이콘(iconsAnchor) 바로 옆")]
-        [SerializeField] private Vector2 comboAnchor = new Vector2(-30f, 3f);
-        [SerializeField] private float comboSpacing = 10f;
-        [SerializeField] private float comboPipSize = 8f;
-        [SerializeField] private Color comboLitColor = new Color(1f, 0.82f, 0.25f, 1f);
-        [SerializeField] private Color comboDimColor = new Color(0.32f, 0.32f, 0.32f, 0.55f);
-        [SerializeField] private Color comboFlashColor = new Color(1f, 0.95f, 0.6f, 1f);
-        [SerializeField] private Color comboBreakColor = new Color(0.95f, 0.3f, 0.25f, 1f);
-        private Image[] _comboPips;
-        private bool _comboFxActive;
+        [Header("행동 표시 — 이동 토큰 + 콤보 보석 (CharacterActionStrip)")]
+        [Tooltip("표시줄 왼쪽 끝 가운데 — 체력바 바로 위 (캔버스 단위)")]
+        [SerializeField] private Vector2 actionStripAnchor = new Vector2(-49.3f, 8f);
 
-        [Header("Turn Budget Icon (이동)")]
-        [SerializeField] private Sprite moveIconSprite;
-        // 액티브 아이콘은 철거했다 — 강화 공격이 행동 예산을 쓰지 않고 주사위 눈으로만 갈리므로
-        // 상시 켜진 아이콘은 아무 정보도 주지 못했다(2026-08-21).
+        // 주사위의 '강화 불가' 배지가 빌려 쓰는 공격 아이콘 (체력바 위 상시 아이콘은 2026-08-21에 철거)
         [SerializeField, HideInInspector] private Sprite activeIconSprite;
-        [SerializeField] private Color iconAvailableColor = Color.white;
-        [SerializeField] private Color iconUsedColor = new Color(0.42f, 0.42f, 0.42f, 0.5f);
-        [Tooltip("HP바 위 왼쪽 기준 위치 (첫 아이콘)")]
-        [SerializeField] private Vector2 iconsAnchor = new Vector2(-43f, 3f);
-        [SerializeField] private float iconSpacing = 13f;
-        [SerializeField] private float iconSize = 12f;
-        private Image _moveIcon;
 
         /// <summary>체력바 위 "공격 가능" 아이콘과 같은 스프라이트를 다른 UI(주사위 스킬불가 배지 등)가 쓰도록 공유.</summary>
         public static Sprite SharedActiveIconSprite { get; private set; }
@@ -167,8 +149,8 @@ namespace DiceOrbit.UI
             StatusIconRow.Attach(worldCanvas, character, mainCamera, new Vector2(-49f, -25f));
             Visuals.StatusOverlayStack.Attach(character);
 
-            CreateBudgetIcons();
-            CreateComboPips();
+            if (activeIconSprite != null) SharedActiveIconSprite = activeIconSprite;
+            CharacterActionStrip.Attach(worldCanvas, character, actionStripAnchor);
         }
 
         private void ConfigureNonBlockingRaycasts()
@@ -231,102 +213,6 @@ namespace DiceOrbit.UI
                 levelText.text = string.Empty;
             }
 
-            UpdateBudgetIcons();
-            UpdateComboPips();
-        }
-
-        // ── 턴 예산 아이콘 (이동/액티브) ──────────────────────
-        private void CreateBudgetIcons()
-        {
-            if (activeIconSprite != null) SharedActiveIconSprite = activeIconSprite;
-            if (worldCanvas == null || _moveIcon != null) return;
-            _moveIcon = MakeBudgetIcon("MoveIcon", moveIconSprite, iconsAnchor);
-        }
-
-        private Image MakeBudgetIcon(string iconName, Sprite sprite, Vector2 pos)
-        {
-            var go = new GameObject(iconName, typeof(RectTransform));
-            var rt = go.GetComponent<RectTransform>();
-            rt.SetParent(worldCanvas.transform, false);
-            rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 0.5f);
-            rt.pivot = new Vector2(0.5f, 0.5f);
-            rt.anchoredPosition = pos;
-            rt.sizeDelta = new Vector2(iconSize, iconSize);
-            var img = go.AddComponent<Image>();
-            img.sprite = sprite;
-            img.preserveAspect = true;
-            img.raycastTarget = false;
-            return img;
-        }
-
-        /// <summary>이동 예산에 따라 아이콘 밝기 갱신 (가능=밝게, 사용됨=회색·반투명).</summary>
-        private void UpdateBudgetIcons()
-        {
-            if (_moveIcon == null) return;
-            var cm = Core.CombatManager.Instance;
-            bool canMove = cm != null && character != null && cm.CanSpendMove(character);
-            _moveIcon.color = canMove ? iconAvailableColor : iconUsedColor;
-        }
-        
-        // ── 콤보 핍 (3단계 콤보 표시, 2026-08-28) ─────────────
-        // 평상시 상태는 매 프레임 ComboSystem.PeekStage를 그대로 그린다 — 내부 단계와 어긋날 수 없다.
-        // 이벤트(OnComboChanged)는 3단계 발동/끊김의 짧은 플래시 연출에만 쓴다.
-
-        private void CreateComboPips()
-        {
-            if (worldCanvas == null || _comboPips != null) return;
-
-            _comboPips = new Image[Core.Combo.ComboTracker.StageCount];
-            for (int i = 0; i < _comboPips.Length; i++)
-            {
-                var pip = MakeBudgetIcon($"ComboPip{i + 1}", null,
-                    comboAnchor + new Vector2(comboSpacing * i, 0f));
-                pip.rectTransform.sizeDelta = new Vector2(comboPipSize, comboPipSize);
-                pip.color = comboDimColor;
-                _comboPips[i] = pip;
-            }
-
-            Core.Combo.ComboSystem.EnsureInstance().OnComboChanged += HandleComboChanged;
-        }
-
-        private void OnDestroy()
-        {
-            if (Core.Combo.ComboSystem.Instance != null)
-                Core.Combo.ComboSystem.Instance.OnComboChanged -= HandleComboChanged;
-        }
-
-        private void UpdateComboPips()
-        {
-            if (_comboPips == null || _comboFxActive) return;
-
-            int stage = Core.Combo.ComboSystem.Instance != null && character != null
-                ? Core.Combo.ComboSystem.Instance.PeekStage(character) : 0;
-
-            for (int i = 0; i < _comboPips.Length; i++)
-                if (_comboPips[i] != null) _comboPips[i].color = i < stage ? comboLitColor : comboDimColor;
-        }
-
-        private void HandleComboChanged(Core.Character changed, int stage, Core.Combo.ComboOutcome outcome)
-        {
-            if (changed != character || _comboPips == null || !isActiveAndEnabled) return;
-
-            if (outcome == Core.Combo.ComboOutcome.Finished)
-                StartCoroutine(FlashComboPips(comboFlashColor));
-            else if (outcome == Core.Combo.ComboOutcome.BrokenByDice
-                  || outcome == Core.Combo.ComboOutcome.BrokenByNoTarget
-                  || outcome == Core.Combo.ComboOutcome.BrokenByNoMove)
-                StartCoroutine(FlashComboPips(comboBreakColor));
-        }
-
-        /// <summary>세 칸을 지정 색으로 잠깐 강조한 뒤 평상시 표시(0단계)로 돌아간다.</summary>
-        private System.Collections.IEnumerator FlashComboPips(Color color)
-        {
-            _comboFxActive = true;
-            for (int i = 0; i < _comboPips.Length; i++)
-                if (_comboPips[i] != null) _comboPips[i].color = color;
-
-            yield return new WaitForSeconds(0.45f);
-            _comboFxActive = false;   // 다음 UpdateComboPips가 실제 단계로 복원
         }
 
         /// <summary>

@@ -1,7 +1,7 @@
-"""전투 HUD 버튼(주사위 굴리기·턴 종료)의 보통 상태 그림에서 나머지 세 상태를 만든다 (2026-10-04).
+"""전투 HUD 버튼(턴 종료)의 보통 상태 그림에서 나머지 세 상태를 만든다 (2026-10-04).
 usage: python Tools/make_hud_button_states.py
 
-이 두 버튼은 알약 밖으로 주사위·모래시계가 튀어나온 통짜 일러스트(SkinMode.Simple)다.
+이 버튼은 알약 밖으로 모래시계가 튀어나온 통짜 일러스트(SkinMode.Simple)다.
 상태마다 그림을 따로 생성하면 튀어나온 물체의 모양이 조금씩 달라져 상태가 바뀔 때 덜컥거린다.
 그래서 보통 상태(btn_<역할>_normal.png) 한 장만 그림으로 두고 나머지는 여기서 계산한다 — 윤곽이 픽셀 단위로 같다.
 
@@ -16,7 +16,7 @@ from PIL import Image
 from scipy import ndimage
 
 SKIN = "Assets/Sprites/UI Skin/"
-ROLES = ["btn_roll_dice", "btn_end_turn"]
+ROLES = ["btn_end_turn"]   # 주사위 굴리기 버튼은 없앴다 (2026-10-05 — 주사위는 턴 시작 때 자동으로 굴린다)
 
 LUM = np.array([0.299, 0.587, 0.114], dtype=np.float32)
 HOVER_LIFT = 0.16          # 흰색 쪽으로 당기는 정도

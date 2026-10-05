@@ -39,7 +39,6 @@ namespace DiceOrbit.Core
         private readonly Dictionary<Character, CharacterTurnBudget> playerTurnBudgets = new Dictionary<Character, CharacterTurnBudget>();
 
         [Header("UI References")]
-        [SerializeField] private Button rollDiceButton;
         [SerializeField] private Button endTurnButton;
         [SerializeField] private TextMeshProUGUI turnCountText;
         [Tooltip("턴 카운터 칩(텍스트의 부모). 전투 중에만 표시한다. 비어 있으면 텍스트 오브젝트 자체를 토글.")]
@@ -89,12 +88,7 @@ namespace DiceOrbit.Core
             // 버튼 자동 연결 (Scene에 할당 안 된 경우 대비)
             EnsureButtons();
 
-            // 버튼 이벤트 연결
-            if (rollDiceButton != null)
-            {
-                rollDiceButton.onClick.AddListener(OnRollDiceClicked);
-            }
-
+            // 버튼 이벤트 연결 (주사위는 턴 시작 때 자동으로 굴린다 — 굴리기 버튼은 없다)
             if (endTurnButton != null)
             {
                 endTurnButton.onClick.AddListener(OnEndTurnClicked);
@@ -113,17 +107,11 @@ namespace DiceOrbit.Core
         private void OnDestroy()
         {
             // Cleanup listeners if needed
-            if (rollDiceButton != null) rollDiceButton.onClick.RemoveListener(OnRollDiceClicked);
             if (endTurnButton != null) endTurnButton.onClick.RemoveListener(OnEndTurnClicked);
         }
 
         private void EnsureButtons()
         {
-            if (rollDiceButton == null)
-            {
-                rollDiceButton = FindButtonByName("Roll Dice Button", "RollDiceButton", "Roll Dice");
-            }
-
             if (endTurnButton == null)
             {
                 endTurnButton = FindButtonByName("End Turn Button", "EndTurnButton", "End Turn");
@@ -373,7 +361,6 @@ namespace DiceOrbit.Core
             }
 
             // UI Update
-            if (rollDiceButton != null) rollDiceButton.interactable = false; // Auto rolled
             if (endTurnButton != null) endTurnButton.interactable = true;
 
             // 몬스터 공격 의도 미리보기 표시
@@ -520,28 +507,12 @@ namespace DiceOrbit.Core
         }
 
         /// <summary>
-        /// Roll Dice 버튼 클릭
-        /// </summary>
-        private void OnRollDiceClicked()
-        {
-            var diceManager = DiceManager.Instance;
-            if (diceManager != null)
-            {
-                diceManager.RollDice();
-
-                if (rollDiceButton != null) rollDiceButton.interactable = false;
-                if (endTurnButton != null) endTurnButton.interactable = true;
-            }
-        }
-
-        /// <summary>
         /// 턴 종료 버튼 클릭
         /// </summary>
         private void OnEndTurnClicked()
         {
             // 즉시 버튼 비활성화하여 중복 클릭 방지
             if (endTurnButton != null) endTurnButton.interactable = false;
-            if (rollDiceButton != null) rollDiceButton.interactable = false;
 
             // 턴 종료 로직을 큐에 삽입
             ActionQueueManager.Instance.EnqueueAction(EndPlayerTurnRoutine());

@@ -205,20 +205,8 @@ MonoBehaviour:
   canvasScale: 0.07
   stackSameTile: 1
   perIndexYStep: 0.5
-  comboAnchor: {x: -30, y: 3}
-  comboSpacing: 10
-  comboPipSize: 8
-  comboLitColor: {r: 1, g: 0.82, b: 0.25, a: 1}
-  comboDimColor: {r: 0.32, g: 0.32, b: 0.32, a: 0.55}
-  comboFlashColor: {r: 1, g: 0.95, b: 0.6, a: 1}
-  comboBreakColor: {r: 0.95, g: 0.3, b: 0.25, a: 1}
-  moveIconSprite: {fileID: 21300000, guid: 8acfdb87041c143089569d446383a47d, type: 3}
+  actionStripAnchor: {x: -49.3, y: 8}
   activeIconSprite: {fileID: 21300000, guid: 036e0a9856c214f478367a052def8fea, type: 3}
-  iconAvailableColor: {r: 1, g: 1, b: 1, a: 1}
-  iconUsedColor: {r: 0.42, g: 0.42, b: 0.42, a: 0.5}
-  iconsAnchor: {x: -43, y: 3}
-  iconSpacing: 13
-  iconSize: 12
 --- !u!1 &1356194493916177805
 GameObject:
   m_ObjectHideFlags: 0
@@ -863,7 +851,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 24.8, y: 12.9}
+  m_AnchoredPosition: {x: 1.35, y: 27}
   m_SizeDelta: {x: 71.055, y: 15.825}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &6679047158325809721

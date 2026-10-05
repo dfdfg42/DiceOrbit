@@ -70,13 +70,16 @@ namespace DiceOrbit.EditorTools
                 s.SetButton(button, MakeSprite(true), MakeSprite(true), MakeSprite(true), MakeSprite(true), SkinMode.Sliced);
             s.Coin = MakeSprite(false); s.PotionSlotEmpty = MakeSprite(false); s.Close = MakeSprite(false);
             s.FamilyPosition = MakeSprite(false); s.FamilyDice = MakeSprite(false); s.FamilyCombo = MakeSprite(false); s.FamilySurvival = MakeSprite(false);
+            s.MoveToken = MakeSprite(false); s.MoveTokenSpent = MakeSprite(false);
+            s.ComboGemEmpty = MakeSprite(false); s.ComboGemLit = MakeSprite(false);
+            s.ComboFinisherEmpty = MakeSprite(false); s.ComboFinisherLit = MakeSprite(false); s.TokenPlate = MakeSprite(false);
             s.Circle = MakeSprite(false);
             s.ZonePlate = MakeSprite(false);
             return s;
         }
 
         private static int ExpectedEmptyIssueCount()
-            => (Enum.GetValues(typeof(SkinPart)).Length - 1) + Enum.GetValues(typeof(SkinButton)).Length + 9;   // 아이콘 3 + 계열 아이콘 4 + 원 + 플레이트
+            => (Enum.GetValues(typeof(SkinPart)).Length - 1) + Enum.GetValues(typeof(SkinButton)).Length + 16;   // 아이콘 3 + 계열 아이콘 4 + 머리 위 표시 7 + 원 + 플레이트
 
         private static void TestLoadOrThrowOnMissingAsset()
         {
@@ -208,7 +211,7 @@ namespace DiceOrbit.EditorTools
             var skin = ScriptableObject.CreateInstance<UiSkin>();
             var issues = UiSkinValidator.Validate(skin);
             int expected = ExpectedEmptyIssueCount();
-            Check(issues.Count == expected, $"빈 스킨 이슈 {expected}건 (파트 + 버튼 + 아이콘 3 + 원 + 플레이트), 실제 {issues.Count}");
+            Check(issues.Count == expected, $"빈 스킨 이슈 {expected}건 (파트 + 버튼 + 아이콘·도형), 실제 {issues.Count}");
             UnityEngine.Object.DestroyImmediate(skin);
         }
 

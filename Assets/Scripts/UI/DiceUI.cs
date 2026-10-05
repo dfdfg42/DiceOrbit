@@ -16,11 +16,9 @@ namespace DiceOrbit.UI
         [Header("References")]
         [SerializeField] private Transform diceContainer;
         [SerializeField] private GameObject diceElementPrefab;
-        [SerializeField] private Button rollButton;
         [SerializeField] private DiceRollAnimator rollAnimator;
         
         [Header("Settings")]
-        [SerializeField] private bool autoHideRollButton = true;
         [SerializeField] private bool useRollAnimation = true;
     [SerializeField] private CanvasGroup panelCanvasGroup;
 
@@ -69,12 +67,6 @@ namespace DiceOrbit.UI
         
         private void Start()
         {
-            // Roll 버튼 이벤트 연결
-            if (rollButton != null)
-            {
-                rollButton.onClick.AddListener(OnRollButtonClicked);
-            }
-            
             // DiceManager에 자신을 등록
             var diceManager = Core.DiceManager.Instance;
             if (diceManager != null)
@@ -97,12 +89,6 @@ namespace DiceOrbit.UI
                 CreateDiceElement(diceData);
             }
             
-            // Roll 버튼 숨기기
-            if (autoHideRollButton && rollButton != null)
-            {
-                rollButton.gameObject.SetActive(false);
-            }
-
             // 애니메이션 실행
             if (useRollAnimation && rollAnimator != null && diceElements.Count > 0)
             {
@@ -147,27 +133,8 @@ namespace DiceOrbit.UI
             }
             
             diceElements.Clear();
-            
-            // Roll 버튼 다시 표시
-            if (rollButton != null)
-            {
-                rollButton.gameObject.SetActive(true);
-            }
         }
-        
-        /// <summary>
-        /// Roll 버튼 클릭 핸들러
-        /// </summary>
-        private void OnRollButtonClicked()
-        {
-            // DiceManager가 직접 주사위 굴림 처리
-            var diceManager = Core.DiceManager.Instance;
-            if (diceManager != null)
-            {
-                diceManager.RollDice();
-            }
-        }
-        
+
         /// <summary>
         /// 특정 주사위 사용됨 표시
         /// </summary>

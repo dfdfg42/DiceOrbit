@@ -12,6 +12,7 @@
 | 이동 목적지 | **소나 핑** (사각 루프 확장·페이드) + 타일 리프트 | `Visuals/MovePathPreview.cs` |
 | 몬스터 공격 예고 타일 | 타일 **리프트** (고스트 메시 부상) + 정체성 색 파이 오버레이 (알파 0.8) | `Visuals/IntentTileLiftEffect.cs`, `MonsterTileColorOverlayManager.cs` |
 | 구역(사분면) 소유 | 타일 아래 **잉크 플레이트** — 사분면 조각 스프라이트, 주인 색 틴트 / 중립 회색 반투명 | `Visuals/ZonePlateRenderer.cs` + `UiSkin.ZonePlate` (2026-09-25) |
+| 캐릭터 이동 가능 · 콤보 단계 | 체력바 위 **행동 표시줄** — 받침판 위 날개 장화(이동 토큰) + 보석 2칸 + 별(마무리). 켜진 수 = 채운 콤보 단계 | `UI/CharacterActionStrip.cs` (2026-10-05) |
 | 몬스터 다음 행동 | 머리 위 **크림 말풍선 + 스킬 아이콘**, 그 오른쪽에 **설명 칩**(기술마다 써 둔 한두 줄 — "15 피해 · 대상 좌우 2칸") | `UI/MonsterUI.cs`, `UI/MonsterIntentText.cs` (2026-10-05, 아래 「몬스터 의도 설명」) |
 | 패시브 구역 (조회 시) | **구역 테두리** — 구역 부채꼴을 통째로 감싸는 둥근 폐곡선(남색 밑선 + 하늘색 심선) + 플레이트 밝힘. 효과가 꺼져 있으면 흐리게. 지금 값은 정보 패널 패시브 제목 옆 | `Visuals/PassiveZoneIndicator.cs` + `IPassiveZoneProvider`, `Visuals/ZoneSectorShape.cs` (2026-10-04) |
 | 조준선 (캐릭터↔몬스터 공통) | **포물선 + 흐르는 점선 + 화살촉** | `Visuals/DashedArcLine.cs` (공용 헬퍼) |
