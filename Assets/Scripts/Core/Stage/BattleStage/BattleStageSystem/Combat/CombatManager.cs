@@ -631,6 +631,9 @@ namespace DiceOrbit.Core
                 string actionName = monster.NextSkill != null && monster.NextSkill.skillData != null
                     ? monster.NextSkill.skillData.SkillName : null;
                 Sprite actionIcon = monster.NextSkill != null ? monster.NextSkill.IntentIcon : null;
+                // 이름만으로는 무슨 일이 일어나는지 모른다 — 요약 첫 줄을 붙인다 ("박치기 — 15 피해 · 대상 좌우 2칸")
+                string actionSummary = UI.MonsterIntentText.FirstLine(monster);
+                string actionText = string.IsNullOrEmpty(actionSummary) ? actionName : $"{actionName} — {actionSummary}";
 
                 if (!string.IsNullOrEmpty(actionName))
                 {
@@ -646,7 +649,7 @@ namespace DiceOrbit.Core
                     Visuals.MonsterThreatOutline.Instance?.ShowForced(threatTiles, threatColor);
 
                     var lbl = UI.MonsterActionLabel.Instance;
-                    if (lbl != null) yield return lbl.Show(monster, actionName, actionIcon);
+                    if (lbl != null) yield return lbl.Show(monster, actionText, actionIcon);
                     if (monsterActionLeadIn > 0f) yield return new WaitForSeconds(monsterActionLeadIn);
 
                     // 공격(대상 타일이 있는 행동)이면 움츠렸다가 대상 쪽으로 내리찍는다 — 피해는 내리찍는 순간 들어간다 (타격감 리워크)

@@ -25,6 +25,17 @@ namespace DiceOrbit.UI
         [SerializeField] private Image intentIcon;
         [SerializeField] private TextMeshProUGUI intentText;
 
+        [Header("의도 설명 — 말풍선 옆에 다음 기술을 짧은 글로 (MonsterIntentText)")]
+        [Tooltip("설명 칩 루트 (말풍선 오른쪽). 요약이 없는 기술이면 숨긴다")]
+        [SerializeField] private RectTransform intentSummaryRoot;
+        [SerializeField] private TextMeshProUGUI intentSummaryText;
+        [Tooltip("글이 이 폭을 넘으면 줄을 바꾼다 (캔버스 단위)")]
+        [SerializeField] private float intentSummaryMaxWidth = 160f;
+        [Tooltip("예상 피해를 다시 계산하는 간격(초) — 캐릭터가 움직이거나 상태가 바뀌면 숫자가 달라진다")]
+        [SerializeField] private float intentSummaryRefresh = 0.3f;
+        [Tooltip("설명 칩이 떠 있는 동안 이름표는 칩 바로 위로 비켜 선다 — 칩 윗변과 이름표 사이 간격 (캔버스 단위)")]
+        [SerializeField] private float nameGapAboveSummary = 1f;
+
         [Header("Armor UI")]
         [SerializeField] private RectTransform armorRoot;
         [SerializeField] private Image armorIcon;
@@ -58,6 +69,13 @@ namespace DiceOrbit.UI
         [SerializeField, Range(0f, 1f)] private float forecastMaxAlpha = 1f;
 
         private Image forecastSegment;   // 체력바 채움 위에 겹치는 '깎일 구간'
+
+        private string shownSummary;             // 지금 칩에 적힌 글 (같으면 다시 배치하지 않는다)
+        private float summaryRefreshAt;
+        private LayoutElement summaryLayout;
+        private float nameBaseY;
+        private bool nameBaseCaptured;
+        private static readonly System.Collections.Generic.HashSet<string> ReportedMissingSummary = new System.Collections.Generic.HashSet<string>();
         private int forecastLoss;
 
         [Header("Animation")]
@@ -346,14 +364,93 @@ namespace DiceOrbit.UI
                 }
             }
 
+            UpdateIntentSummary(changed);
+
             if (animateOnIntentChange && changed)
             {
                 PlayIntentPop();
             }
         }
+
+        /// <summary>
+        /// 말풍선 옆 설명 칩 — 다음 기술의 요약 글. 의도가 바뀌었거나 일정 시간이 지났을 때만 다시 계산한다
+        /// ({피해}는 대상·상태에 따라 달라지지만 매 프레임 시뮬레이션할 일은 아니다).
+        /// </summary>
+        private void UpdateIntentSummary(bool intentChanged)
+        {
+            if (intentSummaryRoot == null || intentSummaryText == null) return;
+            if (!intentChanged && Time.unscaledTime < summaryRefreshAt) return;
+            summaryRefreshAt = Time.unscaledTime + intentSummaryRefresh;
+
+            string summary = MonsterIntentText.RichSummary(monster);
+            if (string.IsNullOrEmpty(summary))
+            {
+                ReportMissingSummary();
+                ShowSummary(false);
+                return;
+            }
+
+            ShowSummary(true);
+            if (summary == shownSummary) return;
+            shownSummary = summary;
+
+            intentSummaryText.text = summary;
+            // 짧은 글은 글 폭만큼, 긴 글은 최대 폭에서 줄바꿈
+            if (summaryLayout == null) summaryLayout = intentSummaryText.GetComponent<LayoutElement>();
+            if (summaryLayout != null)
+            {
+                float natural = intentSummaryText.GetPreferredValues(summary, intentSummaryMaxWidth, 0f).x;
+                float width = Mathf.Min(natural, intentSummaryMaxWidth);
+                summaryLayout.preferredWidth = width;
+                // 높이도 직접 준다 — 자동 계산은 칩이 막 켜진 프레임의 옛 폭으로 줄을 세어 몇 배로 커진다
+                summaryLayout.preferredHeight = intentSummaryText.GetPreferredValues(summary, width, 0f).y;
+            }
+            LayoutRebuilder.ForceRebuildLayoutImmediate(intentSummaryRoot);
+            PlaceNameAboveSummary(true);
+        }
+
+        private void ShowSummary(bool visible)
+        {
+            if (intentSummaryRoot != null && intentSummaryRoot.gameObject.activeSelf != visible)
+                intentSummaryRoot.gameObject.SetActive(visible);
+            if (!visible)
+            {
+                shownSummary = null;
+                PlaceNameAboveSummary(false);
+            }
+        }
+
+        /// <summary>이름표 자리 — 칩이 떠 있으면 칩 윗변 바로 위, 아니면 프리팹에 놓인 원래 자리. (이름표와 칩은 둘 다 말풍선 오른쪽에 있다.)</summary>
+        private void PlaceNameAboveSummary(bool summaryVisible)
+        {
+            if (nameText == null || intentSummaryRoot == null) return;
+            var nameRect = nameText.rectTransform;
+            if (!nameBaseCaptured) { nameBaseY = nameRect.anchoredPosition.y; nameBaseCaptured = true; }
+
+            float y = nameBaseY;
+            if (summaryVisible)
+            {
+                float summaryTop = intentSummaryRoot.anchoredPosition.y + intentSummaryRoot.rect.height * (1f - intentSummaryRoot.pivot.y);
+                y = Mathf.Max(nameBaseY, summaryTop + nameGapAboveSummary + nameRect.rect.height * nameRect.pivot.y);
+            }
+            if (!Mathf.Approximately(nameRect.anchoredPosition.y, y))
+                nameRect.anchoredPosition = new Vector2(nameRect.anchoredPosition.x, y);
+        }
+
+        /// <summary>요약이 비어 있는 기술 — 칩을 띄우지 않고 한 번 알린다 (기술 이름 같은 다른 글로 대체하지 않는다).</summary>
+        private void ReportMissingSummary()
+        {
+            var data = monster != null ? monster.NextSkill?.skillData : null;
+            if (data == null) return;
+            string key = monster.name + "/" + data.SkillName;
+            if (ReportedMissingSummary.Add(key))
+                Debug.LogError($"[MonsterUI] '{monster.name}'의 기술 '{data.SkillName}'에 의도 요약(intentSummary)이 없습니다 — 몬스터 프리셋에서 채우세요.", monster);
+        }
         
         private void SetIntentVisible(bool visible)
         {
+            if (!visible) ShowSummary(false);
+
             if (intentBubbleRoot != null)
             {
                 intentBubbleRoot.gameObject.SetActive(visible);

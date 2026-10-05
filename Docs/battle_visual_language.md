@@ -12,7 +12,7 @@
 | 이동 목적지 | **소나 핑** (사각 루프 확장·페이드) + 타일 리프트 | `Visuals/MovePathPreview.cs` |
 | 몬스터 공격 예고 타일 | 타일 **리프트** (고스트 메시 부상) + 정체성 색 파이 오버레이 (알파 0.8) | `Visuals/IntentTileLiftEffect.cs`, `MonsterTileColorOverlayManager.cs` |
 | 구역(사분면) 소유 | 타일 아래 **잉크 플레이트** — 사분면 조각 스프라이트, 주인 색 틴트 / 중립 회색 반투명 | `Visuals/ZonePlateRenderer.cs` + `UiSkin.ZonePlate` (2026-09-25) |
-| 몬스터 다음 행동 | 머리 위 **크림 말풍선 + 스킬 아이콘** (라벨 없음) | `UI/MonsterUI.cs`, `UiSkin.IntentBubble` (2026-09-25) |
+| 몬스터 다음 행동 | 머리 위 **크림 말풍선 + 스킬 아이콘**, 그 오른쪽에 **설명 칩**(기술마다 써 둔 한두 줄 — "15 피해 · 대상 좌우 2칸") | `UI/MonsterUI.cs`, `UI/MonsterIntentText.cs` (2026-10-05, 아래 「몬스터 의도 설명」) |
 | 패시브 구역 (조회 시) | **구역 테두리** — 구역 부채꼴을 통째로 감싸는 둥근 폐곡선(남색 밑선 + 하늘색 심선) + 플레이트 밝힘. 효과가 꺼져 있으면 흐리게. 지금 값은 정보 패널 패시브 제목 옆 | `Visuals/PassiveZoneIndicator.cs` + `IPassiveZoneProvider`, `Visuals/ZoneSectorShape.cs` (2026-10-04) |
 | 조준선 (캐릭터↔몬스터 공통) | **포물선 + 흐르는 점선 + 화살촉** | `Visuals/DashedArcLine.cs` (공용 헬퍼) |
 | 행동 예고 (주사위 선택·호버 시) | 도착 타일 → 대상 **노란 조준선**(이동 경로와 같은 색) + 대상 몸 위 **예상 피해 숫자**(피해 팝업 글꼴, 처치는 노랑) + 대상 체력바의 **깎일 구간 깜빡임**(밝은 크림색) + [이동] 버튼 위 **예고 카드** | `Visuals/ActionForecastView.cs` + `Combat/Forecast/` (2026-10-04) |
@@ -29,6 +29,18 @@
 | `Visuals/TileLift.cs` | **고스트 리프트 기법**: 원본 MeshRenderer 끄고 복제 메시를 띄움 — TileData 트랜스폼은 절대 안 건드림 (게임플레이 위치 의존). 오버레이/아이콘 버블은 `SetLiftOffset`으로 함께 탑승 |
 | `Visuals/TileCornerResolver.cs` | 타일 윗면 모서리 좌표 계산 (타일 외곽선·구역 테두리 바깥 반지름 공용) |
 | `Visuals/DashedArcLine.cs` | 조준 아크 단일 출처: 포물선 정점, 페이드 그라디언트, 점선(공유 텍스처 픽셀 순환 — Sprites/Default가 UV 오프셋 무시하는 문제 회피), V자 화살촉 |
+
+## 몬스터 의도 설명 (2026-10-05)
+
+몬스터가 다음에 무엇을 하는지는 마우스를 올리지 않아도 읽혀야 한다. 말풍선(아이콘) 오른쪽에 **설명 칩**을 늘 띄운다.
+
+- **글은 기술마다 직접 쓴다**: `SkillData.intentSummary` (몬스터 프리셋의 각 기술, 인스펙터에서 편집). 한두 줄 —
+  첫 줄 = 무슨 일이 일어나나("{피해} 피해 · 대상 좌우 2칸", "점액 1칸 설치"), 둘째 줄 = 조건·부연("피해 10 이상 주면 취소", "대상을 따라 움직임"). 둘째 줄은 작고 흐리게 나온다.
+- **`{피해}`만 계산한다**: `MonsterIntentText.PreviewDamage` — 파이프라인 시뮬레이션(취약·쇠약·방어도 반영). 정보 패널의 "예상 피해"와 같은 함수라 숫자가 어긋나지 않는다. 0.3초마다 다시 계산한다.
+- **쓰는 곳 세 군데**: ① 말풍선 옆 칩(`MonsterUI` — `MonsterCanvas/IntentSummary`, PlainPanel 배경 + 글, 이름표는 칩 위로 비켜 선다) ② 몬스터 턴의 행동 말풍선(`MonsterActionLabel` — "박치기 — 15 피해 · 대상 좌우 2칸") ③ 정보 패널(긴 설명 + 예상 피해, 호버·클릭).
+- 요약이 비어 있는 기술은 칩을 띄우지 않고 에러를 한 번 남긴다 (기술 이름 같은 다른 글로 대체하지 않는다).
+- **새 몬스터 기술을 넣을 때**: `intentSummary`를 채운다. 메뉴 **DiceOrbit → Run Monster Intent Self-Tests**가 모든 프리셋을 훑어 빈 요약, 3줄 이상, 한 줄 20자 초과, `{피해}`를 쓰는데 예상 피해가 0인 기술을 잡는다.
+- 예전의 "공격/특수" 한 단어 라벨(`showIntentText`)은 껐다 — 설명 칩이 대신한다.
 
 ## 레이어 규칙
 

@@ -15,6 +15,8 @@ namespace DiceOrbit.UI
     {
         [Tooltip("스킨 역할 파트 — 「도구/Dice Orbit/UI 스킨 점검」으로 에셋 상태 확인")]
         [SerializeField] private SkinPart part = SkinPart.InfoFrame;
+        [Tooltip("9-slice 경계 배수 덮어쓰기 — 아주 작은 패널(월드 캔버스의 말풍선 옆 칩 등)에서 테두리가 과하게 두껍지 않게 (0 = 스킨 카탈로그 값)")]
+        [SerializeField] private float borderScaleOverride;
 
         public SkinPart Part => part;
 
@@ -37,6 +39,7 @@ namespace DiceOrbit.UI
             var image = GetComponent<Image>();
             if (image == null) throw new InvalidOperationException($"[UiSkinImage] 「{name}」에 Image가 없습니다.");
             UiSkin.Current.Apply(image, part);
+            if (borderScaleOverride > 0f && image.type == Image.Type.Sliced) image.pixelsPerUnitMultiplier = borderScaleOverride;
         }
     }
 }

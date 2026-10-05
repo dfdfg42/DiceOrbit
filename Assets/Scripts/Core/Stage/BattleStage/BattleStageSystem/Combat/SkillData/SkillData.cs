@@ -29,12 +29,17 @@ namespace DiceOrbit.Data
         [SerializeField] protected string skillName = "";
         [SerializeField] protected string description = "";
 
+        [Tooltip("몬스터 의도 말풍선 옆에 띄우는 짧은 설명 — 한두 줄. 첫 줄 = 무슨 일이 일어나나, 둘째 줄 = 조건·부연. {피해}는 지금 상황의 예상 피해로 바뀐다. 예: {피해} 피해 · 대상 좌우 2칸")]
+        [SerializeField, TextArea(1, 2)] protected string intentSummary = "";
+
         [Tooltip("이 스킬의 큐 태그. 비우면 루트(cast/impact) 폴백")]
         [SerializeField] protected string castCue = "";
         [SerializeField] protected string impactCue = "";
 
         public virtual string SkillName => skillName;
         public virtual string Description => description;
+        /// <summary>의도 말풍선 옆 짧은 설명의 원문 ({피해} 치환 전). 보여 줄 때는 UI.MonsterIntentText를 거친다.</summary>
+        public virtual string IntentSummary => intentSummary;
 
         /// <summary>
         /// 의도 미리보기용 기본 피해. 0이면 피해 스킬이 아니므로 예상 피해를 표시하지 않는다.

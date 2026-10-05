@@ -73,51 +73,14 @@ namespace DiceOrbit.UI
                 if (names.Count > 0) targetsText = "대상: " + string.Join(", ", names);
             }
 
-            // 설명 + 예상 피해 (구 몬스터 툴팁의 시뮬레이션 로직 계승)
+            // 설명 + 예상 피해 (말풍선 옆 요약의 {피해}와 같은 계산)
             string desc = (data.Description ?? string.Empty).Trim();
-            int previewBase = data.GetPreviewDamage();
-            if (previewBase > 0)
-            {
-                int shown = previewBase;
-                var repTarget = ResolvePreviewTarget(m);
-                if (repTarget != null && CombatPipeline.Instance != null)
-                {
-                    var simCtx = new AttackContext(m, repTarget, data.SkillName, previewBase);
-                    shown = CombatPipeline.Instance.SimulateCalculation(simCtx);
-                }
+            int shown = MonsterIntentText.PreviewDamage(m);
+            if (shown > 0)
                 desc = string.IsNullOrEmpty(desc) ? $"예상 피해: {shown}" : $"{desc}\n예상 피해: {shown}";
-            }
 
             result.Add(new SkillInfoData(data.SkillName, targetsText, desc));
             return result;
-        }
-
-        /// <summary>인텐트 예상 피해 시뮬레이션에 쓸 대표 대상. 의도 대상이 있으면 그 대상, 없으면 생존 파티원.</summary>
-        private static Unit ResolvePreviewTarget(Monster m)
-        {
-            var intent = m.CurrentIntent;
-            if (intent != null)
-            {
-                if (intent.Targets != null)
-                {
-                    foreach (var t in intent.Targets)
-                        if (t != null && t.IsAlive) return t;
-                }
-
-                if (intent.TargetTiles != null)
-                {
-                    foreach (var tile in intent.TargetTiles)
-                    {
-                        var chars = tile != null ? tile.GetCharactersOnTile() : null;
-                        if (chars == null) continue;
-                        foreach (var c in chars)
-                            if (c != null && c.IsAlive) return c;
-                    }
-                }
-            }
-
-            var alive = PartyManager.Instance?.GetAliveCharacters();
-            return (alive != null && alive.Count > 0) ? alive[0] : null;
         }
 
         public static TileInfoData Build(TileData tile)
@@ -187,18 +150,8 @@ namespace DiceOrbit.UI
             }
 
             // 예상 피해 (파이프라인 시뮬레이션 — 패시브/모디파이어 반영)
-            int previewBase = data.GetPreviewDamage();
-            if (previewBase > 0)
-            {
-                int shown = previewBase;
-                var repTarget = ResolvePreviewTarget(m);
-                if (repTarget != null && CombatPipeline.Instance != null)
-                {
-                    var simCtx = new AttackContext(m, repTarget, data.SkillName, previewBase);
-                    shown = CombatPipeline.Instance.SimulateCalculation(simCtx);
-                }
-                line2 += $" (예상 {shown})";
-            }
+            int shown = MonsterIntentText.PreviewDamage(m);
+            if (shown > 0) line2 += $" (예상 {shown})";
 
             // 스킬 설명 (은은한 회색으로 한 줄)
             string desc = (data.Description ?? string.Empty).Trim();
@@ -291,18 +244,8 @@ namespace DiceOrbit.UI
                 if (names.Count > 0) line += $" → {string.Join(", ", names)}";
             }
 
-            int previewBase = data.GetPreviewDamage();
-            if (previewBase > 0)
-            {
-                int shown = previewBase;
-                var repTarget = ResolvePreviewTarget(m);
-                if (repTarget != null && CombatPipeline.Instance != null)
-                {
-                    var simCtx = new AttackContext(m, repTarget, data.SkillName, previewBase);
-                    shown = CombatPipeline.Instance.SimulateCalculation(simCtx);
-                }
-                line += $" (예상 {shown})";
-            }
+            int shown = MonsterIntentText.PreviewDamage(m);
+            if (shown > 0) line += $" (예상 {shown})";
 
             string desc = (data.Description ?? string.Empty).Trim();
             return string.IsNullOrEmpty(desc) ? $"<b>{line}</b>" : $"<b>{line}\n{desc}</b>";
