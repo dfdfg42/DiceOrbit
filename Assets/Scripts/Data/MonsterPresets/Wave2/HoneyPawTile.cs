@@ -87,6 +87,6 @@ namespace DiceOrbit.Data.Tile
         }
 
         public override string GetDescription()
-            => $"지나가면 체력을 {healAmount} 회복합니다. 한 턴에 {bindThreshold}개 이상 지나가면 다음 턴에 이동할 수 없습니다. 발동 후 사라집니다.";
+            => $"밟으면 체력 {healAmount} 회복 · 발동 후 사라짐\n한 턴에 {bindThreshold}개 밟으면 다음 턴 이동 불가";
     }
 }

@@ -43,10 +43,7 @@ namespace DiceOrbit.Data.Tile
             Owner.RemoveAttribute(this);
         }
 
-        public override string GetDescription()
-        {
-            string durationText = Duration < 0 ? "영구" : $"{Duration}턴";
-            return $"지나가거나 이 타일에서 턴을 마치면 피해 {Value}를 받습니다. 지속 시간: {durationText}.";
-        }
+        // 지속 시간은 타일 패널의 제목 줄이 따로 보여 준다
+        public override string GetDescription() => $"밟으면 피해 {Value} · 터지면 사라짐";
     }
 }

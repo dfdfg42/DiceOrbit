@@ -28,6 +28,6 @@ namespace DiceOrbit.Data.Tile
 
         public override string GetDisplayName() => "치유 타일";
 
-        public override string GetDescription() => $"지나가면 HP를 {Value} 회복합니다.";
+        public override string GetDescription() => $"밟으면 체력 {Value} 회복";
     }
 }

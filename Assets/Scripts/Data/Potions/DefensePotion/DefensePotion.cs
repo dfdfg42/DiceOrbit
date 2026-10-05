@@ -15,7 +15,7 @@ namespace DiceOrbit.Data.Potions
         private void Reset()
         {
             PotionName = "방어 포션";
-            Description = "선택한 아군에게 방어도 30을 부여합니다.";
+            Description = "아군 1명에게 방어도 +30";
             TargetType = PotionTargetType.Ally;
             ShopPrice = 45;
             CombatOnly = true;

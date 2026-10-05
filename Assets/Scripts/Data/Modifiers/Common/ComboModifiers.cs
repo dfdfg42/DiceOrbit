@@ -13,7 +13,7 @@ namespace DiceOrbit.Data.Modifiers.Common
         public override string ModifierName => "안전장치";
         public override ModifierFamily Family => ModifierFamily.Combo;
         public override string Description
-            => $"주사위 조건을 놓쳐 콤보가 끊기고 일반 자동공격이 발동하면 방어도를 {ArmorPerStack}만큼 얻습니다.";
+            => $"방어도 +{ArmorPerStack}\n콤보가 끊겨 일반 자동공격이 나갈 때";
 
         public void OnComboBrokenBasicAttack(Character character)
         {
@@ -32,7 +32,7 @@ namespace DiceOrbit.Data.Modifiers.Common
         public override string ModifierName => "연쇄 반응";
         public override ModifierFamily Family => ModifierFamily.Combo;
         public override string Description
-            => $"콤보 2단계 공격 피해가 {PercentPerStack:0.#}% 증가합니다.";
+            => $"콤보 2단계 피해 +{PercentPerStack:0.#}%";
 
         public override void OnAttack(CombatTrigger trigger, AttackContext context)
         {
@@ -55,7 +55,7 @@ namespace DiceOrbit.Data.Modifiers.Common
         public override string ModifierName => "대단원";
         public override ModifierFamily Family => ModifierFamily.Combo;
         public override string Description
-            => $"콤보 3단계 공격 피해가 {PercentPerStack:0.#}% 증가합니다.";
+            => $"콤보 3단계 피해 +{PercentPerStack:0.#}%";
 
         public override void OnAttack(CombatTrigger trigger, AttackContext context)
         {

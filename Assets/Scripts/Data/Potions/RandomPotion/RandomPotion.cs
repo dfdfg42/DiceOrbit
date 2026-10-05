@@ -12,7 +12,7 @@ namespace DiceOrbit.Data.Potions
         private void Reset()
         {
             PotionName = "랜덤 포션";
-            Description = "전투가 시작될 때마다 무작위 일반 포션으로 변합니다.";
+            Description = "전투 시작마다 무작위 일반 포션으로 변함";
             TargetType = PotionTargetType.None;
             ShopPrice = 30;
             CombatOnly = false;

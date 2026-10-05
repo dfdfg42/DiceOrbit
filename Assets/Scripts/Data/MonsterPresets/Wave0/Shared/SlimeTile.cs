@@ -39,6 +39,6 @@ namespace DiceOrbit.Data.Tile
         }
 
         public override string GetDescription()
-            => $"지나가거나 이 타일에서 턴을 마치면, {slowDuration}턴 동안 이동할 수 있는 칸 수가 {slowAmount} 감소합니다. 발동 후 사라집니다.";
+            => $"밟으면 {slowDuration}턴 동안 이동 -{slowAmount}칸\n발동 후 사라짐";
     }
 }

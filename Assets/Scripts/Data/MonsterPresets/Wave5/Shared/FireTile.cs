@@ -46,7 +46,7 @@ namespace DiceOrbit.Data.Tile
         public override void ForecastEndTurn(Core.Character character, TileForecast forecast)
             => forecast.Note($"불꽃 피해 {ForecastDamage(character, Value)}", ForecastTone.Bad);
 
-        public override string GetDescription() => $"이 타일에서 턴을 마치면 피해 {Value}를 받습니다. 지나가면 불꽃이 꺼지며, 한 턴에 하나만 끌 수 있습니다.";
+        public override string GetDescription() => $"여기서 턴을 마치면 피해 {Value}\n지나가면 꺼짐 · 한 턴에 하나만";
     }
 }
 

@@ -70,14 +70,14 @@ namespace DiceOrbit.Data.CharacterActives
         }
 
         public override string GetSelectionSummary()
-            => $"{FormatDiceConditionNounPhrase()}를 연속으로 사용하면 공격 횟수가 2회, 3회, 5회로 늘어나며 중독을 부여하고 마지막 공격으로 중독을 2배로 늘립니다.";
+            => $"{FormatDiceCondition()} 연속 → 3단계 콤보\n{Mathf.Max(1, stage1Hits)}회 → {Mathf.Max(1, stage2Hits)}회 + 중독 → {Mathf.Max(1, stage3Hits)}회 + 중독 2배";
 
         public override string GetStageDescription(int stage)
             => stage switch
             {
-                0 => $"[쌍비수] 공격력의 {stage1Multiplier * 100f:0.#}%만큼 {Mathf.Max(1, stage1Hits)}회 피해를 줍니다.",
-                1 => $"[맹독비수] 공격력의 {stage2Multiplier * 100f:0.#}%만큼 {Mathf.Max(1, stage2Hits)}회 피해를 주고 적중할 때마다 중독을 {stage2PoisonPerHit}만큼 부여합니다.",
-                _ => $"[죽음의 촉매] 공격력의 {stage3Multiplier * 100f:0.#}%만큼 {Mathf.Max(1, stage3Hits)}회 피해를 준 뒤 대상의 중독을 2배로 늘립니다.",
+                0 => $"[쌍비수] 공격력 {stage1Multiplier * 100f:0.#}% 피해 × {Mathf.Max(1, stage1Hits)}회",
+                1 => $"[맹독비수] 공격력 {stage2Multiplier * 100f:0.#}% 피해 × {Mathf.Max(1, stage2Hits)}회\n적중마다 중독 {stage2PoisonPerHit}",
+                _ => $"[죽음의 촉매] 공격력 {stage3Multiplier * 100f:0.#}% 피해 × {Mathf.Max(1, stage3Hits)}회\n끝나면 대상 중독 2배",
             };
     }
 }

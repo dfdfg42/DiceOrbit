@@ -13,7 +13,7 @@ namespace DiceOrbit.Data.Modifiers.Common
         public override string ModifierName => "저속 방호";
         public override ModifierFamily Family => ModifierFamily.Dice;
         public override string Description
-            => $"주사위 눈이 3 이하면 방어도를 {ArmorPerStack}만큼 얻습니다.";
+            => $"방어도 +{ArmorPerStack}\n주사위 눈 3 이하를 쓸 때";
 
         public void OnDiceUsed(Character character, int diceValue)
         {
@@ -32,7 +32,7 @@ namespace DiceOrbit.Data.Modifiers.Common
         public override string ModifierName => "관성 타격";
         public override ModifierFamily Family => ModifierFamily.Dice;
         public override string Description
-            => $"주사위 눈이 4 이상이면 이동 후 자동공격 피해가 {PercentPerStack:0.#}% 증가합니다.";
+            => $"이동 후 자동공격 피해 +{PercentPerStack:0.#}%\n주사위 눈 4 이상을 쓸 때";
 
         public override void OnAttack(CombatTrigger trigger, AttackContext context)
         {
@@ -55,7 +55,7 @@ namespace DiceOrbit.Data.Modifiers.Common
         public override string ModifierName => "극점 공명";
         public override ModifierFamily Family => ModifierFamily.Dice;
         public override string Description
-            => $"주사위 눈이 1 또는 6이면 이동 후 자동공격 피해가 {PercentPerStack:0.#}% 증가합니다.";
+            => $"이동 후 자동공격 피해 +{PercentPerStack:0.#}%\n주사위 눈 1 또는 6을 쓸 때";
 
         public override void OnAttack(CombatTrigger trigger, AttackContext context)
         {

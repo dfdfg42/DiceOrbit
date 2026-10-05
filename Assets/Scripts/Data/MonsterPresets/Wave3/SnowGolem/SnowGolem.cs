@@ -19,7 +19,7 @@ namespace DiceOrbit.Data.MonsterPresets.Wave3.SnowGolem
         public SnowShieldSkill()
         {
             skillName = "눈 방패";
-            description = "이전 턴에 피해를 받은 아군에게 방어도를 부여합니다.";
+            description = "아군에게 방어도\n지난 턴에 맞은 몬스터";
         }
 
         public override int GetPreviewDamage() => 0;
@@ -51,7 +51,7 @@ namespace DiceOrbit.Data.MonsterPresets.Wave3.SnowGolem
         public SnowFistSkill()
         {
             skillName = "눈 주먹";
-            description = "무작위 캐릭터 1명을 노려, 대상 앞쪽 5칸에 피해를 줍니다. 공격 범위는 대상이 움직이면 함께 이동합니다.";
+            description = "{피해} 피해 · 대상 앞 5칸\n대상을 따라 움직임";
         }
 
         public override int GetPreviewDamage() => damage;

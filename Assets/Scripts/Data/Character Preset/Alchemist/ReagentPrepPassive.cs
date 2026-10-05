@@ -28,9 +28,8 @@ namespace DiceOrbit.Data.Passives
 
         public override string GetDynamicDescription()
         {
-            return $"전투 시작 시 시약 타일 {reagentTileCount}개를 설치합니다. "
-                 + $"아군이 시약 타일을 지나가거나 도착하면 촉매를 얻고 다음 자동공격 피해가 {CatalystPercent}% 증가합니다. "
-                 + "타일은 소모되지 않으며 전투가 끝날 때까지 유지됩니다.";
+            return $"전투 시작 시 시약 타일 {reagentTileCount}개 설치 (소모 안 됨)\n"
+                 + $"아군이 밟으면 촉매 (다음 자동공격 +{CatalystPercent}%)";
         }
 
         public override void Initialize(Unit ownerUnit)

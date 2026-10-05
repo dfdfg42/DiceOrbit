@@ -35,19 +35,24 @@ namespace DiceOrbit.Data.Skills
         /// <summary>단계의 모든 타격이 끝난 뒤 1회 (행동 스코프 종료 후). 방어도·고양·중독 2배는 여기서.</summary>
         public virtual void OnStageCompleted(Character source, List<Unit> targets, int stage) { }
 
-        /// <summary>단계 1개의 설명 한 줄. "[이름] 무엇을 얼마나" 형식 — 목록·현재 단계 표시가 공유한다.</summary>
+        /// <summary>
+        /// 단계 1개의 설명 — 첫 줄 "[이름] 피해 얼마", 둘째 줄 "누구에게 + 덤" (덤이 없고 짧으면 한 줄).
+        /// 정보 패널 폭에 한 줄씩 들어가는 길이로 쓴다 — 목록·현재 단계 표시가 공유한다.
+        /// </summary>
         public abstract string GetStageDescription(int stage);
 
         // 설명은 단계별 효과 줄만 — 콤보 규칙 서두와 주사위 조건은 패널이 별도 필드로 이미 보여주므로
         // 여기 다시 쓰면 중복이다 (2026-08-28 결정).
 
-        /// <summary>문맥 없는 설명 (모집 화면 등 전투 밖) — 단계별 효과 3줄.</summary>
+        /// <summary>문맥 없는 설명 (전투 밖) — 단계마다 한 줄씩 3줄.</summary>
         public override string GetDynamicDescription()
-            => $"1단계 {GetStageDescription(0)}\n"
-             + $"2단계 {GetStageDescription(1)}\n"
-             + $"3단계 {GetStageDescription(2)}";
+            => $"1단계 {StageLine(0)}\n"
+             + $"2단계 {StageLine(1)}\n"
+             + $"3단계 {StageLine(2)}";
 
-        /// <summary>전투 중 정보 패널 — 지금 단계의 효과 설명 한 줄만 (2026-08-28 결정).</summary>
+        private string StageLine(int stage) => GetStageDescription(stage).Replace("\n", " · ");
+
+        /// <summary>전투 중 정보 패널 — 지금 단계의 효과 설명만 (2026-08-28 결정).</summary>
         public override string GetDynamicDescription(Character source)
             => GetStageDescription(PeekStage(source));
 

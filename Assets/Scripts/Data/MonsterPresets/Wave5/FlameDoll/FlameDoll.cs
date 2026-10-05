@@ -21,7 +21,7 @@ namespace DiceOrbit.Data.MonsterPresets.Wave5.FlameDoll
         public FlameGraceGuardPassive()
         {
             passiveName = "불의 가호";
-            description = "불꽃 소녀에게 방어도가 남아 있는 동안 받는 피해가 20% 감소합니다.";
+            description = "불꽃 소녀가 받는 피해 -20%\n불꽃 소녀에게 방어도가 있는 동안";
             priority = 10; isStackable = false;
         }
 
@@ -45,7 +45,7 @@ namespace DiceOrbit.Data.MonsterPresets.Wave5.FlameDoll
         [Header("Skill Settings")]
         [SerializeField] private int amount = 10;
 
-        public FlameShieldSkill() { skillName = "불꽃 방패"; description = "불꽃 소녀와 자신에게 방어도 10을 부여합니다."; }
+        public FlameShieldSkill() { skillName = "불꽃 방패"; description = "방어도 +10\n불꽃 소녀와 자신"; }
 
         public override void Execute(Unit source, List<Unit> targetUnits, List<TileData> targetTiles, int diceValue)
         {

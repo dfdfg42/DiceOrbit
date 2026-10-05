@@ -20,7 +20,7 @@ namespace DiceOrbit.Data.MonsterPresets.Wave4.SolraPriest
         public SolraPriestSkill1()
         {
             skillName = "일식";
-            description = $"무작위 캐릭터 1명을 노려, 대상의 타일과 좌우 2칸에 피해 {damage}를 줍니다.";
+            description = "{피해} 피해 · 대상 좌우 2칸";
         }
 
         public override int GetPreviewDamage() => damage;

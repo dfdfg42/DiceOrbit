@@ -18,7 +18,7 @@ namespace DiceOrbit.Data.Potions
         private void Reset()
         {
             PotionName = "쇠약 포션";
-            Description = "선택한 적에게 2턴 동안 쇠약을 부여해, 주는 피해를 25% 감소시킵니다.";
+            Description = "적 1명에게 쇠약 2턴\n주는 피해 -25%";
             TargetType = PotionTargetType.Enemy;
             ShopPrice = 45;
             CombatOnly = true;

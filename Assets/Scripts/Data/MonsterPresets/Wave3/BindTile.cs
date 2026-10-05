@@ -35,7 +35,7 @@ namespace DiceOrbit.Data.Tile
 
         public override string GetDescription()
         {
-            return "이 타일에서 턴을 마치면 속박되어 다음 턴에 이동할 수 없습니다.";
+            return "여기서 턴을 마치면 속박\n다음 턴 이동 불가";
         }
     }
 }

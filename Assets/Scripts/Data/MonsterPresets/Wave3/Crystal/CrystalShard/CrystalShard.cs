@@ -44,7 +44,7 @@ namespace DiceOrbit.Data.MonsterPresets.Wave3.Crystal.CrystalShard
         public CrystalRainSkill()
         {
             skillName = "수정 비";
-            description = "무작위 타일 8개에 있는 캐릭터에게 피해를 줍니다.";
+            description = "{피해} 피해 · 무작위 8칸";
         }
 
         public override int GetPreviewDamage() => damage;
@@ -67,7 +67,7 @@ namespace DiceOrbit.Data.MonsterPresets.Wave3.Crystal.CrystalShard
         public CrystalArrowSkill()
         {
             skillName = "수정 화살";
-            description = "무작위 캐릭터 1명에게 피해를 줍니다. 이번 라운드에 일정량 이상의 피해를 받으면 공격이 취소됩니다.";
+            description = "{피해} 피해 · 1명\n피해 10 이상 주면 취소";
         }
 
         public override int GetPreviewDamage() => damage;

@@ -21,7 +21,7 @@ namespace DiceOrbit.Data.MonsterPresets.Wave4.SolraKnight
         public SolraKnightSkill1()
         {
             skillName = "천공검";
-            description = $"무작위 캐릭터 2명을 노려, 각 대상의 타일과 좌우 1칸에 피해 {damage}를 줍니다.";
+            description = "{피해} 피해 · 2명의 좌우 1칸";
         }
 
         public override int GetPreviewDamage() => damage;
@@ -45,7 +45,7 @@ namespace DiceOrbit.Data.MonsterPresets.Wave4.SolraKnight
         public SolraKnightSkill2()
         {
             skillName = "플레어";
-            description = $"모든 홀수 번호 타일에 피해 {damage}를 줍니다.";
+            description = "{피해} 피해 · 홀수 칸 전부";
         }
 
         public override int GetPreviewDamage() => damage;

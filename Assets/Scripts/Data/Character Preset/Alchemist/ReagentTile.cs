@@ -46,7 +46,7 @@ namespace DiceOrbit.Data.Tile
         public override string GetDescription()
         {
             int percent = ownerPassive != null ? ownerPassive.CatalystPercent : 25;
-            return $"아군이 지나가거나 도착하면 촉매를 얻습니다. 다음 자동공격 피해가 {percent}% 증가하며 타일은 소모되지 않습니다.";
+            return $"아군이 밟으면 촉매 · 소모 안 됨\n다음 자동공격 피해 +{percent}%";
         }
     }
 }

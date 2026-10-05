@@ -19,7 +19,7 @@ namespace DiceOrbit.Data.Passives
         public override int Priority => 50;
 
         public override string GetDynamicDescription()
-            => "마법사는 자기 구역과 살아 있는 아군이 있는 모든 구역을 공격할 수 있습니다. 아군이 여러 구역에 흩어질수록 공격 범위가 넓어집니다.";
+            => "자기 구역 + 아군이 있는 모든 구역 공격 가능\n아군이 흩어질수록 범위 확대";
 
         /// <summary>공격 가능 구역 집합 = 마력 회로.</summary>
         public List<int> GetAttackableZones(Character source)

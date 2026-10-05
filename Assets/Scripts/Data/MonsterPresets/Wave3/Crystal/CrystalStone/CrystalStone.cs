@@ -18,7 +18,7 @@ namespace DiceOrbit.Data.MonsterPresets.Wave3.Crystal.CrystalStone
         public CrystallizeSkill()
         {
             skillName = "결정화";
-            description = "수정 핵이 수정 중첩을 얻습니다.";
+            description = "수정 핵의 수정 중첩 증가";
         }
 
         public override int GetPreviewDamage() => 0;
@@ -39,7 +39,7 @@ namespace DiceOrbit.Data.MonsterPresets.Wave3.Crystal.CrystalStone
         public CrystalSpearSkill()
         {
             skillName = "수정 창";
-            description = "무작위 캐릭터 1명을 노려, 대상의 타일과 좌우 2칸에 피해를 줍니다.";
+            description = "{피해} 피해 · 대상 좌우 2칸";
         }
 
         public override int GetPreviewDamage() => damage;

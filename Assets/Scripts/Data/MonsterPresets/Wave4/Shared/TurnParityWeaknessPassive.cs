@@ -26,7 +26,7 @@ namespace DiceOrbit.Data.MonsterPresets.Wave4.Shared
         public TurnParityWeaknessPassive()
         {
             passiveName = "양력";
-            description = "지정된 홀수 또는 짝수 턴에 받는 피해가 증가합니다.";
+            description = "받는 피해 증가\n정해진 홀수 또는 짝수 턴에";
             priority = 10;
             isStackable = false;
         }

@@ -23,7 +23,7 @@ namespace DiceOrbit.Data.Passives
         public override int Priority => 99;
 
         public override string GetDynamicDescription()
-            => $"같은 구역에 있는 다른 아군 1명마다 도적이 주는 공격 피해가 {perAllyBonusPercent:0.#}% 증가합니다.";
+            => $"도적의 공격 피해 +{perAllyBonusPercent:0.#}%\n같은 구역의 다른 아군 1명당";
 
         /// <summary>패시브 구역 = 도적이 선 구역. 조회 시 구역 테두리에 쓰인다.</summary>
         public void CollectPassiveZones(List<int> zones)

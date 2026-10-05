@@ -18,7 +18,7 @@ namespace DiceOrbit.Data.Potions
         private void Reset()
         {
             PotionName = "독 포션";
-            Description = "선택한 적에게 중독 5를 부여합니다. 중독된 적은 턴이 시작될 때마다 남은 중독 수치만큼 피해를 받고 수치가 1 줄어듭니다. 이 피해는 방어도를 무시합니다.";
+            Description = "적 1명에게 중독 5\n턴 시작마다 수치만큼 피해 · 방어도 무시";
             TargetType = PotionTargetType.Enemy;
             ShopPrice = 50;
             CombatOnly = true;

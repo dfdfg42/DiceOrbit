@@ -49,14 +49,14 @@ namespace DiceOrbit.Data.CharacterActives
         }
 
         public override string GetSelectionSummary()
-            => $"{FormatDiceConditionNounPhrase()}를 연속으로 사용하면 단일 적, 가까운 적 2명, 마력 회로 전체 순서로 공격하며 두 번째 공격은 감전을 부여합니다.";
+            => $"{FormatDiceCondition()} 연속 → 3단계 콤보\n한 명 → 가까운 {Mathf.Max(1, stage2MaxTargets)}명 + 감전 → 회로 전체";
 
         public override string GetStageDescription(int stage)
             => stage switch
             {
-                0 => $"[비전 화살] 마력 회로 안의 몬스터 하나에게 공격력의 {stage1Multiplier * 100f:0.#}%만큼 피해를 줍니다.",
-                1 => $"[연쇄 번개] 회로 안에서 가장 가까운 몬스터 최대 {Mathf.Max(1, stage2MaxTargets)}명에게 공격력의 {stage2Multiplier * 100f:0.#}%만큼 피해를 주고 감전 {shockPercent}%를 부여합니다.",
-                _ => $"[궤도 붕괴] 회로에 연결된 모든 구역의 몬스터에게 공격력의 {stage3Multiplier * 100f:0.#}%만큼 피해를 줍니다.",
+                0 => $"[비전 화살] 공격력 {stage1Multiplier * 100f:0.#}% 피해\n마력 회로 안 1명",
+                1 => $"[연쇄 번개] 공격력 {stage2Multiplier * 100f:0.#}% 피해\n가까운 {Mathf.Max(1, stage2MaxTargets)}명 + 감전 {shockPercent}%",
+                _ => $"[궤도 붕괴] 공격력 {stage3Multiplier * 100f:0.#}% 피해\n마력 회로 전체",
             };
     }
 }

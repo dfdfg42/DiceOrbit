@@ -22,7 +22,7 @@ namespace DiceOrbit.Data.MonsterPresets.Wave3.Crystal.CrystalCore
         public SummonAmethystPassive()
         {
             passiveName = "자수정";
-            description = "전투 시작 시 무작위 타일 4개에 자수정을 설치합니다. 캐릭터가 자수정을 지나가거나 그 위에서 턴을 마치면 수정 핵이 중첩을 1 얻습니다.";
+            description = "전투 시작 시 자수정 4칸 설치\n밟으면 수정 핵의 수정 중첩 +1";
             priority = 10; isStackable = false;
         }
 
@@ -69,7 +69,7 @@ namespace DiceOrbit.Data.MonsterPresets.Wave3.Crystal.CrystalCore
         public CrystalBurstSkill()
         {
             skillName = "수정 폭발";
-            description = "무작위 자수정 타일 2개를 골라, 해당 타일과 좌우 1칸에 피해를 줍니다.";
+            description = "{피해} 피해 · 자수정 2곳 좌우 1칸";
         }
 
         public override int GetPreviewDamage() => damage;
@@ -94,7 +94,7 @@ namespace DiceOrbit.Data.MonsterPresets.Wave3.Crystal.CrystalCore
         public CrystalStormSkill()
         {
             skillName = "수정 폭풍";
-            description = "자수정이 없는 모든 타일을 공격하고, 적중한 캐릭터를 다음 턴까지 기절시킵니다. 사용 후 수정 중첩은 모두 사라집니다.";
+            description = "{피해} 피해 + 기절\n자수정 없는 모든 칸";
         }
 
         public override int GetPreviewDamage() => damage;

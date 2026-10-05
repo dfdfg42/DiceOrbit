@@ -21,7 +21,7 @@ namespace DiceOrbit.Data.MonsterPresets.Wave4.LunaKnight
         public LunaKnightSkill1()
         {
             skillName = "초승달";
-            description = $"무작위 캐릭터 1명을 노려, 대상의 타일과 좌우 2칸에 피해 {damage}를 줍니다.";
+            description = "{피해} 피해 · 대상 좌우 2칸";
         }
 
         public override int GetPreviewDamage() => damage;
@@ -45,7 +45,7 @@ namespace DiceOrbit.Data.MonsterPresets.Wave4.LunaKnight
         public LunaKnightSkill2()
         {
             skillName = "월광";
-            description = $"모든 짝수 번호 타일에 피해 {damage}를 줍니다.";
+            description = "{피해} 피해 · 짝수 칸 전부";
         }
 
         public override int GetPreviewDamage() => damage;

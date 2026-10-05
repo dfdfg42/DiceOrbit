@@ -112,30 +112,6 @@ namespace DiceOrbit.Data.Skills
             return "모든 주사위";
         }
 
-        /// <summary>문장 안에서 자연스럽게 쓸 수 있는 주사위 조건 명사구.</summary>
-        protected string FormatDiceConditionNounPhrase()
-        {
-            if (requirement == null) return "주사위";
-
-            if (requirement.ExactDiceValue.HasValue)
-                return $"눈이 {requirement.ExactDiceValue.Value}인 주사위";
-
-            switch (requirement.Pattern)
-            {
-                case DicePattern.Odd:  return "홀수 눈의 주사위";
-                case DicePattern.Even: return "짝수 눈의 주사위";
-                case DicePattern.High: return "눈이 4 이상인 주사위";
-                case DicePattern.Low:  return "눈이 3 이하인 주사위";
-            }
-
-            int min = requirement.MinDiceValue;
-            var max = requirement.MaxDiceValue;
-            if (max.HasValue && min > 1) return $"눈이 {min}~{max.Value}인 주사위";
-            if (max.HasValue)            return $"눈이 {max.Value} 이하인 주사위";
-            if (min > 1)                 return $"눈이 {min} 이상인 주사위";
-            return "주사위";
-        }
-
         public virtual CharacterActiveSkill Clone() => (CharacterActiveSkill)MemberwiseClone();
 
         /// <summary>

@@ -136,6 +136,6 @@ namespace DiceOrbit.Data.Tile
             => forecast.Note("활력 타일 제거", ForecastTone.Good);
 
         public override string GetDescription()
-            => "캐릭터가 이 타일에서 턴을 마치면 활력 타일이 사라집니다.";
+            => "식물 몬스터의 회복 자원\n여기서 턴을 마치면 사라짐";
     }
 }

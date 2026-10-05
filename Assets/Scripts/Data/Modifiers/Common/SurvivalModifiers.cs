@@ -13,7 +13,7 @@ namespace DiceOrbit.Data.Modifiers.Common
         public override string ModifierName => "선제 방벽";
         public override ModifierFamily Family => ModifierFamily.Survival;
         public override string Description
-            => $"전투 시작 시 방어도를 {ArmorPerStack}만큼 얻습니다.";
+            => $"전투 시작 시 방어도 +{ArmorPerStack}";
 
         public override void OnTurnEvent(CombatTrigger trigger, TurnEventContext context)
         {
@@ -35,7 +35,7 @@ namespace DiceOrbit.Data.Modifiers.Common
         public override string ModifierName => "불굴";
         public override ModifierFamily Family => ModifierFamily.Survival;
         public override string Description
-            => $"현재 체력이 50% 이하면 받는 공격 피해가 {PercentPerStack:0.#}% 감소합니다.";
+            => $"받는 공격 피해 -{PercentPerStack:0.#}%\n체력 50% 이하일 때";
 
         public override void OnAttack(CombatTrigger trigger, AttackContext context)
         {
@@ -64,7 +64,7 @@ namespace DiceOrbit.Data.Modifiers.Common
         public override string ModifierName => "앙갚음";
         public override ModifierFamily Family => ModifierFamily.Survival;
         public override string Description
-            => $"적의 공격으로 체력 피해를 받으면 다음 자동공격 피해가 {PercentPerStack:0.#}% 증가합니다.";
+            => $"다음 자동공격 피해 +{PercentPerStack:0.#}%\n적 공격에 체력을 잃었을 때";
 
         public override void OnAttack(CombatTrigger trigger, AttackContext context)
         {

@@ -39,7 +39,7 @@ namespace DiceOrbit.Data.MonsterPresets.Wave3.FrostTotem
         public FrostFlower()
         {
             skillName = "서리 꽃";
-            description = "무작위 캐릭터 1명을 노려, 대상의 타일과 좌우 2칸에 피해를 줍니다.";
+            description = "{피해} 피해 · 대상 좌우 2칸";
         }
 
         public override int GetPreviewDamage() => damage;
@@ -61,7 +61,7 @@ namespace DiceOrbit.Data.MonsterPresets.Wave3.FrostTotem
         public FrostPlantSkill()
         {
             skillName = "빙결";
-            description = "무작위 타일 4개를 얼립니다. 얼어붙은 타일에서 턴을 마친 캐릭터는 빙결 중첩을 얻습니다.";
+            description = "4칸 얼림\n그 위에서 턴을 마치면 빙결";
         }
 
         public override int GetPreviewDamage() => 0;

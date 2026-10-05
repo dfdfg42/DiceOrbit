@@ -21,7 +21,7 @@ namespace DiceOrbit.Data.Tile
             atk.OutputValue *= 1f + Value / 100f;
         }
 
-        public override string GetDescription() => $"이 타일에서 공격하면 주는 피해가 {Value}% 증가합니다.";
+        public override string GetDescription() => $"여기서 공격하면 주는 피해 +{Value}%";
     }
 
     public class DullTile : TileAttribute
@@ -36,7 +36,7 @@ namespace DiceOrbit.Data.Tile
             atk.OutputValue *= 1f - Value / 100f;
         }
 
-        public override string GetDescription() => $"이 타일에서 공격하면 주는 피해가 {Value}% 감소합니다.";
+        public override string GetDescription() => $"여기서 공격하면 주는 피해 -{Value}%";
     }
 
     /// <summary>통과(마지막 걸음 포함) 및 턴 종료 시 방어도. OnArrive는 쓰지 않는다 —
@@ -60,7 +60,7 @@ namespace DiceOrbit.Data.Tile
             DiceOrbit.UI.CombatNotifier.Notify(character, $"방어도 +{Value}", new Color(0.6f, 0.75f, 1f));
         }
 
-        public override string GetDescription() => $"지나가거나 이 타일에서 턴을 마치면 방어도 {Value}를 얻습니다.";
+        public override string GetDescription() => $"밟으면 방어도 +{Value}";
     }
 
     public class HarmonyTile : TileAttribute
@@ -81,7 +81,7 @@ namespace DiceOrbit.Data.Tile
             forecast.Note($"체력 +{Mathf.Max(1, Mathf.RoundToInt(character.Stats.MaxHP * Value / 100f))}", ForecastTone.Good);
         }
 
-        public override string GetDescription() => $"이 타일에서 턴을 마치면 최대 체력의 {Value}%만큼 회복합니다.";
+        public override string GetDescription() => $"최대 체력의 {Value}% 회복\n여기서 턴을 마칠 때";
     }
 
     public class DisharmonyTile : TileAttribute
@@ -103,6 +103,6 @@ namespace DiceOrbit.Data.Tile
             forecast.Note($"부조화 피해 {ForecastDamage(character, raw)}", ForecastTone.Bad);
         }
 
-        public override string GetDescription() => $"이 타일에서 턴을 마치면 최대 체력의 {Value}%만큼 피해를 받습니다.";
+        public override string GetDescription() => $"최대 체력의 {Value}% 피해\n여기서 턴을 마칠 때";
     }
 }

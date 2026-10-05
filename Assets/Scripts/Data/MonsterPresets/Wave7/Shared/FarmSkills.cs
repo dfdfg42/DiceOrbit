@@ -17,7 +17,7 @@ namespace DiceOrbit.Data.MonsterPresets.Wave7.Shared
         public GrowthVitalityPassive()
         {
             passiveName = "성장의 활력";
-            description = "턴이 시작될 때 전장에 남아 있는 활력 타일 수만큼 체력을 회복합니다.";
+            description = "턴 시작 시 체력 회복\n남은 활력 타일 수만큼";
             priority = 10; isStackable = false;
         }
 
@@ -46,7 +46,7 @@ namespace DiceOrbit.Data.MonsterPresets.Wave7.Shared
         [Header("Skill Settings")]
         [SerializeField] private int tileCount = 2;
 
-        public FarmVitalitySkill() { skillName = "농장의 활력"; description = "무작위 타일 2개에 활력을 설치합니다. 활력 타일은 [성장의 활력]의 회복량을 높입니다."; }
+        public FarmVitalitySkill() { skillName = "농장의 활력"; description = "활력 2칸 설치"; }
 
         public override int GetPreviewDamage() => 0;
 
@@ -76,7 +76,7 @@ namespace DiceOrbit.Data.MonsterPresets.Wave7.Shared
         public FarmVitalityPassive()
         {
             passiveName = "농장의 활력";
-            description = "턴이 시작될 때 무작위 타일에 활력을 설치합니다. 캐릭터가 활력 타일을 지나가거나 그 위에서 턴을 마치면 모든 식물 몬스터의 활력이 1 감소합니다.";
+            description = "턴 시작 시 무작위 칸에 활력 설치\n밟으면 모든 식물 몬스터 활력 -1";
             priority = 10; isStackable = false;
         }
 
@@ -159,7 +159,7 @@ namespace DiceOrbit.Data.MonsterPresets.Wave7.Shared
         [Header("Skill Settings")]
         [SerializeField] private int amount = 1;
 
-        public FertilizerSkill() { skillName = "비료"; description = "모든 아군이 활력 중첩을 1 얻습니다."; }
+        public FertilizerSkill() { skillName = "비료"; description = "모든 아군 활력 중첩 +1"; }
 
         public override int GetPreviewDamage() => 0;
 
@@ -174,7 +174,7 @@ namespace DiceOrbit.Data.MonsterPresets.Wave7.Shared
         [Header("Skill Settings")]
         [SerializeField] private int armor = 5;
 
-        public FarmGuardSkill() { skillName = "농장 지키기"; description = "체력이 가장 낮은 아군에게 방어도 5를 부여합니다."; }
+        public FarmGuardSkill() { skillName = "농장 지키기"; description = "방어도 +5\n체력이 가장 낮은 아군"; }
 
         public override int GetPreviewDamage() => 0;
 
@@ -197,7 +197,7 @@ namespace DiceOrbit.Data.MonsterPresets.Wave7.Shared
         [SerializeField] private int damage = 20;
         [SerializeField] private int range = 3;
 
-        public VineBindSkill() { skillName = "덩굴 묶기"; description = "무작위 활력 타일을 골라 좌우 3칸에 피해 20을 줍니다. 활력 타일 자체는 공격하지 않습니다."; }
+        public VineBindSkill() { skillName = "덩굴 묶기"; description = "{피해} 피해 · 활력 타일 좌우 3칸"; }
 
         public override int GetPreviewDamage() => damage;
 
@@ -233,7 +233,7 @@ namespace DiceOrbit.Data.MonsterPresets.Wave7.Shared
         [Tooltip("이번 턴 받은 누적 피해가 이 값 이상이면 취소")]
         [SerializeField] private int cancelThreshold = 15;
 
-        public PitchforkSkill() { skillName = "쇠스랑"; description = "무작위 캐릭터 1명에게 피해 20을 줍니다. 이번 턴에 피해를 15 이상 받으면 공격이 취소됩니다."; }
+        public PitchforkSkill() { skillName = "쇠스랑"; description = "{피해} 피해 · 1명\n피해 15 이상 주면 취소"; }
 
         public override int GetPreviewDamage() => damage;
 

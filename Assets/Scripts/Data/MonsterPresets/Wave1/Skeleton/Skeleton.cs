@@ -19,7 +19,7 @@ namespace DiceOrbit.Data.MonsterPresets.Wave1.Skeleton
         public SkeletonWhip()
         {
             skillName = "뼈 검";
-            description = "무작위 캐릭터 1명을 노려, 대상의 타일과 좌우 2칸에 피해를 줍니다.";
+            description = "{피해} 피해 · 대상 좌우 2칸";
         }
 
         public override int GetPreviewDamage() => damage;
@@ -40,7 +40,7 @@ namespace DiceOrbit.Data.MonsterPresets.Wave1.Skeleton
         public BoneArrowSkill()
         {
             skillName = "뼈 화살";
-            description = "무작위 캐릭터 1명에게 피해를 줍니다. 이번 라운드에 뼈 무덤이 발동하면 공격이 취소됩니다.";
+            description = "{피해} 피해 · 1명\n뼈 무덤이 터지면 취소";
         }
 
         public override int GetPreviewDamage() => damage;
@@ -72,12 +72,12 @@ namespace DiceOrbit.Data.MonsterPresets.Wave1.Skeleton
         public PlantBonePassive()
         {
             passiveName = "뼈 무덤";
-            description = "전투 시작 시 4·10·16번 타일에 뼈 무덤을 만듭니다. 캐릭터가 뼈 무덤을 지나가거나 그 위에서 턴을 마치면 해골 병사가 방어도 5를 얻습니다.";
+            description = "전투 시작 시 뼈 무덤 설치\n밟으면 해골 병사 방어도 획득";
             priority = 10;
             isStackable = false;
         }
 
-        public override string Description => $"전투 시작 시 뼈 무덤을 만듭니다. 캐릭터가 뼈 무덤을 지나가거나 그 위에서 턴을 마치면 해골 병사가 방어도 {armorAmount}를 얻습니다.";
+        public override string Description => $"전투 시작 시 뼈 무덤 설치\n밟으면 해골 병사 방어도 +{armorAmount}";
 
         public override void Initialize(Unit Owner)
         {
@@ -138,7 +138,7 @@ namespace DiceOrbit.Data.MonsterPresets.Wave1.Skeleton
         public SkelettonDeath()
         {
             effectName = "Skeleton Death";
-            description = "해골 병사가 쓰러지면 전장에 남아 있는 뼈 무덤이 모두 사라집니다.";
+            description = "쓰러지면 뼈 무덤이 모두 사라짐";
         }
 
         public override void Execute(Monster deadMonster)

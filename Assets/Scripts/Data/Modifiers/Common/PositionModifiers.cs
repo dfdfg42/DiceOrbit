@@ -14,7 +14,7 @@ namespace DiceOrbit.Data.Modifiers.Common
         public override string ModifierName => "합류 전술";
         public override ModifierFamily Family => ModifierFamily.Position;
         public override string Description
-            => $"같은 구역에 다른 아군이 있으면 공격 피해가 {PercentPerStack:0.#}% 증가합니다.";
+            => $"공격 피해 +{PercentPerStack:0.#}%\n같은 구역에 다른 아군이 있을 때";
 
         public override void OnAttack(CombatTrigger trigger, AttackContext context)
         {
@@ -36,7 +36,7 @@ namespace DiceOrbit.Data.Modifiers.Common
         public override string ModifierName => "독립 행동";
         public override ModifierFamily Family => ModifierFamily.Position;
         public override string Description
-            => $"같은 구역에 다른 아군이 없으면 공격 피해가 {PercentPerStack:0.#}% 증가합니다.";
+            => $"공격 피해 +{PercentPerStack:0.#}%\n같은 구역에 다른 아군이 없을 때";
 
         public override void OnAttack(CombatTrigger trigger, AttackContext context)
         {
@@ -61,7 +61,7 @@ namespace DiceOrbit.Data.Modifiers.Common
         public override string ModifierName => "경계 돌파";
         public override ModifierFamily Family => ModifierFamily.Position;
         public override string Description
-            => $"다른 구역으로 이동하면 이번 자동공격 피해가 {PercentPerStack:0.#}% 증가합니다.";
+            => $"이번 자동공격 피해 +{PercentPerStack:0.#}%\n다른 구역으로 이동했을 때";
 
         public override void OnAttack(CombatTrigger trigger, AttackContext context)
         {

@@ -17,7 +17,7 @@ namespace DiceOrbit.Data.MonsterPresets.Wave5.FlameGirl
         [Header("Skill Settings")]
         [SerializeField] private int damage = 25;
 
-        public ConflagrationSkill() { skillName = "대화재"; description = "모든 불꽃 타일을 없애고, 전장의 모든 타일에 피해 25를 줍니다."; }
+        public ConflagrationSkill() { skillName = "대화재"; description = "{피해} 피해 · 모든 칸\n불꽃 타일을 전부 태움"; }
 
         public override int GetPreviewDamage() => damage;
 
@@ -42,7 +42,7 @@ namespace DiceOrbit.Data.MonsterPresets.Wave5.FlameGirl
         public FlameStagePassive()
         {
             passiveName = "타오르는 무대";
-            description = "턴이 시작될 때 전장에 남아 있는 불꽃 타일 수만큼 방어도를 얻습니다.";
+            description = "턴 시작 시 방어도 획득\n남은 불꽃 타일 수만큼";
             priority = 10; isStackable = false;
         }
 
@@ -75,7 +75,7 @@ namespace DiceOrbit.Data.MonsterPresets.Wave5.FlameGirl
         public IncinerationPassive()
         {
             passiveName = "소각";
-            description = "체력이 처음으로 50% 이하가 되면 무작위 타일 8개에 불꽃을 설치합니다.";
+            description = "무작위 8칸에 불꽃 설치\n체력이 처음 50% 이하가 될 때";
             priority = 10; isStackable = false;
         }
 

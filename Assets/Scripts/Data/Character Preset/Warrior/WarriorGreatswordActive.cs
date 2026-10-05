@@ -52,14 +52,14 @@ namespace DiceOrbit.Data.CharacterActives
         }
 
         public override string GetSelectionSummary()
-            => $"{FormatDiceConditionNounPhrase()}를 연속으로 사용하면 공격 범위가 단일 대상에서 인접 구역, 전장 전체로 넓어지며 마지막 공격은 모든 아군에게 방어도를 부여합니다.";
+            => $"{FormatDiceCondition()} 연속 → 3단계 콤보\n한 명 → 양옆 구역까지 → 전체 + 아군 방어도";
 
         public override string GetStageDescription(int stage)
             => stage switch
             {
-                0 => $"[균열 베기] 현재 구역의 몬스터 하나에게 공격력의 {stage1Multiplier * 100f:0.#}%만큼 피해를 줍니다.",
-                1 => $"[지진파] 현재 구역과 양옆 구역의 모든 몬스터에게 공격력의 {stage2Multiplier * 100f:0.#}%만큼 피해를 줍니다.",
-                _ => $"[대지 가르기] 전장의 모든 몬스터에게 공격력의 {stage3Multiplier * 100f:0.#}%만큼 피해를 주고 모든 아군이 방어도를 {stage3AllyArmor}만큼 얻습니다.",
+                0 => $"[균열 베기] 공격력 {stage1Multiplier * 100f:0.#}% 피해\n현재 구역 1명",
+                1 => $"[지진파] 공격력 {stage2Multiplier * 100f:0.#}% 피해\n현재·양옆 구역 전부",
+                _ => $"[대지 가르기] 공격력 {stage3Multiplier * 100f:0.#}% 피해\n전장 전체 + 아군 방어도 {stage3AllyArmor}",
             };
     }
 }

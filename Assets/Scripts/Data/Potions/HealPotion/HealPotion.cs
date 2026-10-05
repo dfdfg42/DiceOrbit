@@ -13,7 +13,7 @@ namespace DiceOrbit.Data.Potions
         private void Reset()
         {
             PotionName = "회복 포션";
-            Description = "선택한 아군의 체력을 10 회복합니다.";
+            Description = "아군 1명 체력 10 회복";
             TargetType = PotionTargetType.Ally; // 아군만 타겟팅
             ShopPrice = 50;
         }

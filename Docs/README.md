@@ -43,6 +43,7 @@
 |---|---|
 | [battle_info_panel_system.md](battle_info_panel_system.md) | **전투 정보 시스템** — 우측 정보 패널·타일 패널·커서 요약 툴팁·키워드 링크 호버 (2026-07) |
 | [battle_visual_language.md](battle_visual_language.md) | **전투 시각 언어 사전** — 의미→형태 표 (펄스/셰브런/리프트/브래킷/조준 아크), 공용 부품 |
+| [description_style.md](description_style.md) | **설명 글 쓰는 법** — 한두 줄·명사형·수치는 +N% 형식, 설명이 사는 곳 표(기술·패시브·타일·모디파이어·주사위 효과·포션·키워드·이벤트), 형식 자가 테스트 (2026-10-05) |
 | [editor_owned_ui_pattern.md](editor_owned_ui_pattern.md) | **에디터 소유 UI 패턴** — [기본 레이아웃 생성]+폴백+프리팹 슬롯+SubclassPicker, 새 UI 체크리스트 |
 
 ---

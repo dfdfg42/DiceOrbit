@@ -18,7 +18,7 @@ namespace DiceOrbit.Data.Potions
         private void Reset()
         {
             PotionName = "파워 포션";
-            Description = "선택한 아군에게 2턴 동안 파워를 부여해, 주는 피해를 25% 증가시킵니다.";
+            Description = "아군 1명에게 파워 2턴\n주는 피해 +25%";
             TargetType = PotionTargetType.Ally;
             ShopPrice = 50;
             CombatOnly = true;

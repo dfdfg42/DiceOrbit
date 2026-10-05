@@ -107,7 +107,7 @@ namespace DiceOrbit.Core.Run
     {
         public int amount = 30;
         public override string Apply() { GoldManager.EnsureInstance().AddGold(amount); return $"골드 +{amount}"; }
-        public override string Preview() => $"골드 {amount}를 얻습니다.";
+        public override string Preview() => $"골드 +{amount}";
     }
 
     /// <summary>골드 -N (0 밑으로 안 내려감 — GoldManager가 클램프).</summary>
@@ -116,7 +116,7 @@ namespace DiceOrbit.Core.Run
     {
         public int amount = 20;
         public override string Apply() { GoldManager.EnsureInstance().AddGold(-amount); return $"골드 -{amount}"; }
-        public override string Preview() => $"골드 {amount}를 잃습니다.";
+        public override string Preview() => $"골드 -{amount}";
     }
 
     /// <summary>파티 전원 최대 HP의 N% 회복.</summary>
@@ -133,7 +133,7 @@ namespace DiceOrbit.Core.Run
             }
             return $"파티 {percent}% 회복";
         }
-        public override string Preview() => $"모든 아군이 최대 체력의 {percent}%만큼 회복합니다.";
+        public override string Preview() => $"모든 아군이 최대 체력의 {percent}% 회복";
     }
 
     /// <summary>파티 전원 N 피해 (HP 1 미만 방지 — 전투 밖 사망 없음).</summary>
@@ -147,7 +147,7 @@ namespace DiceOrbit.Core.Run
                 c.Stats.CurrentHP = Mathf.Max(1, c.Stats.CurrentHP - amount);
             return $"파티 전원 {amount} 피해";
         }
-        public override string Preview() => $"모든 아군이 피해 {amount}를 받습니다.";
+        public override string Preview() => $"모든 아군이 피해 {amount}";
     }
 
     /// <summary>랜덤 포션 1개 (슬롯 가득이면 무효).</summary>
@@ -159,7 +159,7 @@ namespace DiceOrbit.Core.Run
             var potion = PotionManager.EnsureInstance().GrantRandomDrop();
             return potion != null ? $"포션 획득 — {potion.PotionName}" : "포션 슬롯이 가득...";
         }
-        public override string Preview() => "무작위 포션 1개를 얻습니다.";
+        public override string Preview() => "무작위 포션 1개 획득";
     }
 
     /// <summary>미보유 유물 랜덤 1개.</summary>
@@ -171,7 +171,7 @@ namespace DiceOrbit.Core.Run
             var artifact = ArtifactManager.EnsureInstance().GrantRandom();
             return artifact != null ? $"유물 획득 — {artifact.artifactName}" : "";
         }
-        public override string Preview() => "보유하지 않은 유물 1개를 무작위로 얻습니다.";
+        public override string Preview() => "없는 유물 1개 무작위 획득";
     }
 
     /// <summary>덱의 랜덤 주사위 하나에 효과를 부여한다 (이벤트 결과 → DieInstance.AttachedEffect).</summary>
@@ -192,6 +192,6 @@ namespace DiceOrbit.Core.Run
         }
 
         public override string Preview()
-            => effect != null ? $"무작위 주사위에 효과를 부여합니다. {effect.Preview()}" : "무작위 주사위에 효과를 부여합니다.";
+            => effect != null ? $"무작위 주사위에 효과 부여 — {effect.Preview()}" : "무작위 주사위에 효과 부여";
     }
 }

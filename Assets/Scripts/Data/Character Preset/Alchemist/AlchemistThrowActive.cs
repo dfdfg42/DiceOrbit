@@ -59,14 +59,14 @@ namespace DiceOrbit.Data.CharacterActives
         }
 
         public override string GetSelectionSummary()
-            => $"{FormatDiceConditionNounPhrase()}를 연속으로 사용하면 단일 적, 인접 구역, 전장 전체 순서로 공격하며 앞의 두 공격은 약화를, 마지막 공격은 모든 아군에게 고양을 부여합니다.";
+            => $"{FormatDiceCondition()} 연속 → 3단계 콤보\n한 명 + 약화 → 양옆 구역까지 + 약화 → 전체 + 아군 고양";
 
         public override string GetStageDescription(int stage)
             => stage switch
             {
-                0 => $"[산성 플라스크] 현재 구역의 몬스터 하나에게 공격력의 {stage1Multiplier * 100f:0.#}%만큼 피해를 주고 약화 {weakenPercent}%를 부여합니다.",
-                1 => $"[촉매 살포] 현재 구역과 양옆 구역의 몬스터에게 공격력의 {stage2Multiplier * 100f:0.#}%만큼 피해를 주고 약화를 부여합니다.",
-                _ => $"[대연성: 현자의 폭탄] 전장의 모든 몬스터에게 공격력의 {stage3Multiplier * 100f:0.#}%만큼 피해를 줍니다. 이후 모든 아군에게 고양 {inspirePercent}%를 부여합니다.",
+                0 => $"[산성 플라스크] 공격력 {stage1Multiplier * 100f:0.#}% 피해\n현재 구역 1명 + 약화 {weakenPercent}%",
+                1 => $"[촉매 살포] 공격력 {stage2Multiplier * 100f:0.#}% 피해\n현재·양옆 구역 + 약화 {weakenPercent}%",
+                _ => $"[대연성: 현자의 폭탄] 공격력 {stage3Multiplier * 100f:0.#}% 피해\n전장 전체 + 아군 고양 {inspirePercent}%",
             };
     }
 }

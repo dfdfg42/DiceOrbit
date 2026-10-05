@@ -33,6 +33,6 @@ namespace DiceOrbit.Data.Tile
         }
 
         public override string GetDescription()
-            => "캐릭터가 지나가거나 이 타일에서 턴을 마치면 수정 핵이 수정 중첩을 1 얻습니다.";
+            => "밟으면 수정 핵의 수정 중첩 +1";
     }
 }
