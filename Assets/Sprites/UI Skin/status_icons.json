@@ -1,0 +1,116 @@
+{
+  "icons": [
+    {
+      "type": "Poison",
+      "sprite": "Assets/Sprites/UI Skin/status_poison.png"
+    },
+    {
+      "type": "Weak",
+      "sprite": "Assets/Sprites/UI Skin/status_weak.png"
+    },
+    {
+      "type": "Power",
+      "sprite": "Assets/Sprites/UI Skin/status_power.png"
+    },
+    {
+      "type": "Vulnerable",
+      "sprite": "Assets/Sprites/UI Skin/status_vulnerable.png"
+    },
+    {
+      "type": "Stunned",
+      "sprite": "Assets/Sprites/UI Skin/status_stunned.png"
+    },
+    {
+      "type": "Bound",
+      "sprite": "Assets/Sprites/UI Skin/status_bound.png"
+    },
+    {
+      "type": "BloodSugarSpike",
+      "sprite": "Assets/Sprites/UI Skin/status_sugar_spike.png"
+    },
+    {
+      "type": "Slowed",
+      "sprite": "Assets/Sprites/UI Skin/status_slowed.png"
+    },
+    {
+      "type": "FrostStack",
+      "sprite": "Assets/Sprites/UI Skin/status_frost.png"
+    },
+    {
+      "type": "Shock",
+      "sprite": "Assets/Sprites/UI Skin/status_shock.png"
+    },
+    {
+      "type": "Catalyst",
+      "sprite": "Assets/Sprites/UI Skin/status_catalyst.png"
+    },
+    {
+      "type": "Inspire",
+      "sprite": "Assets/Sprites/UI Skin/status_inspire.png"
+    },
+    {
+      "type": "Weaken",
+      "sprite": "Assets/Sprites/UI Skin/status_weaken.png"
+    },
+    {
+      "type": "BuffAttack",
+      "sprite": "Assets/Sprites/UI Skin/status_attack_up.png"
+    },
+    {
+      "type": "CrystalStack",
+      "sprite": "Assets/Sprites/UI Skin/status_crystal.png"
+    },
+    {
+      "type": "VitalityStack",
+      "sprite": "Assets/Sprites/UI Skin/status_vitality.png"
+    },
+    {
+      "type": "FireGuard",
+      "sprite": "Assets/Sprites/UI Skin/status_fire_guard.png"
+    },
+    {
+      "type": "BoneMark",
+      "sprite": "Assets/Sprites/UI Skin/status_bone_mark.png"
+    },
+    {
+      "type": "FireExtinguishMark",
+      "sprite": "Assets/Sprites/UI Skin/status_extinguished.png"
+    },
+    {
+      "type": "SnowDamageTaken",
+      "sprite": "Assets/Sprites/UI Skin/status_damage_taken.png"
+    },
+    {
+      "type": "CrystalDamageTaken",
+      "sprite": "Assets/Sprites/UI Skin/status_damage_taken.png"
+    },
+    {
+      "type": "BiteDamageTaken",
+      "sprite": "Assets/Sprites/UI Skin/status_damage_taken.png"
+    },
+    {
+      "type": "FireDamageTaken",
+      "sprite": "Assets/Sprites/UI Skin/status_damage_taken.png"
+    },
+    {
+      "type": "Focus",
+      "sprite": "Assets/Sprites/UI Skin/status_focus.png"
+    },
+    {
+      "type": "Honey",
+      "sprite": "Assets/Sprites/UI Skin/status_honey.png"
+    },
+    {
+      "type": "SlushSnow",
+      "sprite": "Assets/Sprites/UI Skin/status_slush.png"
+    },
+    {
+      "type": "Shield",
+      "sprite": "Assets/Sprites/UI Skin/status_barrier.png"
+    },
+    {
+      "type": "Dodge",
+      "sprite": "Assets/Sprites/UI Skin/status_dodge.png"
+    }
+  ]
+}

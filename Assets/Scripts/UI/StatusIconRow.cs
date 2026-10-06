@@ -18,8 +18,9 @@ namespace DiceOrbit.UI
     public class StatusIconRow : MonoBehaviour
     {
         [Header("배치 (캔버스 자식 좌표 = 픽셀 스케일 — HP바 높이 14~20 기준)")]
-        [SerializeField] private float iconSize = 18f;
-        [SerializeField] private float spacing = 3f;
+        [SerializeField] private float iconSize = 22f;     // 그림 아이콘(2026-10-06)은 글자 칩보다 조금 커야 실루엣이 읽힌다
+        [SerializeField] private float spacing = 2f;
+        [SerializeField] private float stackFontScale = 0.42f;   // 우하단 스택 수 — 그림을 덮지 않게 작게
 
         private Unit _unit;
         private Camera _cam;
@@ -141,21 +142,23 @@ namespace DiceOrbit.UI
             // 가독성은 그림자 라벨(검정, 1px 오프셋)로 대신한다.
             if (!string.IsNullOrEmpty(data.StackText))
             {
-                var shadow = CreateLabel(go, data.StackText, iconSize * 0.5f, Color.black);
+                float fontSize = iconSize * stackFontScale;
+                float hang = iconSize * 0.14f;   // 숫자는 아이콘 우하단 모서리에 살짝 걸쳐 그림을 덜 가린다
+                var shadow = CreateLabel(go, data.StackText, fontSize, Color.black);
                 shadow.alignment = TextAlignmentOptions.BottomRight;
                 shadow.fontStyle = FontStyles.Bold;
                 var shr = shadow.rectTransform;
                 shr.anchorMin = Vector2.zero; shr.anchorMax = Vector2.one;
-                shr.offsetMin = new Vector2(1f, -iconSize * 0.12f - 1f);
-                shr.offsetMax = new Vector2(iconSize * 0.12f + 1f, -1f);
+                shr.offsetMin = new Vector2(1f, -hang - 1f);
+                shr.offsetMax = new Vector2(hang + 1f, -1f);
 
-                var stack = CreateLabel(go, data.StackText, iconSize * 0.5f, Color.white);
+                var stack = CreateLabel(go, data.StackText, fontSize, Color.white);
                 stack.alignment = TextAlignmentOptions.BottomRight;
                 stack.fontStyle = FontStyles.Bold;
                 var sr = stack.rectTransform;
                 sr.anchorMin = Vector2.zero; sr.anchorMax = Vector2.one;
-                sr.offsetMin = new Vector2(0f, -iconSize * 0.12f);
-                sr.offsetMax = new Vector2(iconSize * 0.12f, 0f);
+                sr.offsetMin = new Vector2(0f, -hang);
+                sr.offsetMax = new Vector2(hang, 0f);
             }
 
             return go;

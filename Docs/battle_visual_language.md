@@ -14,6 +14,7 @@
 | 구역(사분면) 소유 | 타일 아래 **잉크 플레이트** — 사분면 조각 스프라이트, 주인 색 틴트 / 중립 회색 반투명 | `Visuals/ZonePlateRenderer.cs` + `UiSkin.ZonePlate` (2026-09-25) |
 | 캐릭터 이동 가능 · 콤보 단계 | 체력바 위 **행동 표시줄** — 받침판 위 날개 장화(이동 토큰) + 보석 2칸 + 별(마무리). 켜진 수 = 채운 콤보 단계 | `UI/CharacterActionStrip.cs` (2026-10-05) |
 | 몬스터 다음 행동 | 머리 위 **크림 말풍선 + 스킬 아이콘**, 그 오른쪽에 **설명 칩**(기술마다 써 둔 한두 줄 — "15 피해 · 대상 좌우 2칸") | `UI/MonsterUI.cs`, `UI/MonsterIntentText.cs` (2026-10-05, 아래 「몬스터 의도 설명」) |
+| 상태이상 (유닛에 걸린 것) | 체력바 아래 **아이콘 줄** — 상태마다 그림(힉스필드 25종, `UI Skin/status_*.png`) + 우하단 스택 수. 호버하면 커서 옆에 이름·설명. 꿀·속박은 유닛 위 오버레이 장식도 | `UI/StatusIconRow.cs`, `Visuals/StatusVisualLibrary.cs` (Resources/UI 에셋, 2026-10-06), `Visuals/StatusOverlayStack.cs` |
 | 패시브 구역 (조회 시) | **구역 테두리** — 구역 부채꼴을 통째로 감싸는 둥근 폐곡선(남색 밑선 + 하늘색 심선) + 플레이트 밝힘. 효과가 꺼져 있으면 흐리게. 지금 값은 정보 패널 패시브 제목 옆 | `Visuals/PassiveZoneIndicator.cs` + `IPassiveZoneProvider`, `Visuals/ZoneSectorShape.cs` (2026-10-04) |
 | 조준선 (캐릭터↔몬스터 공통) | **포물선 + 흐르는 점선 + 화살촉** | `Visuals/DashedArcLine.cs` (공용 헬퍼) |
 | 행동 예고 (주사위 선택·호버 시) | 도착 타일 → 대상 **노란 조준선**(이동 경로와 같은 색) + 대상 몸 위 **예상 피해 숫자**(피해 팝업 글꼴, 처치는 노랑) + 대상 체력바의 **깎일 구간 깜빡임**(밝은 크림색) + [이동] 버튼 위 **예고 카드** | `Visuals/ActionForecastView.cs` + `Combat/Forecast/` (2026-10-04) |

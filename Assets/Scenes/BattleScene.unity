@@ -9197,59 +9197,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 573170304}
   m_CullTransparentMesh: 1
---- !u!1 &580134277
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 580134279}
-  - component: {fileID: 580134278}
-  m_Layer: 0
-  m_Name: StatusVisualLibrary
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &580134278
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 580134277}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e2639a6e77e944f46841ae318b025fb4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::DiceOrbit.Visuals.StatusVisualLibrary
-  entries:
-  - Type: 9
-    Icon: {fileID: 0}
-    Overlay: {fileID: 21300000, guid: a4fab2bcfb3af534dbc9d682d0774188, type: 3}
-    Tint: {r: 1, g: 1, b: 1, a: 1}
-  - Type: 11
-    Icon: {fileID: 0}
-    Overlay: {fileID: 21300000, guid: 005c694906e87fa44ac636a0f72e2c3e, type: 3}
-    Tint: {r: 1, g: 1, b: 1, a: 1}
---- !u!4 &580134279
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 580134277}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &589656301
 GameObject:
   m_ObjectHideFlags: 0
@@ -28680,7 +28627,6 @@ SceneRoots:
   - {fileID: 881929273}
   - {fileID: 6685346426344633191}
   - {fileID: 1019507053}
-  - {fileID: 580134279}
   - {fileID: 372182536}
   - {fileID: 788142784}
   - {fileID: 2075587032}
