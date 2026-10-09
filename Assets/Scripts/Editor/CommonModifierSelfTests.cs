@@ -32,6 +32,7 @@ namespace DiceOrbit.EditorTools
             {
                 TestChargeGrantCapAndConsume();
                 TestChargeOnlyEmpoweredAttacks();
+                TestCharacterArmorResetsOnOwnTurnStart();
                 // [tests-run]
             }
             finally
@@ -105,6 +106,38 @@ namespace DiceOrbit.EditorTools
             charge.OnAttack(CombatTrigger.OnCalculateOutput, poison);
             AttackActionScope.End();
             Check(Mathf.Approximately(poison.OutputValue, 10f), "직접 체력 손실엔 개입 안 함");
+        }
+
+        // ── 방어도 턴 초기화 (D2) ─────────────────────────────
+
+        private static void TestCharacterArmorResetsOnOwnTurnStart()
+        {
+            var a = NewCharacter("ArmorA");
+            var b = NewCharacter("ArmorB");
+            Check(a.Stats.Owner == a, "InitializeStats가 Stats.Owner를 주입한다");
+
+            a.Stats.TempArmor = 7;
+            b.Stats.TempArmor = 5;
+            var aTurnStart = new TurnEventContext(a, a, EventPhase.TurnStart);
+            a.Stats.OnTurnEvent(CombatTrigger.OnPreAction, aTurnStart);
+            b.Stats.OnTurnEvent(CombatTrigger.OnPreAction, aTurnStart);   // 방송은 파티 전원의 Stats에 간다
+            Check(a.Stats.TempArmor == 0, "자기 TurnStart(OnPreAction)에 방어도 0");
+            Check(b.Stats.TempArmor == 5, "다른 캐릭터의 TurnStart로는 초기화되지 않는다");
+
+            a.Stats.TempArmor = 4;
+            a.Stats.OnTurnEvent(CombatTrigger.OnPostAction, aTurnStart);
+            Check(a.Stats.TempArmor == 4, "초기화는 OnPreAction 한 번만 (OnPostAction에선 안 함)");
+            a.Stats.OnTurnEvent(CombatTrigger.OnPreAction, new TurnEventContext(a, a, EventPhase.TurnEnd));
+            Check(a.Stats.TempArmor == 4, "TurnEnd에는 초기화하지 않는다");
+
+            var monster = NewMonster("ArmorMonster");
+            var monsterStats = new MonsterStats { TempArmor = 6 };
+            monsterStats.OnTurnEvent(CombatTrigger.OnPreAction, new TurnEventContext(monster, monster, EventPhase.TurnStart));
+            Check(monsterStats.TempArmor == 0, "몬스터 턴 시작 초기화는 기존대로");
+            var c = NewCharacter("ArmorC");
+            c.Stats.TempArmor = 3;
+            c.Stats.OnTurnEvent(CombatTrigger.OnPreAction, new TurnEventContext(monster, monster, EventPhase.TurnStart));
+            Check(c.Stats.TempArmor == 3, "몬스터 턴 시작은 캐릭터 방어도를 건드리지 않는다");
         }
 
         // [tests-body]

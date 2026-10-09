@@ -86,6 +86,7 @@ namespace DiceOrbit.Core
         public void InitializeStats(CharacterStats newStats)
         {
             stat = newStats;
+            stat.Owner = this;   // 턴 사건의 소유자 확인(UnitStats.OnTurnEvent — 일시 방어도 초기화)에 쓴다
             var preset = stat.SourcePreset;
 
             if (spriteRenderer != null && preset != null)

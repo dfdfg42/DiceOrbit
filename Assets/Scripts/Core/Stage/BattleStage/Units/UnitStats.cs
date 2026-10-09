@@ -22,16 +22,24 @@ namespace DiceOrbit.Data
 
         // ICombatReactor implementation
         public virtual int Priority => 20;
+        /// <summary>
+        /// 턴 시작 시 일시 방어도를 0으로 (OnPreAction — 우선순위 20이라 모디파이어·상태(10)의 턴 시작 부여보다 먼저).
+        /// - 몬스터: 몬스터 턴 시작 사건에서 초기화 (기존 동작 그대로 — MonsterStats에는 Owner를 주입하지 않는다).
+        /// - 캐릭터: 자기 턴 시작에만 (D2, 2026-10-09 B). TurnEvent는 파티 전원의 Stats에 방송되므로
+        ///   SourceUnit == Owner로 소유자를 확인한다. Owner는 Character.InitializeStats가 주입한다.
+        /// </summary>
         public virtual void OnTurnEvent(CombatTrigger trigger, TurnEventContext context)
         {
-            //턴 시작 시 임시 방어도를 깎는다
-            if (context.Phase == EventPhase.TurnStart && // TODO : owner를 할당시킨 후, context.SourceUnit == Owner로 바꿔야 함(매우 중요)
-                trigger == CombatTrigger.OnPreAction &&
-                context.SourceUnit is Monster &&
-                this is MonsterStats)
+            if (context.Phase != EventPhase.TurnStart || trigger != CombatTrigger.OnPreAction) return;
+
+            if (this is MonsterStats)
             {
-                TempArmor = 0;
+                if (context.SourceUnit is Monster) TempArmor = 0;
+                return;
             }
+
+            if (this is CharacterStats && Owner != null && context.SourceUnit == Owner)
+                TempArmor = 0;
         }
 
         /// <summary>
