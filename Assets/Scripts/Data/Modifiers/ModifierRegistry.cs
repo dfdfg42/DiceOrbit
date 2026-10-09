@@ -39,6 +39,8 @@ namespace DiceOrbit.Data.Modifiers
 
             // ── 직업 고유 (2026-10-09 C) — 스펙 §3.2 표 순서 ──
             // 전사
+            () => new Job.SteadfastFormationModifier(),
+            () => new Job.ComradeshipModifier(),
             // 도적
             () => new Job.VeteranFlankModifier(),
             () => new Job.SpareDaggerModifier(),

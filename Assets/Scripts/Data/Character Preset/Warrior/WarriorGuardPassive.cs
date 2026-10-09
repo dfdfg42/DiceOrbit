@@ -3,6 +3,7 @@ using DiceOrbit.Core;
 using DiceOrbit.Core.Pipeline;
 using DiceOrbit.Core.Zones;
 using DiceOrbit.Data;
+using DiceOrbit.Data.Modifiers.Job;
 using UnityEngine;
 
 namespace DiceOrbit.Data.Passives
@@ -23,8 +24,17 @@ namespace DiceOrbit.Data.Passives
 
         public override int Priority => 100;
 
+        /// <summary>지금 아군 1명당 감소 % — 견고한 방진 보유 시 15 (2026-10-09 C, D3). 피해 계산·구역 상태·설명이 같은 값을 쓴다.</summary>
+        private float PerAllyPercent
+            => EffectivePerAllyPercent(perAllyReductionPercent,
+                                       owner is Character guard && JobModifierQueries.Has<SteadfastFormationModifier>(guard));
+
+        /// <summary>견고한 방진이면 max(기본, 15) (순수 — 자가 테스트 대상).</summary>
+        public static float EffectivePerAllyPercent(float basePercent, bool steadfast)
+            => steadfast ? Mathf.Max(basePercent, SteadfastFormationModifier.PerAllyPercent) : basePercent;
+
         public override string GetDynamicDescription()
-            => $"전사와 같은 구역에 있는 다른 아군 1명마다 해당 구역의 모든 아군(전사 포함)이 받는 공격 피해가 {perAllyReductionPercent:0.#}% 감소합니다.";
+            => $"전사와 같은 구역에 있는 다른 아군 1명마다 해당 구역의 모든 아군(전사 포함)이 받는 공격 피해가 {PerAllyPercent:0.#}% 감소합니다.";
 
         /// <summary>패시브 구역 = 전사가 선 구역. 조회 시 구역 테두리에 쓰인다.</summary>
         public void CollectPassiveZones(List<int> zones)
@@ -44,7 +54,7 @@ namespace DiceOrbit.Data.Passives
                 int zone = manager.GetZoneOf(guard);
                 if (zone >= 0) allyCount = CountOtherAlliesInZone(guard, zone, manager);
             }
-            return FormatZoneStatus(allyCount, perAllyReductionPercent);
+            return FormatZoneStatus(allyCount, PerAllyPercent);
         }
 
         /// <summary>같은 구역 '다른 아군' 수에 따른 감쇄율(%). 피해 계산과 정보 패널 표시가 같은 식을 쓴다.</summary>
@@ -76,7 +86,7 @@ namespace DiceOrbit.Data.Passives
             int allyCount = CountOtherAlliesInZone(guard, guardZone, zones);
             if (allyCount <= 0) return;
 
-            float reduction = ReductionPercent(allyCount, perAllyReductionPercent);
+            float reduction = ReductionPercent(allyCount, PerAllyPercent);
             context.OutputValue *= 1f - reduction / 100f;
             if (!context.IsSimulation) Notify($"{PassiveName} -{reduction:0.#}%");
         }

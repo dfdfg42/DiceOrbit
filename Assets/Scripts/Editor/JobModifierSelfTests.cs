@@ -50,6 +50,8 @@ namespace DiceOrbit.EditorTools
                 TestRogueStage3UsesOwner();
                 TestVeteranFlankPercent();
                 TestVenomStingPerHit();
+                TestSteadfastFormationPercent();
+                TestComradeshipCondition();
                 // [tests-run]
             }
             finally
@@ -288,6 +290,30 @@ namespace DiceOrbit.EditorTools
             var ctx = new AttackContext(source, target, "타격", 10f);
             modifier.OnAttack(CombatTrigger.OnPreAction, ctx);
             modifier.OnAttack(CombatTrigger.OnPostAction, ctx);
+        }
+
+        // ── 전사 위치 ─────────────────────────────────────────
+
+        private static void TestSteadfastFormationPercent()
+        {
+            Check(Mathf.Approximately(WarriorGuardPassive.EffectivePerAllyPercent(10f, false), 10f), "방진 기본 아군 1명당 10%");
+            Check(Mathf.Approximately(WarriorGuardPassive.EffectivePerAllyPercent(10f, true), 15f), "견고한 방진 아군 1명당 15%");
+            Check(Mathf.Approximately(WarriorGuardPassive.ReductionPercent(3, 15f), 45f), "아군 3명 × 15% = 45% 감소");
+            var warrior = NewCharacter("SteadWarrior", JobIds.Warrior);
+            var steadfast = new SteadfastFormationModifier();
+            Check(steadfast.CanApplyTo(warrior) && !steadfast.CanApplyTo(NewCharacter("SteadRogue", JobIds.Rogue)), "견고한 방진 = 전사 전용");
+            Check(steadfast.Family == ModifierFamily.Position, "견고한 방진 = 위치 계열");
+        }
+
+        private static void TestComradeshipCondition()
+        {
+            Check(ComradeshipModifier.BonusFor(0) == 0 && ComradeshipModifier.BonusFor(1) == 0, "같은 구역 다른 아군 0~1명: 보너스 없음");
+            Check(ComradeshipModifier.BonusFor(2) == 1 && ComradeshipModifier.BonusFor(3) == 1, "2명 이상: 기본 공격력 +1 (미중첩)");
+
+            var warrior = NewCharacter("ComradeWarrior", JobIds.Warrior, attack: 10);
+            warrior.Stats.Modifiers.Add(new ComradeshipModifier());
+            Check(warrior.Stats.EffectiveAttack == 10 && warrior.Stats.Attack == 10,
+                  "구역 판정 불가(매니저 없음) → 보너스 없음, 저장 필드는 그대로");
         }
 
         // [tests-body]
