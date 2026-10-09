@@ -69,4 +69,40 @@ namespace DiceOrbit.Data.Modifiers.Common
             return true;
         }
     }
+
+    /// <summary>[예비 충전] 사용한 주사위가 강화 공격 조건을 못 맞추면 충전 1 (기본공격 실행 여부 무관).</summary>
+    [System.Serializable]
+    public class ReserveChargeModifier : CommonModifier, IComboGateFailedListener
+    {
+        public override string ModifierName => "예비 충전";
+        public override ModifierFamily Family => ModifierFamily.Dice;
+        public override string Description
+            => "사용한 주사위가 강화 공격 조건을 맞추지 못하면 충전을 1 얻습니다.";
+
+        public void OnComboGateFailed(Character character)
+        {
+            if (character != owner) return;
+            GrantCharge(1);
+        }
+    }
+
+    /// <summary>[사전 준비] 전투 시작 시 충전 1 (CombatStart 방송, 방송 1회당 1번).</summary>
+    [System.Serializable]
+    public class PreparationModifier : CommonModifier
+    {
+        public override string ModifierName => "사전 준비";
+        public override ModifierFamily Family => ModifierFamily.Dice;
+        public override string Description
+            => "전투 시작 시 충전을 1 얻습니다.";
+
+        public override void OnTurnEvent(CombatTrigger trigger, TurnEventContext context)
+        {
+            if (owner == null) return;
+            if (context.Phase != EventPhase.CombatStart) return;
+            if (trigger != CombatTrigger.OnPreAction) return;   // 방송 1회당 1번만 (트리거 4회 방지)
+            if (context.SourceUnit != owner || context.IsSimulation) return;
+
+            GrantCharge(1);
+        }
+    }
 }

@@ -205,6 +205,9 @@ namespace DiceOrbit.Core
         /// <summary>전투 시작 사건을 파이프라인에 방송 — 유물 등 리액터가 반응 (개별 효과는 모름).</summary>
         private void BroadcastCombatStart()
         {
+            // 이전 전투의 충전은 남기지 않는다 — 방송(사전 준비의 전투 시작 충전)보다 반드시 먼저 (2026-10-09 B).
+            ClearPartyCharge();
+
             if (Pipeline.CombatPipeline.Instance == null || PartyManager.Instance == null) return;
             foreach (var ch in PartyManager.Instance.Party)
             {
@@ -295,6 +298,7 @@ namespace DiceOrbit.Core
             Combo.ComboSystem.EnsureInstance().ResetAll();
             Systems.Effects.AttackActionScope.ResetAll();
             ExpireRoundStatuses(); // 턴 도중 승리·패배여도 라운드형 상태가 남지 않게
+            ClearPartyCharge();    // 충전은 전투를 넘어 이월되지 않는다 (방송 없는 디버그 시작 경로 포함)
 
             if (victory)
             {
@@ -726,6 +730,16 @@ namespace DiceOrbit.Core
             foreach (var monster in activeMonsters.ToList())
                 if (monster != null && monster.StatusEffects != null)
                     monster.StatusEffects.RemoveRoundStatuses();
+        }
+
+        /// <summary>파티 전원의 충전 제거 — 전투 경계에서 호출 (2026-10-09 B).</summary>
+        private void ClearPartyCharge()
+        {
+            var party = PartyManager.Instance;
+            if (party == null || party.Party == null) return;
+
+            foreach (var character in party.Party)
+                if (character != null) Systems.Effects.ChargeStatus.Clear(character);
         }
 
         private void TileTurnEnd()

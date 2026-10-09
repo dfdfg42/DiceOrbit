@@ -22,6 +22,8 @@ namespace DiceOrbit.Data.Modifiers
             () => new Common.RescueTeamModifier(),
             // 주사위
             () => new Common.LowRollGuardModifier(),
+            () => new Common.ReserveChargeModifier(),
+            () => new Common.PreparationModifier(),
             () => new Common.PaybackModifier(),
             // 콤보
             () => new Common.GrandFinaleModifier(),
