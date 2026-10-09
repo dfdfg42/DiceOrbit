@@ -79,4 +79,68 @@ namespace DiceOrbit.Data.Modifiers.Job
                 if (tile != null) tile.AddAttribute(new MagicLandTile(this));
         }
     }
+
+    /// <summary>
+    /// [회로 공명] 아군이 있는 구역(마법사 구역 포함, 같은 구역 여러 명은 1개)이 3개 이상이면 자신의 강화 공격 피해 +15%.
+    /// 구역 수 = MageCircuit.GetCircuitZones(마력 회로와 같은 계산) — 질의 시점 계산이라 이동·사망이 즉시 반영된다.
+    /// </summary>
+    [System.Serializable]
+    public class CircuitResonanceModifier : JobModifier
+    {
+        public const float Percent = 15f;
+        public const int RequiredZones = 3;
+
+        protected override string JobId => JobIds.Mage;
+        public override string ModifierName => "회로 공명";
+        public override ModifierFamily Family => ModifierFamily.Position;
+        public override string Description
+            => $"아군이 있는 구역(마법사 구역 포함)이 {RequiredZones}개 이상이면 강화 공격의 피해가 {Percent:0.#}% 증가합니다.";
+
+        public override void OnAttack(CombatTrigger trigger, AttackContext context)
+        {
+            if (!IsOwnEmpoweredCalculation(trigger, context)) return;
+            if (!Qualifies(MageCircuit.GetCircuitZones(owner).Count)) return;
+
+            context.OutputValue *= 1f + Percent / 100f;
+        }
+
+        /// <summary>회로 구역 수가 조건을 만족하나 (순수 — 자가 테스트 대상).</summary>
+        public static bool Qualifies(int circuitZoneCount) => circuitZoneCount >= RequiredZones;
+    }
+
+    /// <summary>
+    /// [마나흡수] 3단계 강화 공격 피해 +15%. 그 공격의 충전 1 소비 후, 마법사가 그 공격으로 직접 처치한 몬스터 수만큼 충전 획득(최대 3).
+    /// - "소비 후 획득": AutoAttackSystem이 ChargeStatus.ConsumeOne을 IAttackActionFinishedListener 통지보다 먼저 부른다(B).
+    /// - 처치 수 = AttackActionResult.Kills(스코프 종료 직후 기준) — 디버프·유물 처치는 들어가지 않고, 소급도 없다.
+    /// </summary>
+    [System.Serializable]
+    public class ManaAbsorbModifier : JobModifier, IAttackActionFinishedListener
+    {
+        public const float Percent = 15f;
+        public const int MaxChargeGain = 3;
+
+        protected override string JobId => JobIds.Mage;
+        public override string ModifierName => "마나흡수";
+        public override ModifierFamily Family => ModifierFamily.Combo;
+        public override string Description
+            => $"3단계 강화 공격의 피해가 {Percent:0.#}% 증가합니다. 그 공격으로 처치한 몬스터 1명마다 충전을 1 얻습니다(최대 {MaxChargeGain}).";
+
+        public override void OnAttack(CombatTrigger trigger, AttackContext context)
+        {
+            if (!IsOwnStage3Calculation(trigger, context)) return;
+            context.OutputValue *= 1f + Percent / 100f;
+        }
+
+        public void OnAttackActionFinished(Character character, AttackActionResult result)
+        {
+            if (owner == null || character != owner || !owner.IsAlive) return;
+            if (result.ComboStage != 2) return;
+
+            int gain = ChargeGainFor(result.Kills);
+            if (gain > 0) GrantCharge(gain);
+        }
+
+        /// <summary>처치 수 → 충전 획득량 (최대 3, 순수 — 자가 테스트 대상). 충전 상한 3은 ChargeStatus.Grant가 따로 보장한다.</summary>
+        public static int ChargeGainFor(int kills) => Mathf.Clamp(kills, 0, MaxChargeGain);
+    }
 }

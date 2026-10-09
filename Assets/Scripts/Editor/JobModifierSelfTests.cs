@@ -56,6 +56,8 @@ namespace DiceOrbit.EditorTools
                 TestWarriorPaybackHooks();
                 TestEarthRune();
                 TestMagicLandTileAndModifier();
+                TestCircuitResonance();
+                TestManaAbsorb();
                 // [tests-run]
             }
             finally
@@ -425,6 +427,58 @@ namespace DiceOrbit.EditorTools
             land.OnAttack(CombatTrigger.OnCalculateOutput, ctx);
             Check(Mathf.Approximately(ctx.OutputValue, 10f), "마법의 땅 밖 → 보정 없음");
             // 타일 위 +15%는 TileData·버블 매니저가 필요해 플레이 확인 항목으로 둔다 (§사용자 확인).
+        }
+
+        // ── 마법사 위치·콤보 ──────────────────────────────────
+
+        private static void TestCircuitResonance()
+        {
+            Check(!CircuitResonanceModifier.Qualifies(2) && CircuitResonanceModifier.Qualifies(3) && CircuitResonanceModifier.Qualifies(4),
+                  "아군이 있는 구역(마법사 구역 포함) 3개 이상");
+
+            var mage = NewCharacter("ResonMage", JobIds.Mage);
+            var resonance = new CircuitResonanceModifier();
+            Check(resonance.CanApplyTo(mage) && !resonance.CanApplyTo(NewCharacter("ResonAlch", JobIds.Alchemist)), "회로 공명 = 마법사 전용");
+            Check(resonance.Family == ModifierFamily.Position, "회로 공명 = 위치 계열");
+            mage.Stats.Modifiers.Add(resonance);
+
+            var enemy = NewMonster("ResonEnemy");
+            AttackActionScope.ResetAll();
+            AttackActionScope.Begin(mage, new AttackActionInfo { ComboStage = 0, IsAutoAttack = true });
+            var ctx = new AttackContext(mage, enemy, "비전 화살", 10f);
+            resonance.OnAttack(CombatTrigger.OnCalculateOutput, ctx);
+            AttackActionScope.End();
+            Check(Mathf.Approximately(ctx.OutputValue, 10f), "구역 판정 불가(회로 0개) → 보정 없음");
+        }
+
+        private static void TestManaAbsorb()
+        {
+            Check(ManaAbsorbModifier.ChargeGainFor(0) == 0 && ManaAbsorbModifier.ChargeGainFor(2) == 2
+                  && ManaAbsorbModifier.ChargeGainFor(5) == 3, "처치 수만큼, 최대 3");
+
+            var mage = NewCharacter("ManaMage", JobIds.Mage);
+            var fx = NewEffects(mage);
+            var absorb = new ManaAbsorbModifier();
+            Check(absorb.CanApplyTo(mage) && absorb.Family == ModifierFamily.Combo, "마나흡수 = 마법사 전용·콤보");
+            mage.Stats.Modifiers.Add(absorb);
+            var enemy = NewMonster("ManaEnemy");
+            var targets = new List<Unit> { enemy };
+
+            absorb.OnAttackActionFinished(mage, new AttackActionResult(1, targets, 2));
+            Check(!fx.HasEffect(EffectType.Charge), "2단계 처치는 충전 없음");
+            absorb.OnAttackActionFinished(mage, new AttackActionResult(2, targets, 0));
+            Check(!fx.HasEffect(EffectType.Charge), "3단계 처치 0 → 충전 없음");
+            absorb.OnAttackActionFinished(mage, new AttackActionResult(2, targets, 2));
+            Check(fx.GetEffectValue(EffectType.Charge) == 2, $"3단계 2명 처치 → 충전 2 (실제 {fx.GetEffectValue(EffectType.Charge)})");
+            absorb.OnAttackActionFinished(NewCharacter("OtherMage", JobIds.Mage), new AttackActionResult(2, targets, 1));
+            Check(fx.GetEffectValue(EffectType.Charge) == 2, "다른 캐릭터의 공격 결과는 무시");
+
+            AttackActionScope.ResetAll();
+            AttackActionScope.Begin(mage, new AttackActionInfo { ComboStage = 2, IsAutoAttack = true });
+            var stage3 = new AttackContext(mage, enemy, "궤도 붕괴", 10f);
+            absorb.OnAttack(CombatTrigger.OnCalculateOutput, stage3);
+            AttackActionScope.End();
+            Check(Mathf.Approximately(stage3.OutputValue, 11.5f), $"3단계 피해 +15% (실제 {stage3.OutputValue})");
         }
 
         // [tests-body]
