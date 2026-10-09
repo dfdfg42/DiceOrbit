@@ -294,6 +294,7 @@ namespace DiceOrbit.Core
             // 콤보/행동 스코프 정리 — 전투를 넘어 이월되지 않는다 (스펙 2026-08-28 §1 규칙 9)
             Combo.ComboSystem.EnsureInstance().ResetAll();
             Systems.Effects.AttackActionScope.ResetAll();
+            ExpireRoundStatuses(); // 턴 도중 승리·패배여도 라운드형 상태가 남지 않게
 
             if (victory)
             {
@@ -712,7 +713,7 @@ namespace DiceOrbit.Core
 
         /// <summary>
         /// 라운드형 상태(감전·고양·약화) 일괄 제거 — 시트 "이번 턴 동안" = 플레이어 턴 + 몬스터 턴.
-        /// 캐릭터는 전투 사이에 살아남으므로 전투 시작에도 호출해 이전 전투의 고양이 새지 않게 한다.
+        /// 캐릭터는 전투 사이에 살아남으므로 전투 시작·전투 종료에도 호출해 이전 전투의 고양이 새지 않게 한다.
         /// </summary>
         private void ExpireRoundStatuses()
         {
