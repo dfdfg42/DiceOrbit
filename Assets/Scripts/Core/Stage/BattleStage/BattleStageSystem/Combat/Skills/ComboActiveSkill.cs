@@ -57,7 +57,7 @@ namespace DiceOrbit.Data.Skills
         /// <summary>단계 피해 = 공격력 × 단계 배율 (타격 1회분).</summary>
         public int CalculateStageDamage(Character source, int stage)
         {
-            int attack = source != null && source.Stats != null ? source.Stats.Attack : 0;
+            int attack = source != null && source.Stats != null ? source.Stats.EffectiveAttack : 0;
             return Mathf.Max(1, Mathf.RoundToInt(attack * Mathf.Max(0.05f, GetStageMultiplier(stage))));
         }
 

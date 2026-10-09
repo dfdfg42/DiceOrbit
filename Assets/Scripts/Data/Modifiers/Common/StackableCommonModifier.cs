@@ -64,19 +64,6 @@ namespace DiceOrbit.Data.Modifiers.Common
             return true;
         }
 
-        /// <summary>3중첩 제한 — 이미 3개면 보상에 더 제시되지 않는다.</summary>
-        public override bool CanApplyTo(Character character)
-        {
-            var mods = character?.Stats?.Modifiers?.Modifiers;
-            if (mods == null) return true;
-
-            int count = 0;
-            var type = GetType();
-            for (int i = 0; i < mods.Count; i++)
-                if (mods[i] != null && mods[i].GetType() == type) count++;
-            return count < MaxStacks;
-        }
-
         /// <summary>임시 방어도 부여 + 버블 (부여형 모디파이어 공용).</summary>
         protected void GrantArmor(int amount)
         {

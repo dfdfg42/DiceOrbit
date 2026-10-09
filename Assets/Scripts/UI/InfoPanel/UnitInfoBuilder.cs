@@ -21,7 +21,7 @@ namespace DiceOrbit.UI
                 currentHp: s?.CurrentHP ?? 0,
                 maxHp: s?.MaxHP ?? 0,
                 armor: s?.TempArmor ?? 0,
-                attack: s?.Attack ?? 0,
+                attack: s != null ? s.EffectiveAttack : 0,
                 flavorText: s?.SourcePreset != null ? (s.SourcePreset.Description ?? string.Empty).Trim() : string.Empty,
                 activesLabel: "강화 공격",
                 actives: BuildActives(s),

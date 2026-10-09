@@ -172,7 +172,7 @@ namespace DiceOrbit.Core.Forecast
 
                         int raw = plan.Kind == AttackPlanKind.Combo
                             ? plan.ComboSkill.CalculateStageDamage(character, plan.Stage)
-                            : character.Stats.Attack;
+                            : character.Stats.EffectiveAttack;
                         var context = new AttackContext(character, target, forecast.AttackName, raw);
                         int damage = pipeline.SimulateCalculation(context, pendingStatuses);
 

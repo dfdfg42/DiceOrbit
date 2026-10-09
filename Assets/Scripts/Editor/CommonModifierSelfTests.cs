@@ -33,6 +33,9 @@ namespace DiceOrbit.EditorTools
                 TestChargeGrantCapAndConsume();
                 TestChargeOnlyEmpoweredAttacks();
                 TestCharacterArmorResetsOnOwnTurnStart();
+                TestDuplicateTypeCannotBeEquipped();
+                TestAcquireCallsOnAcquiredButAddDoesNot();
+                TestEffectiveAttackSumsBonuses();
                 // [tests-run]
             }
             finally
@@ -138,6 +141,63 @@ namespace DiceOrbit.EditorTools
             c.Stats.TempArmor = 3;
             c.Stats.OnTurnEvent(CombatTrigger.OnPreAction, new TurnEventContext(monster, monster, EventPhase.TurnStart));
             Check(c.Stats.TempArmor == 3, "몬스터 턴 시작은 캐릭터 방어도를 건드리지 않는다");
+        }
+
+        // ── 장착 규칙·획득·유효 공격력 ────────────────────────
+
+        /// <summary>테스트 전용 — 공격력 보너스만 있는 모디파이어.</summary>
+        private sealed class BonusProbeModifier : CharacterModifier
+        {
+            public override string ModifierName => "테스트 보너스";
+            public override string Description => string.Empty;
+            public override ModifierCategory Category => ModifierCategory.Generic;
+            public override int AttackBonus => 2;
+        }
+
+        /// <summary>테스트 전용 — OnAcquired 호출 횟수를 센다.</summary>
+        private sealed class AcquireProbeModifier : CharacterModifier
+        {
+            public int AcquiredCount;
+            public override string ModifierName => "테스트 획득";
+            public override string Description => string.Empty;
+            public override ModifierCategory Category => ModifierCategory.Generic;
+            public override void OnAcquired(Character owner) => AcquiredCount++;
+        }
+
+        private static void TestDuplicateTypeCannotBeEquipped()
+        {
+            var ch = NewCharacter("DupHolder");
+            var first = new BonusProbeModifier();
+            Check(first.CanApplyTo(ch), "처음엔 장착 가능");
+            ch.Stats.Modifiers.Add(first);
+            Check(!new BonusProbeModifier().CanApplyTo(ch), "같은 종류 두 번째는 CanApplyTo false");
+            Check(new AcquireProbeModifier().CanApplyTo(ch), "다른 종류는 여전히 장착 가능");
+
+            ch.Stats.Modifiers.Add(new BonusProbeModifier());
+            Check(ch.Stats.Modifiers.Modifiers.Count == 1, "Add도 같은 종류 중복을 거부한다 (옛 세이브 3중첩 방어)");
+        }
+
+        private static void TestAcquireCallsOnAcquiredButAddDoesNot()
+        {
+            var acquired = NewCharacter("AcquireHolder");
+            var viaAcquire = new AcquireProbeModifier();
+            acquired.Stats.Modifiers.Acquire(viaAcquire);
+            Check(viaAcquire.AcquiredCount == 1 && viaAcquire.owner == acquired, "Acquire = 장착 + OnAcquired 1회");
+            acquired.Stats.Modifiers.Acquire(new AcquireProbeModifier());
+            Check(acquired.Stats.Modifiers.Modifiers.Count == 1, "Acquire도 중복은 거부");
+
+            var restored = NewCharacter("RestoreHolder");
+            var viaAdd = new AcquireProbeModifier();
+            restored.Stats.Modifiers.Add(viaAdd);
+            Check(viaAdd.AcquiredCount == 0 && restored.Stats.Modifiers.Modifiers.Count == 1, "Add(세이브 복원 경로)는 OnAcquired를 부르지 않는다");
+        }
+
+        private static void TestEffectiveAttackSumsBonuses()
+        {
+            var ch = NewCharacter("AttackHolder", attack: 10);
+            Check(ch.Stats.EffectiveAttack == 10, "보너스 없으면 유효 공격력 = 기본 공격력");
+            ch.Stats.Modifiers.Add(new BonusProbeModifier());
+            Check(ch.Stats.EffectiveAttack == 12 && ch.Stats.Attack == 10, "보너스 +2 → 12, 저장 필드(Attack)는 그대로");
         }
 
         // [tests-body]

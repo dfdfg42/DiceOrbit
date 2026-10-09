@@ -254,7 +254,7 @@ namespace DiceOrbit.Core
         /// <summary>기본공격 1타. 발사체가 있으면 날아가 도착할 때 피해가 들어간다.</summary>
         private void LaunchBasicHit(Character character, Unit target, Data.Skills.CharacterActiveSkill weapon)
         {
-            var context = new AttackContext(character, target, attackName, character.Stats.Attack);
+            var context = new AttackContext(character, target, attackName, character.Stats.EffectiveAttack);
             HitDirector.ReportAttackLaunched(character, target.transform.position);   // 발사 반동 + 휘두르는 소리
 
             if (weapon != null && weapon.ProjectilePrefab != null)
