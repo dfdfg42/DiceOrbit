@@ -393,7 +393,7 @@ namespace DiceOrbit.UI
                 var captured = mod;
                 AddChoiceButton($"{mod.ModifierName}\n<size=60%>{mod.Description}</size>", () =>
                 {
-                    if (_incoming.Stats != null && _incoming.Stats.Modifiers != null)
+                    if (_incoming.Stats != null && _incoming.Stats.Modifiers != null && captured.CanApplyTo(_incoming))
                         _incoming.Stats.Modifiers.Acquire(captured);
                     _repickRemaining--;
                     if (_repickRemaining > 0) ShowNextRepick(total);

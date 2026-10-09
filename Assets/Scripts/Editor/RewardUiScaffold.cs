@@ -234,7 +234,7 @@ namespace DiceOrbit.EditorTools
             iconImage.sprite = _skin.FamilyDice;
 
             var family = Text("FamilyLabel", root, "주사위", _body, 15f, FontStyles.Normal, _skin.InkMuted, TextAlignmentOptions.Center, new Vector2(0f, -110f), new Vector2(216f, 20f));
-            var name = Text("Name", root, "관성 타격", _display, 25f, FontStyles.Bold, _skin.Ink, TextAlignmentOptions.Center, new Vector2(0f, -138f), new Vector2(216f, 34f));
+            var name = Text("Name", root, "합류 전술", _display, 25f, FontStyles.Bold, _skin.Ink, TextAlignmentOptions.Center, new Vector2(0f, -138f), new Vector2(216f, 34f));
             name.textWrappingMode = TextWrappingModes.NoWrap; name.enableAutoSizing = true; name.fontSizeMin = 17f; name.fontSizeMax = 25f;
             var desc = Text("Desc", root, "주사위 눈이 4 이상이면 이동 후 자동공격 피해가 8% 증가합니다.", _body, 17f, FontStyles.Normal, _skin.Ink, TextAlignmentOptions.Top, new Vector2(0f, -204f), new Vector2(212f, 92f));
             desc.enableAutoSizing = true; desc.fontSizeMin = 13f; desc.fontSizeMax = 17f;

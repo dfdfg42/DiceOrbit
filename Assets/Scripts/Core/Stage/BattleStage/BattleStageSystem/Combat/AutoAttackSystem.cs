@@ -105,7 +105,7 @@ namespace DiceOrbit.Core
         {
             var plan = new AttackPlan();
 
-            // 이동 시작 구역 vs 도착 구역 (경계 돌파 판정용)
+            // 이동 시작 구역 vs 도착 구역 (AttackActionInfo.CrossedZone — 현재 읽는 모디파이어 없음, 이동 구역 변화는 IMoveFinishedListener로 통지)
             var zoneMgr = CombatZoneManager.Instance;
             int endZone = zoneMgr != null ? zoneMgr.GetZoneOf(character) : -1;
             int startZone = passedZones != null && passedZones.Count > 0 ? passedZones[0] : endZone;
