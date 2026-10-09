@@ -5,73 +5,46 @@ using DiceOrbit.Systems.Effects;
 
 namespace DiceOrbit.Data.Modifiers.Common
 {
-    /// <summary>[합류 전술] 공격 시 같은 구역에 다른 아군이 있으면 공격 피해 +10%/중첩 (최대 +30%).</summary>
+    /// <summary>[합류 전술] 공격할 때 같은 구역에 다른 살아 있는 아군이 있으면 피해 +15%.</summary>
     [System.Serializable]
-    public class JointTacticsModifier : StackableCommonModifier
+    public class JointTacticsModifier : CommonModifier
     {
-        private const float PercentPerStack = 10f;
+        private const float Percent = 15f;
 
         public override string ModifierName => "합류 전술";
         public override ModifierFamily Family => ModifierFamily.Position;
         public override string Description
-            => $"같은 구역에 다른 아군이 있으면 공격 피해가 {PercentPerStack:0.#}% 증가합니다.";
+            => $"공격할 때 같은 구역에 다른 아군이 있으면 피해가 {Percent:0.#}% 증가합니다.";
 
         public override void OnAttack(CombatTrigger trigger, AttackContext context)
         {
-            if (owner == null || !IsPrimary()) return;
-            if (trigger != CombatTrigger.OnCalculateOutput) return;
-            if (context.SourceUnit != owner || context.IsDirectHpLoss) return;
+            if (!IsOwnAttackCalculation(trigger, context)) return;
             if (!ZoneAllyCounter.HasOtherAllyInMyZone(owner)) return;
 
-            context.OutputValue *= 1f + PercentPerStack / 100f * StackCount();
+            context.OutputValue *= 1f + Percent / 100f;
         }
     }
 
-    /// <summary>[독립 행동] 공격 시 같은 구역에 다른 아군이 없으면 공격 피해 +12%/중첩 (최대 +36%).</summary>
+    /// <summary>[독립 행동] 공격할 때 같은 구역에 다른 아군이 없으면 피해 +15%.</summary>
     [System.Serializable]
-    public class LoneWolfModifier : StackableCommonModifier
+    public class LoneWolfModifier : CommonModifier
     {
-        private const float PercentPerStack = 12f;
+        private const float Percent = 15f;
 
         public override string ModifierName => "독립 행동";
         public override ModifierFamily Family => ModifierFamily.Position;
         public override string Description
-            => $"같은 구역에 다른 아군이 없으면 공격 피해가 {PercentPerStack:0.#}% 증가합니다.";
+            => $"공격할 때 같은 구역에 다른 아군이 없으면 피해가 {Percent:0.#}% 증가합니다.";
 
         public override void OnAttack(CombatTrigger trigger, AttackContext context)
         {
-            if (owner == null || !IsPrimary()) return;
-            if (trigger != CombatTrigger.OnCalculateOutput) return;
-            if (context.SourceUnit != owner || context.IsDirectHpLoss) return;
+            if (!IsOwnAttackCalculation(trigger, context)) return;
 
             var zones = CombatZoneManager.Instance;
             if (zones == null || zones.GetZoneOf(owner) < 0) return;   // 구역 밖이면 판정 불가
             if (ZoneAllyCounter.HasOtherAllyInMyZone(owner)) return;
 
-            context.OutputValue *= 1f + PercentPerStack / 100f * StackCount();
-        }
-    }
-
-    /// <summary>[경계 돌파] 이동 시작 구역과 도착 구역이 다르면 해당 자동공격 피해 +10%/중첩 (최대 +30%).</summary>
-    [System.Serializable]
-    public class ZoneCrossModifier : StackableCommonModifier
-    {
-        private const float PercentPerStack = 10f;
-
-        public override string ModifierName => "경계 돌파";
-        public override ModifierFamily Family => ModifierFamily.Position;
-        public override string Description
-            => $"다른 구역으로 이동하면 이번 자동공격 피해가 {PercentPerStack:0.#}% 증가합니다.";
-
-        public override void OnAttack(CombatTrigger trigger, AttackContext context)
-        {
-            if (owner == null || !IsPrimary()) return;
-            if (trigger != CombatTrigger.OnCalculateOutput) return;
-            if (context.SourceUnit != owner || context.IsDirectHpLoss) return;
-            if (!AttackActionScope.IsActive || AttackActionScope.CurrentSource != owner) return;
-            if (!AttackActionScope.CurrentInfo.IsAutoAttack || !AttackActionScope.CurrentInfo.CrossedZone) return;
-
-            context.OutputValue *= 1f + PercentPerStack / 100f * StackCount();
+            context.OutputValue *= 1f + Percent / 100f;
         }
     }
 

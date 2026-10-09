@@ -42,7 +42,7 @@ namespace DiceOrbit.UI
             SetDimmed(false);
         }
 
-        /// <summary>선택된 캐릭터 기준 상태 줄 ("전사 · 신규", "전사 · 중첩 1 → 2", "전사 · 최대 중첩").</summary>
+        /// <summary>선택된 캐릭터 기준 상태 줄 ("전사 · 신규", "전사 · 보유 중", "전사 · 장착 불가").</summary>
         public void SetStatus(string text, bool equippable)
         {
             var skin = UiSkin.Current;

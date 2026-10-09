@@ -7,6 +7,14 @@ namespace DiceOrbit.Data.Modifiers.Common
     // AutoAttackSystem이 캐릭터의 장착 모디파이어 중 해당 인터페이스를 구현한 것에 직접 통지한다 —
     // 인터페이스 기본 메서드(DIM)에 기대지 않는다 (2026-07-21 죽은 훅 사고 재발 방지).
 
+    /// <summary>
+    /// 주사위 사용 사건 (저속 방호 등). 이동+공격 처리 시작 시(공격 유무 무관) 통지된다.
+    /// </summary>
+    public interface IDiceUseListener
+    {
+        void OnDiceUsed(Character character, int diceValue);
+    }
+
     /// <summary>이동을 마친 직후(공격 전) — 출발 구역·도착 구역 (기동 장갑). 구역 판정 불가면 -1.</summary>
     public interface IMoveFinishedListener
     {

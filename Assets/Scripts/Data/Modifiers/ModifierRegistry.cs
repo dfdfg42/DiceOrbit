@@ -10,26 +10,20 @@ namespace DiceOrbit.Data.Modifiers
     /// </summary>
     public static class ModifierRegistry
     {
-        // 2026-08-28 전면 교체 — 공용 12종 (위치/주사위/콤보/생존 4계열, 종류당 최대 3중첩).
-        // 캐릭터 전용 시그니처는 전부 폐기됐다. CanApplyTo가 3중첩 상한을 강제한다.
+        // 2026-10-09 B — 시트 공용 17종 (위치 5 / 주사위 4 / 콤보 4 / 생존 4). 같은 종류는 캐릭터당 1개(CanApplyTo).
+        // 캐릭터 전용 시그니처는 전부 폐기됐다. 삭제된 타입명을 담은 옛 세이브는 Validate에서 실패 → 새 게임 폴백(D9).
         private static readonly System.Func<CharacterModifier>[] Factories =
         {
             // 위치
             () => new Common.JointTacticsModifier(),
             () => new Common.LoneWolfModifier(),
-            () => new Common.ZoneCrossModifier(),
             // 주사위
             () => new Common.LowRollGuardModifier(),
-            () => new Common.MomentumStrikeModifier(),
-            () => new Common.ExtremeResonanceModifier(),
+            () => new Common.PaybackModifier(),
             // 콤보
-            () => new Common.SafetyNetModifier(),
-            () => new Common.ChainReactionModifier(),
             () => new Common.GrandFinaleModifier(),
             // 생존
-            () => new Common.OpeningBarrierModifier(),
-            () => new Common.UnyieldingModifier(),
-            () => new Common.PaybackModifier(),
+            () => new Common.OffenseDefenseModifier(),
         };
 
         // 팩토리를 한 번씩만 돌려 얻은 타입명 캐시 — Exists가 매번 인스턴스를 만들지 않게 한다.
@@ -133,7 +127,7 @@ namespace DiceOrbit.Data.Modifiers
             return result;
         }
 
-        /// <summary>캐릭터에 장착된 같은 종류(타입) 모디파이어 수 — 보상 카드의 "중첩 n → n+1" 표시용.</summary>
+        /// <summary>캐릭터에 장착된 같은 종류(타입) 모디파이어 수 — 중복 장착 불가라 0 또는 1 (보상 카드의 보유 여부 표시용).</summary>
         public static int CountOn(Core.Character character, CharacterModifier modifier)
         {
             if (modifier == null) return 0;

@@ -37,6 +37,7 @@ namespace DiceOrbit.EditorTools
                 TestAcquireCallsOnAcquiredButAddDoesNot();
                 TestEffectiveAttackSumsBonuses();
                 TestAttackActionResultDefaults();
+                TestGrandFinaleOnlyStage3();
                 // [tests-run]
             }
             finally
@@ -212,6 +213,30 @@ namespace DiceOrbit.EditorTools
             var monster = NewMonster("ResultTarget");
             var finale = new AttackActionResult(2, new List<Unit> { monster }, 1);
             Check(finale.IsEmpowered && finale.ComboStage == 2 && finale.Targets.Count == 1 && finale.Kills == 1, "강화 3단계 결과 보존");
+        }
+
+        // ── 콤보 계열 ─────────────────────────────────────────
+
+        private static void TestGrandFinaleOnlyStage3()
+        {
+            var ch = NewCharacter("FinaleHolder");
+            var target = NewMonster("FinaleTarget");
+            var finale = new GrandFinaleModifier();
+            ch.Stats.Modifiers.Add(finale);
+            Check(finale is CommonModifier, "대단원은 CommonModifier 골격");
+
+            AttackActionScope.ResetAll();
+            AttackActionScope.Begin(ch, new AttackActionInfo { ComboStage = 2, IsAutoAttack = true });
+            var stage3 = new AttackContext(ch, target, "3단계", 10f);
+            finale.OnAttack(CombatTrigger.OnCalculateOutput, stage3);
+            AttackActionScope.End();
+            Check(Mathf.Approximately(stage3.OutputValue, 12.5f), $"3단계 +25% (실제 {stage3.OutputValue})");
+
+            AttackActionScope.Begin(ch, new AttackActionInfo { ComboStage = 1, IsAutoAttack = true });
+            var stage2 = new AttackContext(ch, target, "2단계", 10f);
+            finale.OnAttack(CombatTrigger.OnCalculateOutput, stage2);
+            AttackActionScope.End();
+            Check(Mathf.Approximately(stage2.OutputValue, 10f), "2단계엔 보정 없음");
         }
 
         // [tests-body]

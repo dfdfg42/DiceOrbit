@@ -2,7 +2,7 @@ namespace DiceOrbit.Data.Modifiers
 {
     /// <summary>
     /// 모디파이어 계열 — 보상 카드의 계열 아이콘·라벨을 정한다 (보상 리워크 2026-10-03).
-    /// 공용 12종은 계열당 3종. 계열이 없는 모디파이어(None)는 보상 카드로 제시할 수 없다.
+    /// 공용 17종 = 위치 5 / 주사위 4 / 콤보 4 / 생존 4 (2026-10-09 B). 계열이 없는 모디파이어(None)는 보상 카드로 제시할 수 없다.
     /// </summary>
     public enum ModifierFamily
     {

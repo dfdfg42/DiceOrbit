@@ -525,7 +525,7 @@ namespace DiceOrbit.UI
             RefreshUpgrade();
         }
 
-        /// <summary>기본 대상 — 제시된 카드 중 하나라도 받을 수 있는 첫 캐릭터 (전부 최대 중첩인 캐릭터로 시작하지 않게).</summary>
+        /// <summary>기본 대상 — 제시된 카드 중 하나라도 받을 수 있는 첫 캐릭터 (전부 장착 불가인 캐릭터로 시작하지 않게).</summary>
         private Character FirstWithAnyEligibleOffer()
         {
             foreach (var ch in _party)
@@ -577,11 +577,11 @@ namespace DiceOrbit.UI
             for (int i = 0; i < _cards.Count; i++)
             {
                 var offer = offers[i];
-                int stacks = ModifierRegistry.CountOn(_selectedCharacter, offer);
+                bool owned = ModifierRegistry.CountOn(_selectedCharacter, offer) > 0;
                 bool can = offer.CanApplyTo(_selectedCharacter);
-                string status = !can ? $"{who} · 최대 중첩"
-                              : stacks == 0 ? $"{who} · 신규"
-                              : $"{who} · 중첩 {stacks} → {stacks + 1}";
+                string status = owned ? $"{who} · 보유 중"
+                              : !can ? $"{who} · 장착 불가"
+                              : $"{who} · 신규";
                 _cards[i].SetStatus(status, can);
                 _cards[i].SetSelected(i == _selectedOffer);
                 _cards[i].SetDimmed(_selectedOffer >= 0 && i != _selectedOffer);
@@ -618,7 +618,7 @@ namespace DiceOrbit.UI
 
         private static string StackPips(int stacks)
         {
-            int max = StackableCommonModifier.MaxStacks;
+            const int max = 1;   // 같은 종류 중복 장착 불가 (2026-10-09 B) — 보유 ●, 미보유 ○
             stacks = Mathf.Clamp(stacks, 0, max);
             return new string('●', stacks) + new string('○', max - stacks);
         }

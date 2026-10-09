@@ -144,8 +144,8 @@ namespace DiceOrbit.EditorTools
                 perFamily.TryGetValue(m.Family, out int n);
                 perFamily[m.Family] = n + 1;
             }
-            foreach (var kv in perFamily) Check(kv.Value == 3, $"{kv.Key}: 계열당 3종 (실제 {kv.Value})");
-            Check(perFamily.Count == 4, "계열 4개");
+            foreach (var kv in perFamily) Check(kv.Value >= 1, $"{kv.Key}: 계열당 1종 이상 (실제 {kv.Value})");
+            Check(perFamily.Count == 4, "4계열 모두 1종 이상");
             ExpectThrows<ArgumentOutOfRangeException>(() => ModifierFamily.None.Label(), "None 계열 라벨은 예외");
         }
 

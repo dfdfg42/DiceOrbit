@@ -252,8 +252,6 @@ namespace DiceOrbit.Core
 
         /// <summary>
         /// 기본공격 1회 (단일 대상). 기본공격도 하나의 공격 행동이라 촉매가 여기에도 적용·소모된다.
-        /// plan.HadCombo면(1단계 이상 쌓인 콤보가 조건 불일치로 끊긴 경우) 공격 발생 시점에
-        /// 안전장치류 모디파이어에 통지한다.
         /// </summary>
         private IEnumerator BasicAttackRoutine(Character character, int diceValue, AttackPlan plan)
         {
@@ -261,9 +259,6 @@ namespace DiceOrbit.Core
             if (targets.Count == 0) yield break;
 
             character.OnSkillExecutionStarted();
-
-            // "콤보가 끊기고 일반 자동공격 발생" — 공격이 실제로 나가는 이 시점에만 통지.
-            if (plan.HadCombo) NotifyComboBreak(character);
 
             var weapon = FindProjectileSource(character);
             var attacked = new List<Unit>();
@@ -449,10 +444,6 @@ namespace DiceOrbit.Core
         /// <summary>행동(이동+공격) 종료 사건 (구조대).</summary>
         private static void NotifyActionFinished(Character character)
             => NotifyModifiers<Data.Modifiers.Common.IActionFinishedListener>(character, l => l.OnActionFinished(character));
-
-        /// <summary>콤보 끊김(조건 불일치→기본공격 발생) 사건 통지 (안전장치 — Task 5에서 제거).</summary>
-        private static void NotifyComboBreak(Character character)
-            => NotifyModifiers<Data.Modifiers.Common.IComboBreakListener>(character, l => l.OnComboBrokenBasicAttack(character));
 
         /// <summary>캐릭터의 집합형 공격 구역 패시브 (마력 회로). 없으면 null.</summary>
         private static Data.Passives.IAttackZoneProvider FindAttackZoneProvider(Character character)
