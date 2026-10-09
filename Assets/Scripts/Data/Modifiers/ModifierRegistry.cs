@@ -11,6 +11,7 @@ namespace DiceOrbit.Data.Modifiers
     public static class ModifierRegistry
     {
         // 2026-10-09 B — 시트 공용 17종 (위치 5 / 주사위 4 / 콤보 4 / 생존 4). 같은 종류는 캐릭터당 1개(CanApplyTo).
+        // 2026-10-09 C — 직업 고유 16종(전사·도적·마법사·연금술사 각 4). CanApplyTo가 직업을 확인한다(JobModifier) → 공용 + 고유 = 33종.
         // 캐릭터 전용 시그니처는 전부 폐기됐다. 삭제된 타입명을 담은 옛 세이브는 Validate에서 실패 → 새 게임 폴백(D9).
         private static readonly System.Func<CharacterModifier>[] Factories =
         {
@@ -35,6 +36,12 @@ namespace DiceOrbit.Data.Modifiers
             () => new Common.SturdyBodyModifier(),
             () => new Common.NaturalHealingModifier(),
             () => new Common.HuntModifier(),
+
+            // ── 직업 고유 (2026-10-09 C) — 스펙 §3.2 표 순서 ──
+            // 전사
+            // 도적
+            // 마법사
+            // 연금술사
         };
 
         // 팩토리를 한 번씩만 돌려 얻은 타입명 캐시 — Exists가 매번 인스턴스를 만들지 않게 한다.

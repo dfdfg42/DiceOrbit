@@ -8,6 +8,7 @@ using DiceOrbit.Core;
 using DiceOrbit.Core.Run;
 using DiceOrbit.Data.Modifiers;
 using DiceOrbit.Data.Modifiers.Common;
+using DiceOrbit.Data.Modifiers.Job;
 using DiceOrbit.UI.Skin;
 
 namespace DiceOrbit.UI
@@ -582,6 +583,7 @@ namespace DiceOrbit.UI
                 string status = owned ? $"{who} · 보유 중"
                               : !can ? $"{who} · 장착 불가"
                               : $"{who} · 신규";
+                status = JobModifier.AppendJobTag(status, offer);   // 직업 고유면 " · ○○ 전용" (2026-10-09 C, D2)
                 _cards[i].SetStatus(status, can);
                 _cards[i].SetSelected(i == _selectedOffer);
                 _cards[i].SetDimmed(_selectedOffer >= 0 && i != _selectedOffer);

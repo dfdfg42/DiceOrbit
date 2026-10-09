@@ -334,7 +334,8 @@ namespace DiceOrbit.EditorTools
 
         private static void TestRegistryHas17WithFamilies()
         {
-            var all = ModifierRegistry.CreateAll();
+            // 직업 고유(2026-10-09 C)는 JobModifierSelfTests가 검증한다 — 여기선 공용 17종만 센다.
+            var all = ModifierRegistry.CreateAll().FindAll(m => !(m is DiceOrbit.Data.Modifiers.Job.JobModifier));
             Check(all.Count == 17, $"공용 모디파이어 17종 (실제 {all.Count})");
 
             var perFamily = new Dictionary<ModifierFamily, int>();
