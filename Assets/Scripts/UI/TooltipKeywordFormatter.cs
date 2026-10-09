@@ -116,6 +116,7 @@ namespace DiceOrbit.UI
                 { "Catalyst",      "촉매"    },
                 { "Inspire",       "고양"    },
                 { "Weaken",        "약화"    },
+                { "Charge",        "충전"    },
                 { "Power",         "파워"    },
                 { "Vulnerable",    "취약"    },
                 { "Stun",          "기절"    },

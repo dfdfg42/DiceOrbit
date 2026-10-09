@@ -41,6 +41,7 @@ namespace DiceOrbit.Data
         Catalyst,           // 촉매: 다음 자동공격 행동 피해 +V% (시약 타일, 행동 전체 적용 후 제거) (2026-08-28)
         Inspire,            // 고양: 이번 라운드 동안 주는 공격 피해 +V% (RoundStatus, 2026-10-09)
         Weaken,             // 약화: 이번 라운드 동안 주는 공격 피해 -V% (RoundStatus, 2026-10-09)
+        Charge,             // 충전: 스택형(최대 3), 강화 공격 피해 +15%/스택, 강화 공격 후 1 소비 (ChargeStatus, 2026-10-09 B) — 반드시 enum 끝에 유지
     }
 
     /// <summary>

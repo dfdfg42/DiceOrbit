@@ -1,0 +1,147 @@
+using System.Collections.Generic;
+using DiceOrbit.Core;
+using DiceOrbit.Core.Pipeline;
+using DiceOrbit.Data;
+using DiceOrbit.Data.Modifiers;
+using DiceOrbit.Data.Modifiers.Common;
+using DiceOrbit.Systems.Effects;
+using UnityEditor;
+using UnityEngine;
+
+namespace DiceOrbit.EditorTools
+{
+    /// <summary>
+    /// 캐릭터 시트 동기화 B(공용 모디파이어 17종·충전·방어도 턴 초기화) 순수 로직 자가 테스트. 씬·플레이 모드 불필요.
+    /// 메뉴 [DiceOrbit → Run Common Modifier Self-Tests] 또는 MCP RunCommand에서 RunAll() 호출.
+    /// 유닛은 비활성 GameObject에 AddComponent로 만들고(Awake 미실행) 끝나면 전부 파괴한다.
+    /// </summary>
+    public static class CommonModifierSelfTests
+    {
+        private static int _failures;
+        private static readonly List<GameObject> _spawned = new List<GameObject>();
+
+        [MenuItem("DiceOrbit/Run Common Modifier Self-Tests")]
+        public static void RunFromMenu() => RunAll();
+
+        public static bool RunAll()
+        {
+            _failures = 0;
+            // AddEffect → EffectApplied → VfxService.EnsureInstance가 만든 인스턴스를 정리하기 위해 사전 상태 기록
+            bool vfxExisted = Object.FindFirstObjectByType<DiceOrbit.Visuals.VfxService>() != null;
+            try
+            {
+                TestChargeGrantCapAndConsume();
+                TestChargeOnlyEmpoweredAttacks();
+                // [tests-run]
+            }
+            finally
+            {
+                AttackActionScope.ResetAll();
+                foreach (var go in _spawned)
+                    if (go != null) Object.DestroyImmediate(go);
+                _spawned.Clear();
+                if (!vfxExisted && DiceOrbit.Visuals.VfxService.Instance != null)
+                    Object.DestroyImmediate(DiceOrbit.Visuals.VfxService.Instance.gameObject);
+            }
+
+            if (_failures == 0) Debug.Log("[CommonModifierSelfTests] 전부 통과");
+            else Debug.LogError($"[CommonModifierSelfTests] 실패 {_failures}건");
+            return _failures == 0;
+        }
+
+        // ── 충전 ──────────────────────────────────────────────
+
+        private static void TestChargeGrantCapAndConsume()
+        {
+            var holder = NewCharacter("ChargeHolder");
+            var effects = NewEffects(holder);
+
+            Check(ChargeStatus.Grant(effects, 2) == 2 && effects.GetEffectValue(EffectType.Charge) == 2, "충전 2 부여 → 2");
+            Check(ChargeStatus.Grant(effects, 2) == 1 && effects.GetEffectValue(EffectType.Charge) == 3, "상한 3 — 2를 더 줘도 1만 들어간다");
+            Check(ChargeStatus.Grant(effects, 1) == 0 && effects.GetEffectValue(EffectType.Charge) == 3, "가득 찬 상태에서 부여는 무시");
+
+            ChargeStatus.ConsumeOne(effects);
+            Check(effects.GetEffectValue(EffectType.Charge) == 2, "ConsumeOne 1회 → 2");
+            ChargeStatus.ConsumeOne(effects);
+            ChargeStatus.ConsumeOne(effects);
+            Check(!effects.HasEffect(EffectType.Charge), "0이 되면 상태가 제거된다");
+            ChargeStatus.ConsumeOne(effects);
+            Check(!effects.HasEffect(EffectType.Charge), "충전이 없을 때 ConsumeOne은 무해");
+        }
+
+        private static void TestChargeOnlyEmpoweredAttacks()
+        {
+            var attacker = NewCharacter("ChargeAttacker");
+            var target = NewMonster("ChargeTarget");
+            var charge = new ChargeStatus(2);
+            charge.SetOwner(attacker);
+
+            AttackActionScope.ResetAll();
+            AttackActionScope.Begin(attacker, new AttackActionInfo { ComboStage = 0, IsAutoAttack = true });
+            var empowered = new AttackContext(attacker, target, "강화", 10f);
+            charge.OnAttack(CombatTrigger.OnCalculateOutput, empowered);
+            AttackActionScope.End();
+            Check(Mathf.Approximately(empowered.OutputValue, 13f), $"강화 공격 +15%×2 = 13 (실제 {empowered.OutputValue})");
+
+            AttackActionScope.Begin(attacker, new AttackActionInfo { ComboStage = -1, IsAutoAttack = true });
+            var basic = new AttackContext(attacker, target, "기본", 10f);
+            charge.OnAttack(CombatTrigger.OnCalculateOutput, basic);
+            AttackActionScope.End();
+            Check(Mathf.Approximately(basic.OutputValue, 10f), "기본공격에는 충전 보정 없음");
+
+            var outside = new AttackContext(attacker, target, "스코프 밖", 10f);
+            charge.OnAttack(CombatTrigger.OnCalculateOutput, outside);
+            Check(Mathf.Approximately(outside.OutputValue, 10f), "행동 스코프 밖 피해에는 보정 없음");
+
+            using (AttackActionScope.Simulate(attacker, new AttackActionInfo { ComboStage = 2, IsAutoAttack = true }))
+            {
+                var sim = new AttackContext(attacker, target, "예고", 10f) { IsSimulation = true };
+                charge.OnAttack(CombatTrigger.OnCalculateOutput, sim);
+                Check(Mathf.Approximately(sim.OutputValue, 13f), "행동 예고(시뮬레이션)에도 같은 보정");
+            }
+
+            AttackActionScope.Begin(attacker, new AttackActionInfo { ComboStage = 1, IsAutoAttack = true });
+            var poison = new AttackContext(attacker, target, "중독", 10f) { IsDirectHpLoss = true };
+            charge.OnAttack(CombatTrigger.OnCalculateOutput, poison);
+            AttackActionScope.End();
+            Check(Mathf.Approximately(poison.OutputValue, 10f), "직접 체력 손실엔 개입 안 함");
+        }
+
+        // [tests-body]
+
+        // ── 도우미 ────────────────────────────────────────────
+
+        private static Character NewCharacter(string name, int attack = 10, int hp = 50)
+        {
+            var go = new GameObject(name);
+            go.SetActive(false);
+            _spawned.Add(go);
+            var character = go.AddComponent<Character>();
+            character.InitializeStats(new CharacterStats { CharacterName = name, Attack = attack, MaxHP = hp, CurrentHP = hp });
+            return character;
+        }
+
+        private static Monster NewMonster(string name)
+        {
+            var go = new GameObject(name);
+            go.SetActive(false);
+            _spawned.Add(go);
+            return go.AddComponent<Monster>();
+        }
+
+        /// <summary>비활성 유닛은 Awake가 돌지 않아 StatusEffects가 비어 있다 — 테스트용 매니저를 직접 붙인다.</summary>
+        private static StatusEffectManager NewEffects(Unit unit)
+        {
+            var effects = unit.gameObject.AddComponent<StatusEffectManager>();
+            effects.Initialize(unit);
+            return effects;
+        }
+
+        private static void Check(bool condition, string what)
+        {
+            if (condition) return;
+            _failures++;
+            Debug.LogError("[CommonModifierSelfTests] FAIL: " + what);
+        }
+    }
+}

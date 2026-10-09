@@ -81,6 +81,25 @@ namespace DiceOrbit.Systems.Effects
             foreach (var key in keys) RemoveEffect(key);
         }
 
+        /// <summary>
+        /// 스택형 상태의 스택을 amount만큼 줄인다. 0 이하가 되면 제거한다. 남은 스택 수를 반환한다(없으면 0).
+        /// 제거 후 재부여(아이콘·VFX 깜빡임) 없이 값만 바꾸고 UI에 변경을 알린다 — 충전 소비 등.
+        /// </summary>
+        public int ReduceStack(EffectType type, int amount)
+        {
+            if (!activeEffects.TryGetValue(type, out var effect) || effect == null) return 0;
+
+            effect.Value -= Mathf.Max(0, amount);
+            if (effect.Value <= 0)
+            {
+                RemoveEffect(type);
+                return 0;
+            }
+
+            OnChanged?.Invoke();
+            return effect.Value;
+        }
+
         public IReadOnlyCollection<StatusEffect> GetActiveEffects()
         {
             return activeEffects.Values.ToList().AsReadOnly();
@@ -143,6 +162,10 @@ namespace DiceOrbit.Systems.Effects
                     return new InspireStatus(value);
                 case EffectType.Weaken:
                     return new WeakenStatus(value);
+
+                // 충전 — 스택형, duration 무시(-1 고정). 상한(3)은 ChargeStatus.Grant 한 곳에서만 보장한다.
+                case EffectType.Charge:
+                    return new ChargeStatus(value);
 
                 // 추후 BuffDefense, Dot 등 추가
 
