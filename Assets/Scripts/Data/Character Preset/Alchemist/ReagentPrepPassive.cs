@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using DiceOrbit.Core;
 using DiceOrbit.Data.Tile;
+using DiceOrbit.Data.Modifiers.Job;
 
 namespace DiceOrbit.Data.Passives
 {
@@ -22,7 +23,7 @@ namespace DiceOrbit.Data.Passives
         [SerializeField] private int catalystPercent = 25;
 
         /// <summary>시약 타일이 밟힐 때 부여할 촉매 수치(%). ReagentTile이 읽는다.</summary>
-        public int CatalystPercent => Mathf.Max(0, catalystPercent);
+        public int CatalystPercent => StatusEnhancement.EffectivePercent(EffectType.Catalyst, Mathf.Max(0, catalystPercent));
 
         public override int Priority => 98;
 

@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using DiceOrbit.Core;
 using DiceOrbit.Data.Passives;
+using DiceOrbit.Data.Modifiers.Job;
 using DiceOrbit.Data.Skills;
 using UnityEngine;
 
@@ -27,6 +28,9 @@ namespace DiceOrbit.Data.CharacterActives
         [Tooltip("감전 수치 — 이번 라운드 동안 대상이 받는 공격 피해 +% (2·3단계 공통)")]
         [SerializeField] private int shockPercent = 25;
 
+        /// <summary>지금 부여할 감전 수치 — 고전압 보유 마법사가 살아 있으면 40 (2026-10-09 C, D5). 부여 버블·설명이 같은 값을 쓴다.</summary>
+        private int ShockPercentNow => StatusEnhancement.EffectivePercent(EffectType.Shock, shockPercent);
+
         public override string GetStageName(int stage)
             => stage switch { 0 => "비전 화살", 1 => "연쇄 번개", _ => "궤도 붕괴" };
 
@@ -45,7 +49,7 @@ namespace DiceOrbit.Data.CharacterActives
         {
             // 연쇄 번개·궤도 붕괴 — 적중한 대상마다 감전 (이번 라운드 동안 받는 공격 피해 증가)
             if (stage >= 1 && shockPercent > 0)
-                GrantStatus(target, EffectType.Shock, shockPercent);
+                GrantStatus(target, EffectType.Shock, ShockPercentNow);
         }
 
         public override string GetSelectionSummary()
@@ -55,8 +59,8 @@ namespace DiceOrbit.Data.CharacterActives
             => stage switch
             {
                 0 => $"[비전 화살] 마력 회로 안의 몬스터 하나에게 공격력의 {stage1Multiplier * 100f:0.#}%만큼 피해를 줍니다.",
-                1 => $"[연쇄 번개] 회로 안에서 가장 가까운 몬스터 최대 {Mathf.Max(1, stage2MaxTargets)}명에게 공격력의 {stage2Multiplier * 100f:0.#}%만큼 피해를 주고 감전 {shockPercent}%를 부여합니다.",
-                _ => $"[궤도 붕괴] 회로에 연결된 모든 구역의 몬스터에게 공격력의 {stage3Multiplier * 100f:0.#}%만큼 피해를 주고 감전 {shockPercent}%를 부여합니다.",
+                1 => $"[연쇄 번개] 회로 안에서 가장 가까운 몬스터 최대 {Mathf.Max(1, stage2MaxTargets)}명에게 공격력의 {stage2Multiplier * 100f:0.#}%만큼 피해를 주고 감전 {ShockPercentNow}%를 부여합니다.",
+                _ => $"[궤도 붕괴] 회로에 연결된 모든 구역의 몬스터에게 공격력의 {stage3Multiplier * 100f:0.#}%만큼 피해를 주고 감전 {ShockPercentNow}%를 부여합니다.",
             };
     }
 }

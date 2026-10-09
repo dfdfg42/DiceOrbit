@@ -43,6 +43,9 @@ namespace DiceOrbit.EditorTools
                 TestJobRestriction();
                 TestJobQueries();
                 TestJobTagOnRewardStatus();
+                TestStatusEnhancementPercent();
+                TestEnhancerAliveOrDead();
+                TestShockWithoutEnhancerUnchanged();
                 // [tests-run]
             }
             finally
@@ -126,6 +129,54 @@ namespace DiceOrbit.EditorTools
             Check(JobModifier.AppendJobTag("도적 · 장착 불가", new WarriorProbeModifier()) == "도적 · 장착 불가 · 전사 전용",
                   "다른 직업 선택 시 장착 불가 + 전용 표시");
             Check(JobModifier.AppendJobTag("전사 · 신규", new GrandFinaleModifier()) == "전사 · 신규", "공용은 그대로");
+        }
+
+        // ── 상태 강화 (D5) ────────────────────────────────────
+
+        private static void TestStatusEnhancementPercent()
+        {
+            Check(StatusEnhancement.EffectivePercent(25, false) == 25, "강화 없음 → 원래 값");
+            Check(StatusEnhancement.EffectivePercent(25, true) == 40, "강화 → 40");
+            Check(StatusEnhancement.EffectivePercent(50, true) == 50, "이미 40보다 크면 큰 값 유지");
+            Check(!StatusEnhancement.IsEnhanced(EffectType.Inspire, null), "감전·촉매 외 상태는 강화 대상 아님");
+        }
+
+        private static void TestEnhancerAliveOrDead()
+        {
+            var mage = NewCharacter("VoltMage", JobIds.Mage);
+            var alch = NewCharacter("PurityAlch", JobIds.Alchemist);
+            var volt = new HighVoltageModifier();
+            var purity = new HighPurityCatalystModifier();
+            Check(volt.CanApplyTo(mage) && !volt.CanApplyTo(alch), "고전압 = 마법사 전용");
+            Check(purity.CanApplyTo(alch) && !purity.CanApplyTo(mage), "고순도 촉매 = 연금술사 전용");
+            Check(volt.Family == ModifierFamily.Combo && purity.Family == ModifierFamily.Combo, "둘 다 콤보 계열");
+
+            mage.Stats.Modifiers.Add(volt);
+            alch.Stats.Modifiers.Add(purity);
+            var party = new List<Character> { mage, alch };
+
+            Check(StatusEnhancement.IsEnhanced(EffectType.Shock, party) && StatusEnhancement.IsEnhanced(EffectType.Catalyst, party),
+                  "보유자 생존 → 감전·촉매 강화");
+            Check(StatusEnhancement.EffectivePercent(EffectType.Shock, 25, party) == 40, "고전압 보유 마법사 생존: 감전 25 → 40");
+
+            mage.Stats.CurrentHP = 0;
+            Check(!StatusEnhancement.IsEnhanced(EffectType.Shock, party), "마법사 사망 → 감전 강화 해제");
+            Check(StatusEnhancement.EffectivePercent(EffectType.Shock, 25, party) == 25, "고전압 보유 마법사 사망: 감전 25");
+            Check(StatusEnhancement.EffectivePercent(EffectType.Catalyst, 25, party) == 40, "연금술사는 살아 있어 촉매는 계속 40");
+        }
+
+        private static void TestShockWithoutEnhancerUnchanged()
+        {
+            // 매니저 없음 = 강화자 없음 → 기존 동작 그대로 (CombatRedesignSelfTests 회귀 방지)
+            var victim = NewMonster("ShockVictim");
+            var hitter = NewCharacter("ShockHitter");
+            var shock = new ShockStatus(25);
+            shock.SetOwner(victim);
+            Check(shock.Value == 25, "강화자 없으면 부여값 그대로");
+
+            var ctx = new AttackContext(hitter, victim, "타격", 10f);
+            shock.OnAttack(CombatTrigger.OnCalculateOutput, ctx);
+            Check(Mathf.Approximately(ctx.OutputValue, 12.5f), $"감전 25% → 12.5 (실제 {ctx.OutputValue})");
         }
 
         // [tests-body]

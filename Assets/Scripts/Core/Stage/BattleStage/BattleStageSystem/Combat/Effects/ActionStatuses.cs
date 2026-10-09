@@ -1,6 +1,7 @@
 using DiceOrbit.Core;
 using DiceOrbit.Core.Pipeline;
 using DiceOrbit.Data;
+using DiceOrbit.Data.Modifiers.Job;
 
 namespace DiceOrbit.Systems.Effects
 {
@@ -70,16 +71,20 @@ namespace DiceOrbit.Systems.Effects
         }
     }
 
-    /// <summary>감전 — 이번 라운드 동안 이 유닛이 '받는' 공격 피해 +Value% (기본 25). 디버프 피해엔 적용 안 됨.</summary>
+    /// <summary>
+    /// 감전 — 이번 라운드 동안 이 유닛이 '받는' 공격 피해 +Value% (기본 25). 디버프 피해엔 적용 안 됨.
+    /// 실효 %는 계산할 때마다 StatusEnhancement가 정한다 — 고전압 보유 마법사가 살아 있으면 max(Value, 40) (2026-10-09 C, D5).
+    /// </summary>
     public class ShockStatus : RoundStatus
     {
-        public ShockStatus(int value) : base(EffectType.Shock, value) { }
+        // 부여 시점에도 강화 중이면 40으로 부여해 아이콘 수치를 맞춘다 (D5)
+        public ShockStatus(int value) : base(EffectType.Shock, StatusEnhancement.EffectivePercent(EffectType.Shock, value)) { }
 
         protected override bool AppliesTo(AttackContext context)
             => context.Target == Owner && context.SourceUnit != null;
 
         protected override void Modify(AttackContext context)
-            => context.OutputValue *= 1f + Value / 100f;
+            => context.OutputValue *= 1f + StatusEnhancement.EffectivePercent(Type, Value) / 100f;
     }
 
     /// <summary>
@@ -89,7 +94,8 @@ namespace DiceOrbit.Systems.Effects
     /// </summary>
     public class CatalystStatus : OneShotActionStatus
     {
-        public CatalystStatus(int value) : base(EffectType.Catalyst, value) { }
+        // 부여 시점에도 강화 중이면 40으로 부여 (고순도 촉매, 2026-10-09 C D5)
+        public CatalystStatus(int value) : base(EffectType.Catalyst, StatusEnhancement.EffectivePercent(EffectType.Catalyst, value)) { }
 
         protected override bool AppliesTo(AttackContext context)
             => AttackActionScope.IsActive
@@ -97,8 +103,9 @@ namespace DiceOrbit.Systems.Effects
                && context.SourceUnit == Owner
                && Owner is Character;
 
+        // 실효 % — 고순도 촉매 보유 연금술사가 살아 있으면 max(Value, 40) (D5)
         protected override void Modify(AttackContext context)
-            => context.OutputValue *= 1f + Value / 100f;
+            => context.OutputValue *= 1f + StatusEnhancement.EffectivePercent(Type, Value) / 100f;
     }
 
     /// <summary>고양 — 이번 라운드 동안 이 유닛이 주는 공격 피해 +Value% (기본 25).</summary>
