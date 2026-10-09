@@ -299,6 +299,7 @@ namespace DiceOrbit.Core
             Systems.Effects.AttackActionScope.ResetAll();
             ExpireRoundStatuses(); // 턴 도중 승리·패배여도 라운드형 상태가 남지 않게
             ClearPartyCharge();    // 충전은 전투를 넘어 이월되지 않는다 (방송 없는 디버그 시작 경로 포함)
+            DiceOrbit.Data.Tile.MagicLandTile.ClearAll();   // 마법의 땅은 그 전투 한정 (2026-10-09 C)
 
             if (victory)
             {

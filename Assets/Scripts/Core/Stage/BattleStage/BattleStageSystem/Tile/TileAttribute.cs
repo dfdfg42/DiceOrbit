@@ -25,6 +25,7 @@ namespace DiceOrbit.Data.Tile
         Slime,          // 점액: 통과/턴 종료 시 쇠약 부여 (Wave0)
         Amethyst,       // 자수정: 통과/턴 종료 시 수정 핵에 수정 중첩 +1, 영구 (Wave3 수정)
         Vitality,       // 활력: 통과/턴 종료 시 모든 식물 몬스터 활력 -1, 영구 (Wave7 농장)
+        MagicLand,      // 마법의 땅: 마법사 [마법의 땅]이 전투 시작 시 한 구역에 설치, 그 위 마법사 공격 피해 +15%, 전투 종료 시 삭제 (2026-10-09 C) — 반드시 enum 끝에 유지
     }
 
     /// <summary>
@@ -149,6 +150,7 @@ namespace DiceOrbit.Data.Tile
                 TileAttributeType.Vitality => "활력",
                 TileAttributeType.Bind => "속박",
                 TileAttributeType.Frost => "빙결",
+                TileAttributeType.MagicLand => "마법의 땅",
                 _ => Type.ToString()
             };
         }

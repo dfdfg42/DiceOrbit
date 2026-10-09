@@ -55,6 +55,7 @@ namespace DiceOrbit.EditorTools
                 TestWarriorPaybackRounds();
                 TestWarriorPaybackHooks();
                 TestEarthRune();
+                TestMagicLandTileAndModifier();
                 // [tests-run]
             }
             finally
@@ -395,6 +396,35 @@ namespace DiceOrbit.EditorTools
             rune.OnAttack(CombatTrigger.OnCalculateOutput, stage2);
             AttackActionScope.End();
             Check(Mathf.Approximately(stage2.OutputValue, 10f), "2단계엔 보정 없음");
+        }
+
+        // ── 마법의 땅 ─────────────────────────────────────────
+
+        private static void TestMagicLandTileAndModifier()
+        {
+            Check((int)TileAttributeType.MagicLand == 19, "MagicLand는 enum 끝(19) — 기존 .asset의 정수 인덱스 불변");
+            var tile = new MagicLandTile(null);
+            Check(tile.Type == TileAttributeType.MagicLand && tile.Duration == -1 && tile.Value == 15,
+                  "마법의 땅: 지속 영구(전투 종료 시 별도 삭제), 값 15");
+            Check(tile.GetDisplayName() == "마법의 땅", $"표시 이름 (실제 {tile.GetDisplayName()})");
+            Check(tile.GetDescription().Contains("15%"), "설명에 15%");
+
+            var db = Resources.Load<DiceOrbit.UI.TileAttributeVisualDatabase>("UI/TileAttributeVisualDatabase");
+            Check(db != null && db.TryGet(TileAttributeType.MagicLand, out _),
+                  "시각 DB에 마법의 땅 항목 (없으면 버블 대신 에러 로그)");
+
+            var mage = NewCharacter("LandMage", JobIds.Mage);
+            var land = new MagicLandModifier();
+            Check(land.CanApplyTo(mage) && !land.CanApplyTo(NewCharacter("LandRogue", JobIds.Rogue)), "마법의 땅 = 마법사 전용");
+            Check(land.Family == ModifierFamily.Position, "마법의 땅 = 위치 계열");
+            Check(!MagicLandModifier.IsOnMagicLand(mage) && !MagicLandModifier.IsOnMagicLand(null), "타일 없음 → 마법의 땅 아님");
+
+            mage.Stats.Modifiers.Add(land);
+            var enemy = NewMonster("LandEnemy");
+            var ctx = new AttackContext(mage, enemy, "비전 화살", 10f);
+            land.OnAttack(CombatTrigger.OnCalculateOutput, ctx);
+            Check(Mathf.Approximately(ctx.OutputValue, 10f), "마법의 땅 밖 → 보정 없음");
+            // 타일 위 +15%는 TileData·버블 매니저가 필요해 플레이 확인 항목으로 둔다 (§사용자 확인).
         }
 
         // [tests-body]

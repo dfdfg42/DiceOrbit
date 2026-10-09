@@ -50,6 +50,7 @@ namespace DiceOrbit.Data.Modifiers
             () => new Job.VenomStingModifier(),
             // 마법사
             () => new Job.HighVoltageModifier(),
+            () => new Job.MagicLandModifier(),
             // 연금술사
             () => new Job.HighPurityCatalystModifier(),
         };
