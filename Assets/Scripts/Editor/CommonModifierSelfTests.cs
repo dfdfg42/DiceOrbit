@@ -42,6 +42,7 @@ namespace DiceOrbit.EditorTools
                 TestFractureBonusOnlyForFirstUnarmoredTarget();
                 TestBasicTrainingAddsAttack();
                 TestMaxHpGainAndRestoreDoesNotReapply();
+                TestRegistryHas17WithFamilies();
                 // [tests-run]
             }
             finally
@@ -327,6 +328,38 @@ namespace DiceOrbit.EditorTools
             var restored = NewCharacter("SturdyRestore", hp: 70);
             restored.Stats.Modifiers.Add(new SturdyBodyModifier());   // 세이브 복원 경로
             Check(restored.Stats.MaxHP == 70 && restored.Stats.CurrentHP == 70, "복원(Add)은 완강한 신체를 다시 적용하지 않는다");
+        }
+
+        // ── 레지스트리 ────────────────────────────────────────
+
+        private static void TestRegistryHas17WithFamilies()
+        {
+            var all = ModifierRegistry.CreateAll();
+            Check(all.Count == 17, $"공용 모디파이어 17종 (실제 {all.Count})");
+
+            var perFamily = new Dictionary<ModifierFamily, int>();
+            var names = new HashSet<string>();
+            foreach (var m in all)
+            {
+                Check(m.Family != ModifierFamily.None, $"{m.GetType().Name}: 계열 지정됨");
+                Check(m.Category == ModifierCategory.Generic, $"{m.GetType().Name}: Generic");
+                Check(names.Add(m.ModifierName), $"{m.GetType().Name}: 이름 중복 없음");
+                Check(!string.IsNullOrEmpty(m.Description), $"{m.GetType().Name}: 설명 있음");
+                Check(ModifierRegistry.Exists(m.GetType().Name), $"{m.GetType().Name}: 세이브 ID로 조회됨");
+                perFamily.TryGetValue(m.Family, out int n);
+                perFamily[m.Family] = n + 1;
+            }
+
+            perFamily.TryGetValue(ModifierFamily.Position, out int position);
+            perFamily.TryGetValue(ModifierFamily.Dice, out int dice);
+            perFamily.TryGetValue(ModifierFamily.Combo, out int combo);
+            perFamily.TryGetValue(ModifierFamily.Survival, out int survival);
+            Check(position == 5 && dice == 4 && combo == 4 && survival == 4,
+                  $"계열 분포 위치5/주사위4/콤보4/생존4 (실제 {position}/{dice}/{combo}/{survival})");
+
+            foreach (var removed in new[] { "ZoneCrossModifier", "MomentumStrikeModifier", "ExtremeResonanceModifier",
+                                            "SafetyNetModifier", "ChainReactionModifier", "OpeningBarrierModifier", "UnyieldingModifier" })
+                Check(!ModifierRegistry.Exists(removed), $"삭제된 {removed}는 레지스트리에 없다 (옛 세이브 → 검증 실패, D9)");
         }
 
         // [tests-body]
