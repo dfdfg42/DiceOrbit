@@ -237,7 +237,7 @@ namespace DiceOrbit.Core
                 // AttackIntent의 유효성 확인 (죽은 타겟 제거)
                 nextIntent.RefreshTargets();
 
-                // 몬스터의 의도 실행 1회 = 공격 행동 1회 — 약화 등 1회성 상태가 다단 공격 전체에 적용된다.
+                // 몬스터의 의도 실행 1회 = 공격 행동 1회 — 1회성 상태가 다단 공격 전체에 적용된다 (약화는 라운드형이라 별개로 라운드 내내 적용).
                 Systems.Effects.AttackActionScope.Begin(this);
                 try
                 {

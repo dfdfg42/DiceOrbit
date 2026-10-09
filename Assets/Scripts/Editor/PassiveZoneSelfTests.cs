@@ -131,11 +131,11 @@ namespace DiceOrbit.EditorTools
 
         private static void TestFlankStatus()
         {
-            var off = RogueFlankPassive.FormatZoneStatus(0, 30f);
+            var off = RogueFlankPassive.FormatZoneStatus(0, 20f);
             Check(!off.Active && off.Effect == "같은 구역 아군 없음", "협공: 아군 없으면 꺼짐");
 
-            var three = RogueFlankPassive.FormatZoneStatus(3, 30f);
-            Check(three.Active && three.Effect == "주는 피해 +90%", "협공: 아군 3명 = +90%");
+            var three = RogueFlankPassive.FormatZoneStatus(3, 20f);
+            Check(three.Active && three.Effect == "주는 피해 +60%", "협공: 아군 3명 = +60%");
 
             Check(RogueFlankPassive.FormatZoneStatus(1, 12.5f).Effect == "주는 피해 +12.5%", "협공: 소수 한 자리까지");
         }
