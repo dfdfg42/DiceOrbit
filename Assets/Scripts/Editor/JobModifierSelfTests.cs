@@ -61,6 +61,7 @@ namespace DiceOrbit.EditorTools
                 TestExtraReagentCount();
                 TestReagentSharePick();
                 TestWeakeningGas();
+                TestRegistryHas33WithJobRules();
                 // [tests-run]
             }
             finally
@@ -545,6 +546,74 @@ namespace DiceOrbit.EditorTools
 
             gas.OnAttackActionFinished(alch, new AttackActionResult(2, new List<Unit> { enemy }, 0));
             Check(!enemyFx.HasEffect(EffectType.Weaken), "CombatManager 없음 → 아무 일 없음(예외 없음) — 실제 약화 살포는 플레이 확인");
+        }
+
+        // ── 레지스트리 (D6) ───────────────────────────────────
+
+        private static void TestRegistryHas33WithJobRules()
+        {
+            var all = ModifierRegistry.CreateAll();
+            Check(all.Count == 33, $"공용 17 + 직업 고유 16 = 33종 (실제 {all.Count})");
+
+            var jobs = new[] { JobIds.Warrior, JobIds.Rogue, JobIds.Mage, JobIds.Alchemist };
+            var probes = new Dictionary<string, Character>();
+            foreach (var id in jobs) probes[id] = NewCharacter("Reg" + id, id);
+
+            var perJob = new Dictionary<string, int>();
+            var perFamily = new Dictionary<ModifierFamily, int>();
+            var jobFamily = new Dictionary<ModifierFamily, int>();
+            var names = new HashSet<string>();
+
+            foreach (var m in all)
+            {
+                string type = m.GetType().Name;
+                Check(m.Family != ModifierFamily.None, $"{type}: 계열 지정됨");
+                Check(m.Category == ModifierCategory.Generic, $"{type}: Generic");
+                Check(names.Add(m.ModifierName), $"{type}: 표시 이름 중복 없음 ({m.ModifierName})");
+                Check(!string.IsNullOrEmpty(m.Description), $"{type}: 설명 있음");
+                Check(ModifierRegistry.Exists(type), $"{type}: 세이브 ID(타입명)로 조회됨");
+                perFamily.TryGetValue(m.Family, out int f);
+                perFamily[m.Family] = f + 1;
+
+                if (!(m is JobModifier job)) continue;
+
+                jobFamily.TryGetValue(m.Family, out int jf);
+                jobFamily[m.Family] = jf + 1;
+
+                int owners = 0;
+                foreach (var id in jobs)
+                {
+                    bool own = JobIds.Label(id) == job.JobLabel;
+                    if (own) owners++;
+                    Check(job.CanApplyTo(probes[id]) == own,
+                          $"{type}: {JobIds.Label(id)}에게 {(own ? "장착 가능" : "장착 불가")}");
+                }
+                Check(owners == 1, $"{type}: 정확히 한 직업 전용");
+                perJob.TryGetValue(job.JobLabel, out int j);
+                perJob[job.JobLabel] = j + 1;
+            }
+
+            foreach (var id in jobs)
+            {
+                perJob.TryGetValue(JobIds.Label(id), out int n);
+                Check(n == 4, $"{JobIds.Label(id)} 고유 4종 (실제 {n})");
+            }
+
+            int Count(Dictionary<ModifierFamily, int> d, ModifierFamily fam) => d.TryGetValue(fam, out int v) ? v : 0;
+            Check(Count(jobFamily, ModifierFamily.Position) == 7 && Count(jobFamily, ModifierFamily.Combo) == 8
+                  && Count(jobFamily, ModifierFamily.Survival) == 1 && Count(jobFamily, ModifierFamily.Dice) == 0,
+                  $"고유 계열 위치7/콤보8/생존1/주사위0 (실제 {Count(jobFamily, ModifierFamily.Position)}/{Count(jobFamily, ModifierFamily.Combo)}/{Count(jobFamily, ModifierFamily.Survival)}/{Count(jobFamily, ModifierFamily.Dice)})");
+            Check(Count(perFamily, ModifierFamily.Position) == 12 && Count(perFamily, ModifierFamily.Dice) == 4
+                  && Count(perFamily, ModifierFamily.Combo) == 12 && Count(perFamily, ModifierFamily.Survival) == 5,
+                  $"전체 계열 위치12/주사위4/콤보12/생존5 (실제 {Count(perFamily, ModifierFamily.Position)}/{Count(perFamily, ModifierFamily.Dice)}/{Count(perFamily, ModifierFamily.Combo)}/{Count(perFamily, ModifierFamily.Survival)})");
+
+            // 보상 3택 — 도적만 있는 파티에는 다른 직업 고유가 절대 제시되지 않는다
+            var rogueParty = new List<Character> { probes[JobIds.Rogue] };
+            bool onlyRogueOrCommon = true;
+            foreach (var offer in ModifierRegistry.GetRandomChoicesForParty(rogueParty, 33))
+                if (offer is JobModifier job && job.JobLabel != "도적") onlyRogueOrCommon = false;
+            Check(onlyRogueOrCommon, "도적 파티 보상 풀 = 공용 + 도적 고유만");
+            Check(ModifierRegistry.GetRandomChoicesForParty(rogueParty, 33).Count == 21, "도적 파티 보상 풀 크기 17 + 4 = 21");
         }
 
         // [tests-body]
