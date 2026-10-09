@@ -9,7 +9,7 @@ namespace DiceOrbit.Data.Passives
 {
     /// <summary>
     /// [협공] 같은 구역의 '다른 아군' 수만큼 도적의 공격이 깊어진다 (2026-08-28 개편 — 인원 비례).
-    /// 다른 아군 1명당 도적이 주는 공격 피해 +30% (1/2/3명 = +30/+60/+90%). 도적 자신은 제외.
+    /// 다른 아군 1명당 도적이 주는 공격 피해 +20% (1/2/3명 = +20/+40/+60%). 도적 자신은 제외.
     /// 비수 콤보·기본공격 같은 직접 공격 피해에만 적용되고, 중독 피해에는 적용되지 않는다
     /// (직접 체력 손실은 파이프라인이 리액터 통지를 건너뜀 + 이중 방어).
     /// </summary>
@@ -17,8 +17,8 @@ namespace DiceOrbit.Data.Passives
     public class RogueFlankPassive : CharacterPassiveSkill, IPassiveZoneProvider
     {
         [Header("Designer Tuning")]
-        [Tooltip("같은 구역의 '다른 아군' 1명당 피해 증가율(%). 예: 30이면 3명일 때 +90%")]
-        [SerializeField] private float perAllyBonusPercent = 30f;
+        [Tooltip("같은 구역의 '다른 아군' 1명당 피해 증가율(%). 예: 20이면 3명일 때 +60%")]
+        [SerializeField] private float perAllyBonusPercent = 20f;
 
         public override int Priority => 99;
 

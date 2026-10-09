@@ -187,7 +187,7 @@ namespace DiceOrbit.Core.Tutorial
                       Done = () => CharacterActionUI.Instance != null && CharacterActionUI.Instance.IsShowingCharacter(Warrior) },
                 new TutorialStep("주사위 눈은 이동 거리이면서 강화 공격 조건입니다. 전사는 <b>눈 4 이상</b>을 연속으로 사용하면 대검 공격이 3단계까지 이어집니다.")
                     { Target = Action, GateInput = true, HighlightPad = new Vector4(0, 0, 0, 120) },
-                new TutorialStep("<b>눈 4</b>를 전사에게 배정하고 이동하세요. 도착한 구역의 몬스터에게 1단계 <b>균열 베기</b>가 자동으로 발동합니다.")
+                new TutorialStep("<b>눈 4</b>를 전사에게 배정하고 이동하세요. 도착한 구역의 몬스터에게 1단계 <b>대검 베기</b>가 자동으로 발동합니다.")
                     { NoSpotlight = true, OnlyDieValue = 4, ActionLock = TutorialActionLock.MoveOnly, Advance = TutorialAdvance.Custom,
                       Done = () => combatProgress != null && combatProgress.WarriorStage1Done },
                 new TutorialStep("강화 공격이 실제로 적중하면 콤보 표시가 다음 단계로 올라갑니다. 같은 조건의 주사위를 다음 턴에도 사용해야 이어집니다.")
@@ -195,10 +195,10 @@ namespace DiceOrbit.Core.Tutorial
                 new TutorialStep("이번에는 도적을 선택하세요. 도적은 <b>눈 3 이하</b>를 연속으로 사용해 비수 콤보를 이어갑니다.")
                     { Target = R, Advance = TutorialAdvance.Custom,
                       Done = () => CharacterActionUI.Instance != null && CharacterActionUI.Instance.IsShowingCharacter(Rogue) },
-                new TutorialStep("<b>눈 2</b>를 도적에게 배정해 전사와 같은 구역으로 이동하세요. 1단계 <b>쌍비수</b>가 두 번 공격하고 <b>협공 +30%</b>도 적용됩니다.")
+                new TutorialStep("<b>눈 2</b>를 도적에게 배정해 전사와 같은 구역으로 이동하세요. 1단계 <b>쌍비수</b>가 두 번 공격하고 <b>협공 +20%</b>도 적용됩니다.")
                     { NoSpotlight = true, OnlyDieValue = 2, ActionLock = TutorialActionLock.MoveOnly, Advance = TutorialAdvance.Custom,
                       Done = () => combatProgress != null && combatProgress.RogueStage1Done },
-                new TutorialStep("같은 구역의 다른 아군 한 명마다 도적의 <b>협공</b> 피해는 30% 증가합니다. 전사의 <b>방진</b>은 같은 구역 아군이 받는 공격 피해를 한 명마다 10% 줄입니다.")
+                new TutorialStep("같은 구역의 다른 아군 한 명마다 도적의 <b>협공</b> 피해는 20% 증가합니다. 전사의 <b>방진</b>은 같은 구역 아군이 받는 공격 피해를 한 명마다 10% 줄입니다.")
                     { GateInput = true, OnEnter = PrepareFormationAttack },
                 new TutorialStep("두 캐릭터가 같은 구역에 모였습니다. [턴 종료]를 눌러 몬스터 공격을 받고 방진을 확인하세요.")
                     { Target = EndTurn, Advance = TutorialAdvance.Custom, OnEnter = () => DiceManager.Instance?.SetScriptedRoll(new[] { 4, 1, 5, 6 }),
@@ -209,10 +209,10 @@ namespace DiceOrbit.Core.Tutorial
                 new TutorialStep("두 번째 턴입니다. 전사를 선택하세요. 이번 눈 4로 콤보 2단계를 발동해 보겠습니다.")
                     { Target = W, Advance = TutorialAdvance.Custom,
                       Done = () => CharacterActionUI.Instance != null && CharacterActionUI.Instance.IsShowingCharacter(Warrior) },
-                new TutorialStep("전사에게 <b>눈 4</b>를 배정하고 이동하세요. 2단계 <b>지진파</b>가 현재 구역과 양옆 구역을 함께 공격합니다.")
+                new TutorialStep("전사에게 <b>눈 4</b>를 배정하고 이동하세요. 2단계 <b>균열 베기</b>가 현재 구역과 양옆 구역을 함께 공격합니다.")
                     { NoSpotlight = true, OnlyDieValue = 4, ActionLock = TutorialActionLock.MoveOnly, Advance = TutorialAdvance.Custom,
                       Done = () => combatProgress != null && combatProgress.WarriorStage2Done },
-                new TutorialStep("지진파처럼 공격 범위가 넓어지면 어느 구역으로 이동하느냐에 따라 맞는 몬스터가 달라집니다.")
+                new TutorialStep("균열 베기처럼 공격 범위가 넓어지면 어느 구역으로 이동하느냐에 따라 맞는 몬스터가 달라집니다.")
                     { Target = Field, GateInput = true },
                 new TutorialStep("도적은 이번 턴에 움직이지 않고 넘어가겠습니다. [턴 종료]를 누르세요.")
                     { Target = EndTurn, Advance = TutorialAdvance.Custom, OnEnter = () => DiceManager.Instance?.SetScriptedRoll(new[] { 4, 2, 3, 6 }),

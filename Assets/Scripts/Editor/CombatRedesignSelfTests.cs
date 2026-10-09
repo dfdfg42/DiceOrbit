@@ -194,10 +194,10 @@ namespace DiceOrbit.EditorTools
             Check(warrior.GetStageName(0) == "대검 베기" && warrior.GetStageName(1) == "균열 베기", "전사 1·2단계 이름 (시트)");
 
             var rogue = new RogueAmbushActive();
-            Check(rogue.GetStageHits(0) == 2 && rogue.GetStageHits(1) == 3 && rogue.GetStageHits(2) == 5, "도적 타수 2/3/5");
-            Check(Mathf.Approximately(rogue.GetStageMultiplier(0) * rogue.GetStageHits(0), 1.4f), "쌍비수 총 140%");
-            Check(Mathf.Approximately(rogue.GetStageMultiplier(1) * rogue.GetStageHits(1), 1.8f), "맹독비수 총 180%");
-            Check(Mathf.Approximately(rogue.GetStageMultiplier(2) * rogue.GetStageHits(2), 2.5f), "죽음의 촉매 총 250%");
+            Check(rogue.GetStageHits(0) == 2 && rogue.GetStageHits(1) == 3 && rogue.GetStageHits(2) == 4, "도적 타수 2/3/4");
+            Check(Mathf.Approximately(rogue.GetStageMultiplier(0) * rogue.GetStageHits(0), 1.2f), "쌍비수 총 120%");
+            Check(Mathf.Approximately(rogue.GetStageMultiplier(1) * rogue.GetStageHits(1), 2.25f), "맹독비수 총 225%");
+            Check(Mathf.Approximately(rogue.GetStageMultiplier(2) * rogue.GetStageHits(2), 4.0f), "죽음의 촉매 총 400%");
 
             var mage = new MageEnergyBallActive();
             Check(Mathf.Approximately(mage.GetStageMultiplier(0), 1.4f)
@@ -229,7 +229,7 @@ namespace DiceOrbit.EditorTools
             var cases = new (string assetPath, string condition, string[] effects)[]
             {
                 ("Assets/Scripts/Data/Character Preset/Warrior/Warrior.asset", "4 이상", new[] { "단일", "인접", "전장 전체", "방어도" }),
-                ("Assets/Scripts/Data/Character Preset/Rogue/Rogue.asset", "3 이하", new[] { "2회", "3회", "5회", "중독", "2배" }),
+                ("Assets/Scripts/Data/Character Preset/Rogue/Rogue.asset", "3 이하", new[] { "2회", "3회", "4회", "중독", "2배" }),
                 ("Assets/Scripts/Data/Character Preset/Mage/Mage.asset", "홀수", new[] { "단일", "2명", "마력 회로 전체", "감전" }),
                 ("Assets/Scripts/Data/Character Preset/Alchemist/Alchemist.asset", "짝수", new[] { "단일", "인접", "전장 전체", "약화", "고양" }),
             };
