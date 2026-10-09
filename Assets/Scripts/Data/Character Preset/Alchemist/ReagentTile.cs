@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using DiceOrbit.Data.Modifiers.Job;
 using DiceOrbit.Data.Passives;
 
 namespace DiceOrbit.Data.Tile
@@ -35,12 +37,44 @@ namespace DiceOrbit.Data.Tile
             if (character == null || !character.IsAlive || character.StatusEffects == null) return;
 
             int percent = ownerPassive != null ? ownerPassive.CatalystPercent : 25;
+            GrantCatalyst(character, percent);
+            // 타일은 제거하지 않는다 — 영구 유지가 이 타일의 정체성이다.
+
+            ShareCatalyst(character, percent);
+        }
+
+        private static void GrantCatalyst(Core.Character character, int percent)
+        {
             character.StatusEffects.AddEffect(
                 Systems.Effects.StatusEffectManager.CreateEffect(EffectType.Catalyst, percent, -1));
 
             var data = UI.TooltipKeywordFormatter.BuildStatusDisplayData(EffectType.Catalyst.ToString(), percent, -1);
             UI.CombatNotifier.NotifyStatus(character, data.Name, data.Color);
-            // 타일은 제거하지 않는다 — 영구 유지가 이 타일의 정체성이다.
+        }
+
+        /// <summary>
+        /// [시약 분배] (2026-10-09 C) — 타일 주인 연금술사가 살아 있고 시약 분배를 장착했으면, 이 타일 구역의
+        /// 무작위 다른 아군 1명(이미 촉매 보유 제외)에게도 같은 수치의 촉매. 분배받은 촉매는 타일을 거치지 않아 다시 분배되지 않는다.
+        /// </summary>
+        private void ShareCatalyst(Core.Character receiver, int percent)
+        {
+            var alchemist = ownerPassive != null ? ownerPassive.OwnerCharacter : null;
+            if (alchemist == null || !alchemist.IsAlive) return;
+            if (!JobModifierQueries.Has<ReagentShareModifier>(alchemist)) return;
+
+            var zones = Core.Zones.CombatZoneManager.Instance;
+            var party = Core.PartyManager.Instance;
+            if (zones == null || party == null || Owner == null) return;
+
+            int zone = zones.GetZoneOfTile(Owner);
+            if (zone < 0) return;
+
+            var sameZone = new List<Core.Character>();
+            foreach (var ally in party.GetAliveCharacters())
+                if (ally != null && zones.GetZoneOf(ally) == zone) sameZone.Add(ally);
+
+            var recipient = ReagentShareModifier.PickRecipient(sameZone, receiver);
+            if (recipient != null) GrantCatalyst(recipient, percent);
         }
 
         public override string GetDescription()

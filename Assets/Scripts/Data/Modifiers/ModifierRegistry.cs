@@ -54,7 +54,10 @@ namespace DiceOrbit.Data.Modifiers
             () => new Job.MagicLandModifier(),
             () => new Job.ManaAbsorbModifier(),
             // 연금술사
+            () => new Job.ExtraReagentModifier(),
             () => new Job.HighPurityCatalystModifier(),
+            () => new Job.ReagentShareModifier(),
+            () => new Job.WeakeningGasModifier(),
         };
 
         // 팩토리를 한 번씩만 돌려 얻은 타입명 캐시 — Exists가 매번 인스턴스를 만들지 않게 한다.

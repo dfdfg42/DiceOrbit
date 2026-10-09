@@ -25,11 +25,22 @@ namespace DiceOrbit.Data.Passives
         /// <summary>시약 타일이 밟힐 때 부여할 촉매 수치(%). ReagentTile이 읽는다.</summary>
         public int CatalystPercent => StatusEnhancement.EffectivePercent(EffectType.Catalyst, Mathf.Max(0, catalystPercent));
 
+        /// <summary>시약 타일을 설치한 연금술사 — ReagentTile의 시약 분배가 모디파이어 보유를 조회한다.</summary>
+        public Character OwnerCharacter => owner as Character;
+
+        /// <summary>지금 설치할 시약 타일 수 — 추가 시약 보유 시 +1 (2026-10-09 C, D3). 배치·설명이 같은 값을 쓴다.</summary>
+        public int ReagentTileCount
+            => TileCountFor(reagentTileCount, owner is Character ch && JobModifierQueries.Has<ExtraReagentModifier>(ch));
+
+        /// <summary>기본 개수 + 추가 시약 (순수 — 자가 테스트 대상).</summary>
+        public static int TileCountFor(int baseCount, bool extraReagent)
+            => Mathf.Max(0, baseCount) + (extraReagent ? ExtraReagentModifier.ExtraTiles : 0);
+
         public override int Priority => 98;
 
         public override string GetDynamicDescription()
         {
-            return $"전투 시작 시 시약 타일 {reagentTileCount}개를 설치합니다. "
+            return $"전투 시작 시 시약 타일 {ReagentTileCount}개를 설치합니다. "
                  + $"아군이 시약 타일을 지나가거나 도착하면 촉매를 얻고 다음 자동공격 피해가 {CatalystPercent}% 증가합니다. "
                  + "타일은 소모되지 않으며 전투가 끝날 때까지 유지됩니다.";
         }
@@ -68,7 +79,7 @@ namespace DiceOrbit.Data.Passives
             var tiles = orbitManager.Tiles;
             if (tiles == null || tiles.Count == 0) return;
 
-            int count = Mathf.Clamp(reagentTileCount, 0, tiles.Count);
+            int count = Mathf.Clamp(ReagentTileCount, 0, tiles.Count);
 
             var pool = tiles.Where(t => t != null && !t.HasAttribute(TileAttributeType.Reagent)).ToList();
             for (int i = 0; i < count && pool.Count > 0; i++)

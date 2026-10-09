@@ -58,6 +58,9 @@ namespace DiceOrbit.EditorTools
                 TestMagicLandTileAndModifier();
                 TestCircuitResonance();
                 TestManaAbsorb();
+                TestExtraReagentCount();
+                TestReagentSharePick();
+                TestWeakeningGas();
                 // [tests-run]
             }
             finally
@@ -479,6 +482,69 @@ namespace DiceOrbit.EditorTools
             absorb.OnAttack(CombatTrigger.OnCalculateOutput, stage3);
             AttackActionScope.End();
             Check(Mathf.Approximately(stage3.OutputValue, 11.5f), $"3단계 피해 +15% (실제 {stage3.OutputValue})");
+        }
+
+        // ── 연금술사 ──────────────────────────────────────────
+
+        private static void TestExtraReagentCount()
+        {
+            Check(ReagentPrepPassive.TileCountFor(3, false) == 3 && ReagentPrepPassive.TileCountFor(3, true) == 4, "시약 타일 3 → 4");
+            Check(ReagentPrepPassive.TileCountFor(-1, false) == 0, "음수 설정은 0");
+            var alch = NewCharacter("ExtraAlch", JobIds.Alchemist);
+            var extra = new ExtraReagentModifier();
+            Check(extra.CanApplyTo(alch) && !extra.CanApplyTo(NewCharacter("ExtraMage", JobIds.Mage)), "추가 시약 = 연금술사 전용");
+            Check(extra.Family == ModifierFamily.Position, "추가 시약 = 위치 계열");
+        }
+
+        private static void TestReagentSharePick()
+        {
+            var mover = NewCharacter("ShareMover", JobIds.Warrior);
+            NewEffects(mover);
+            var holder = NewCharacter("ShareHolder", JobIds.Rogue);
+            NewEffects(holder).AddEffect(StatusEffectManager.CreateEffect(EffectType.Catalyst, 25, -1));
+            var free = NewCharacter("ShareFree", JobIds.Mage);
+            NewEffects(free);
+            var dead = NewCharacter("ShareDead", JobIds.Alchemist);
+            NewEffects(dead);
+            dead.Stats.CurrentHP = 0;
+
+            var candidates = new List<Character> { mover, holder, free, dead };
+            bool alwaysFree = true;
+            for (int i = 0; i < 10; i++)
+                alwaysFree &= ReagentShareModifier.PickRecipient(candidates, mover) == free;
+            Check(alwaysFree, "받은 본인·촉매 보유·사망 아군 제외 → 남은 1명만 뽑힌다");
+            Check(ReagentShareModifier.PickRecipient(new List<Character> { mover, holder }, mover) == null, "대상 없으면 전달 없음");
+            Check(ReagentShareModifier.PickRecipient(null, mover) == null, "후보 null → 없음");
+
+            var share = new ReagentShareModifier();
+            Check(share.CanApplyTo(NewCharacter("ShareAlch", JobIds.Alchemist)) && share.Family == ModifierFamily.Position,
+                  "시약 분배 = 연금술사 전용·위치");
+        }
+
+        private static void TestWeakeningGas()
+        {
+            var alch = NewCharacter("GasAlch", JobIds.Alchemist);
+            var gas = new WeakeningGasModifier();
+            Check(gas.CanApplyTo(alch) && gas.Family == ModifierFamily.Combo, "약화 가스 = 연금술사 전용·콤보");
+            alch.Stats.Modifiers.Add(gas);
+            var enemy = NewMonster("GasEnemy");
+            var enemyFx = NewEffects(enemy);
+
+            AttackActionScope.ResetAll();
+            AttackActionScope.Begin(alch, new AttackActionInfo { ComboStage = 2, IsAutoAttack = true });
+            var stage3 = new AttackContext(alch, enemy, "현자의 폭탄", 10f);
+            gas.OnAttack(CombatTrigger.OnCalculateOutput, stage3);
+            AttackActionScope.End();
+            Check(Mathf.Approximately(stage3.OutputValue, 11.5f), $"3단계 피해 +15% (실제 {stage3.OutputValue})");
+
+            AttackActionScope.Begin(alch, new AttackActionInfo { ComboStage = 0, IsAutoAttack = true });
+            var stage1 = new AttackContext(alch, enemy, "산성 플라스크", 10f);
+            gas.OnAttack(CombatTrigger.OnCalculateOutput, stage1);
+            AttackActionScope.End();
+            Check(Mathf.Approximately(stage1.OutputValue, 10f), "1단계엔 보정 없음");
+
+            gas.OnAttackActionFinished(alch, new AttackActionResult(2, new List<Unit> { enemy }, 0));
+            Check(!enemyFx.HasEffect(EffectType.Weaken), "CombatManager 없음 → 아무 일 없음(예외 없음) — 실제 약화 살포는 플레이 확인");
         }
 
         // [tests-body]
