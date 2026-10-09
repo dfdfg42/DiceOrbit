@@ -62,7 +62,7 @@ namespace DiceOrbit.Data
         public override string Preview() => $"사용 시 해당 캐릭터가 방어도를 {amount}만큼 얻습니다.";
     }
 
-    /// <summary>사용 시 사용자에게 고양(다음 공격 행동 피해 +N%, 1회 소모) 부여 (집중 주사위).</summary>
+    /// <summary>사용 시 사용자에게 고양(이번 턴 동안 주는 공격 피해 +N%) 부여 (집중 주사위).</summary>
     [System.Serializable]
     public class InspireOnUse : DieEffect
     {
@@ -77,7 +77,7 @@ namespace DiceOrbit.Data
             DiceOrbit.UI.CombatNotifier.NotifyStatus(u, data.Name, data.Color);
             return $"고양 +{percent}%";
         }
-        public override string Preview() => $"사용 시 해당 캐릭터의 다음 자동공격 피해가 {percent}% 증가합니다.";
+        public override string Preview() => $"사용 시 해당 캐릭터가 이번 턴 동안 주는 공격 피해가 {percent}% 증가합니다.";
     }
 
     /// <summary>사용 시 사용자에게 걸린 해제 가능한 디버프 1개 제거 (정제 주사위).</summary>
