@@ -41,6 +41,7 @@ namespace DiceOrbit.EditorTools
                 TestRescuePicksLowestHurtAlly();
                 TestFractureBonusOnlyForFirstUnarmoredTarget();
                 TestBasicTrainingAddsAttack();
+                TestMaxHpGainAndRestoreDoesNotReapply();
                 // [tests-run]
             }
             finally
@@ -311,6 +312,21 @@ namespace DiceOrbit.EditorTools
             ch.Stats.Modifiers.Add(new BasicTrainingModifier());
             Check(ch.Stats.EffectiveAttack == 12, "기본기 단련 장착 시 유효 공격력 +2");
             Check(ch.Stats.Attack == 10, "기본 공격력 필드는 그대로 (세이브 재유도 보호)");
+        }
+
+        // ── 생존 계열 ─────────────────────────────────────────
+
+        private static void TestMaxHpGainAndRestoreDoesNotReapply()
+        {
+            var stats = new CharacterStats { MaxHP = 50, CurrentHP = 40 };
+            Check(CommonModifier.ApplyMaxHpGain(stats, 10) == 10 && stats.MaxHP == 60 && stats.CurrentHP == 50, "최대·현재 체력 +10 (50/40 → 60/50)");
+            CommonModifier.ApplyMaxHpGain(stats, 2);
+            Check(stats.MaxHP == 62 && stats.CurrentHP == 52, "사냥 1처치 +2");
+            Check(CommonModifier.ApplyMaxHpGain(stats, 0) == 0 && stats.MaxHP == 62, "0 이하는 무시");
+
+            var restored = NewCharacter("SturdyRestore", hp: 70);
+            restored.Stats.Modifiers.Add(new SturdyBodyModifier());   // 세이브 복원 경로
+            Check(restored.Stats.MaxHP == 70 && restored.Stats.CurrentHP == 70, "복원(Add)은 완강한 신체를 다시 적용하지 않는다");
         }
 
         // [tests-body]
