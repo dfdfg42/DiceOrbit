@@ -103,7 +103,7 @@ namespace DiceOrbit.Core
         /// </summary>
         public AttackPlan PlanAttack(Character character, int diceValue, IReadOnlyList<int> passedZones)
         {
-            var plan = new AttackPlan();
+            var plan = new AttackPlan { Source = character };
 
             // 이동 시작 구역 vs 도착 구역 (AttackActionInfo.CrossedZone — 현재 읽는 모디파이어 없음, 이동 구역 변화는 IMoveFinishedListener로 통지)
             var zoneMgr = CombatZoneManager.Instance;

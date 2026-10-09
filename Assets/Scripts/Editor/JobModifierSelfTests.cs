@@ -46,6 +46,8 @@ namespace DiceOrbit.EditorTools
                 TestStatusEnhancementPercent();
                 TestEnhancerAliveOrDead();
                 TestShockWithoutEnhancerUnchanged();
+                TestRogueStage3Resolution();
+                TestRogueStage3UsesOwner();
                 // [tests-run]
             }
             finally
@@ -177,6 +179,45 @@ namespace DiceOrbit.EditorTools
             var ctx = new AttackContext(hitter, victim, "타격", 10f);
             shock.OnAttack(CombatTrigger.OnCalculateOutput, ctx);
             Check(Mathf.Approximately(ctx.OutputValue, 12.5f), $"감전 25% → 12.5 (실제 {ctx.OutputValue})");
+        }
+
+        // ── 도적 3단계 (스펙 §3.4) ────────────────────────────
+
+        private static void TestRogueStage3Resolution()
+        {
+            RogueAmbushActive.ResolveStage3(4, false, false, out int h0, out float s0);
+            Check(h0 == 4 && Mathf.Approximately(s0, 1f), "기본 4회 ×1");
+            RogueAmbushActive.ResolveStage3(4, true, false, out int h1, out float s1);
+            Check(h1 == 5 && Mathf.Approximately(s1, 1f), "여분의 비수 → 5회");
+            RogueAmbushActive.ResolveStage3(4, false, true, out int h2, out float s2);
+            Check(h2 == 1 && Mathf.Approximately(s2, 4.3f), $"일제 타격 4→1 = ×4.3 (실제 {s2})");
+            RogueAmbushActive.ResolveStage3(4, true, true, out int h3, out float s3);
+            Check(h3 == 1 && Mathf.Approximately(s3, 5.4f), $"여분의 비수 + 일제 타격 5→1 = ×5.4 (실제 {s3})");
+        }
+
+        private static void TestRogueStage3UsesOwner()
+        {
+            var skill = new RogueAmbushActive();
+            var rogue = NewCharacter("AmbushRogue", JobIds.Rogue, attack: 10);
+            Check(new SpareDaggerModifier().CanApplyTo(rogue) && !new SpareDaggerModifier().CanApplyTo(NewCharacter("AmbushMage", JobIds.Mage)),
+                  "여분의 비수 = 도적 전용");
+            Check(skill.GetStageHits(rogue, 2) == 4 && skill.CalculateStageDamage(rogue, 2) == 10, "모디파이어 없음: 3단계 4회 × 10");
+            Check(skill.GetStageHits(rogue, 0) == 2 && skill.GetStageHits(rogue, 1) == 3, "1·2단계 타격 수는 그대로");
+
+            rogue.Stats.Modifiers.Add(new SpareDaggerModifier());
+            Check(skill.GetStageHits(rogue, 2) == 5, "여분의 비수: 3단계 5회");
+            Check(skill.GetStageDescription(rogue, 2).Contains("5회"), "설명도 5회");
+
+            rogue.Stats.Modifiers.Add(new VolleyStrikeModifier());
+            Check(skill.GetStageHits(rogue, 2) == 1, "일제 타격: 3단계 1회");
+            int damage = skill.CalculateStageDamage(rogue, 2);
+            Check(damage == 54, $"5→1: 공격력 10 × 100% × 5.4 = 54 (실제 {damage})");
+            string desc = skill.GetStageDescription(rogue, 2);
+            Check(desc.Contains("540%") && desc.Contains("1회"), $"설명 540% 1회 (실제 {desc})");
+
+            var plan = new AttackPlan { Source = rogue, Kind = AttackPlanKind.Combo, ComboSkill = skill, Stage = 2 };
+            Check(plan.Hits == 1, "AttackPlan.Hits(실행 루프·행동 예고)도 주인 기준");
+            Check(skill.GetStageHits(null, 2) == 4 && skill.GetStageHits(2) == 4, "주인 없음·기존 시그니처 → 기본 4회");
         }
 
         // [tests-body]

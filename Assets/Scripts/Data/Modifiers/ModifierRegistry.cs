@@ -40,6 +40,8 @@ namespace DiceOrbit.Data.Modifiers
             // ── 직업 고유 (2026-10-09 C) — 스펙 §3.2 표 순서 ──
             // 전사
             // 도적
+            () => new Job.SpareDaggerModifier(),
+            () => new Job.VolleyStrikeModifier(),
             // 마법사
             () => new Job.HighVoltageModifier(),
             // 연금술사

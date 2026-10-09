@@ -26,6 +26,15 @@ namespace DiceOrbit.Data.Skills
         /// <summary>대상 '하나당' 타격 횟수 (도적 다단 공격용). 기본 1.</summary>
         public virtual int GetStageHits(int stage) => 1;
 
+        /// <summary>
+        /// 주인(슬롯 소유자) 기준 타격 수 (2026-10-09 C — 여분의 비수·일제 타격). 실행(AttackPlan.Hits)·행동 예고·미리보기가 쓴다.
+        /// 기본은 주인과 무관한 GetStageHits(stage). source가 null이어도 동작해야 한다.
+        /// </summary>
+        public virtual int GetStageHits(Character source, int stage) => GetStageHits(stage);
+
+        /// <summary>주인 기준 타격 1회 배율 (일제 타격). 단계 피해(CalculateStageDamage)가 쓴다. 기본은 GetStageMultiplier(stage).</summary>
+        public virtual float GetStageMultiplier(Character source, int stage) => GetStageMultiplier(stage);
+
         /// <summary>이 단계가 때릴 대상들.</summary>
         public abstract List<Unit> ResolveStageTargets(Character source, int stage, IReadOnlyList<int> passedZones);
 
@@ -38,6 +47,9 @@ namespace DiceOrbit.Data.Skills
         /// <summary>단계 1개의 설명 한 줄. "[이름] 무엇을 얼마나" 형식 — 목록·현재 단계 표시가 공유한다.</summary>
         public abstract string GetStageDescription(int stage);
 
+        /// <summary>주인 기준 단계 설명 (전투 중 정보 패널 — 모디파이어로 바뀐 수치 반영). 기본은 GetStageDescription(stage).</summary>
+        public virtual string GetStageDescription(Character source, int stage) => GetStageDescription(stage);
+
         // 설명은 단계별 효과 줄만 — 콤보 규칙 서두와 주사위 조건은 패널이 별도 필드로 이미 보여주므로
         // 여기 다시 쓰면 중복이다 (2026-08-28 결정).
 
@@ -49,7 +61,7 @@ namespace DiceOrbit.Data.Skills
 
         /// <summary>전투 중 정보 패널 — 지금 단계의 효과 설명 한 줄만 (2026-08-28 결정).</summary>
         public override string GetDynamicDescription(Character source)
-            => GetStageDescription(PeekStage(source));
+            => GetStageDescription(source, PeekStage(source));
 
         /// <summary>유효 대상 줄은 쓰지 않는다 — 단계 설명이 대상까지 말하므로 중복 (2026-08-28 결정).</summary>
         public override string GetTargetLabel() => string.Empty;
@@ -58,7 +70,7 @@ namespace DiceOrbit.Data.Skills
         public int CalculateStageDamage(Character source, int stage)
         {
             int attack = source != null && source.Stats != null ? source.Stats.EffectiveAttack : 0;
-            return Mathf.Max(1, Mathf.RoundToInt(attack * Mathf.Max(0.05f, GetStageMultiplier(stage))));
+            return Mathf.Max(1, Mathf.RoundToInt(attack * Mathf.Max(0.05f, GetStageMultiplier(source, stage))));
         }
 
         /// <summary>
@@ -105,8 +117,9 @@ namespace DiceOrbit.Data.Skills
         public override string BuildPreview(Character source, ActiveSkillSlot ability, int diceValue)
         {
             int stage = PeekStage(source);
+            int hits = GetStageHits(source, stage);
             return $"{stage + 1}단계 [{GetStageName(stage)}] 예상 피해: {CalculateStageDamage(source, stage)}"
-                   + (GetStageHits(stage) > 1 ? $" x{GetStageHits(stage)}타" : string.Empty);
+                   + (hits > 1 ? $" x{hits}타" : string.Empty);
         }
 
         public override List<Unit> ResolveTargets(Character source, IReadOnlyList<int> passedZones)

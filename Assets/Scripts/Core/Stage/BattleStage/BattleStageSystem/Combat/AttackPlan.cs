@@ -39,8 +39,11 @@ namespace DiceOrbit.Core
         /// <summary>강화 공격 슬롯이 ComboActiveSkill이 아니다 (설계 위반 — 실행 루틴이 에러로 알린다).</summary>
         public bool EmpoweredIsNotCombo;
 
-        /// <summary>대상 하나당 타격 횟수.</summary>
-        public int Hits => Kind == AttackPlanKind.Combo && ComboSkill != null ? Mathf.Max(1, ComboSkill.GetStageHits(Stage)) : 1;
+        /// <summary>계획의 주체(슬롯 소유자) — 주인 기준 타격 수(여분의 비수·일제 타격, 2026-10-09 C)에 쓴다. PlanAttack이 채운다.</summary>
+        public Character Source;
+
+        /// <summary>대상 하나당 타격 횟수 — 실행 루프와 행동 예고가 같이 읽는다.</summary>
+        public int Hits => Kind == AttackPlanKind.Combo && ComboSkill != null ? Mathf.Max(1, ComboSkill.GetStageHits(Source, Stage)) : 1;
 
         /// <summary>이 계획으로 여는 공격 행동 스코프의 정보 — 모디파이어·1회성 상태가 조건 판정에 읽는다.</summary>
         public Systems.Effects.AttackActionInfo BuildActionInfo(int diceValue) => new Systems.Effects.AttackActionInfo
