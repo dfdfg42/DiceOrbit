@@ -48,6 +48,8 @@ namespace DiceOrbit.EditorTools
                 TestShockWithoutEnhancerUnchanged();
                 TestRogueStage3Resolution();
                 TestRogueStage3UsesOwner();
+                TestVeteranFlankPercent();
+                TestVenomStingPerHit();
                 // [tests-run]
             }
             finally
@@ -218,6 +220,74 @@ namespace DiceOrbit.EditorTools
             var plan = new AttackPlan { Source = rogue, Kind = AttackPlanKind.Combo, ComboSkill = skill, Stage = 2 };
             Check(plan.Hits == 1, "AttackPlan.Hits(실행 루프·행동 예고)도 주인 기준");
             Check(skill.GetStageHits(null, 2) == 4 && skill.GetStageHits(2) == 4, "주인 없음·기존 시그니처 → 기본 4회");
+        }
+
+        // ── 도적 위치·콤보 ────────────────────────────────────
+
+        private static void TestVeteranFlankPercent()
+        {
+            Check(Mathf.Approximately(RogueFlankPassive.EffectivePerAllyPercent(20f, false), 20f), "협공 기본 아군 1명당 20%");
+            Check(Mathf.Approximately(RogueFlankPassive.EffectivePerAllyPercent(20f, true), 25f), "노련한 협공 아군 1명당 25%");
+            var rogue = NewCharacter("VetRogue", JobIds.Rogue);
+            var vet = new VeteranFlankModifier();
+            Check(vet.CanApplyTo(rogue) && !vet.CanApplyTo(NewCharacter("VetWarrior", JobIds.Warrior)), "노련한 협공 = 도적 전용");
+            Check(vet.Family == ModifierFamily.Position, "노련한 협공 = 위치 계열");
+        }
+
+        private static void TestVenomStingPerHit()
+        {
+            var rogue = NewCharacter("StingRogue", JobIds.Rogue);
+            var sting = new VenomStingModifier();
+            rogue.Stats.Modifiers.Add(sting);
+            var heavy = NewMonster("StingHeavy");
+            var light = NewMonster("StingLight");
+            var heavyFx = NewEffects(heavy);
+            var lightFx = NewEffects(light);
+            heavyFx.AddEffect(StatusEffectManager.CreateEffect(EffectType.Poison, 10, -1));
+            lightFx.AddEffect(StatusEffectManager.CreateEffect(EffectType.Poison, 9, -1));
+
+            AttackActionScope.ResetAll();
+            AttackActionScope.Begin(rogue, new AttackActionInfo { ComboStage = 1, IsAutoAttack = true });
+            for (int hit = 0; hit < 3; hit++)
+            {
+                Hit(sting, rogue, heavy);
+                Hit(sting, rogue, light);
+                if (hit == 0) lightFx.AddEffect(StatusEffectManager.CreateEffect(EffectType.Poison, 1, -1));   // 행동 중 10 도달
+            }
+            AttackActionScope.End();
+            Check(heavyFx.GetEffectValue(EffectType.Poison) == 13,
+                  $"공격 직전 중독 10 → 실제 타격 3회마다 +1 = 13 (실제 {heavyFx.GetEffectValue(EffectType.Poison)})");
+            Check(lightFx.GetEffectValue(EffectType.Poison) == 10,
+                  $"행동 중 10 도달은 소급하지 않음 (실제 {lightFx.GetEffectValue(EffectType.Poison)})");
+
+            AttackActionScope.Begin(rogue, new AttackActionInfo { ComboStage = -1, IsAutoAttack = true });
+            Hit(sting, rogue, heavy);
+            AttackActionScope.End();
+            Check(heavyFx.GetEffectValue(EffectType.Poison) == 13, "기본공격엔 발동 안 함");
+
+            using (AttackActionScope.Simulate(rogue, new AttackActionInfo { ComboStage = 2, IsAutoAttack = true }))
+            {
+                var sim = new AttackContext(rogue, heavy, "예고", 10f) { IsSimulation = true };
+                sting.OnAttack(CombatTrigger.OnPreAction, sim);
+                sting.OnAttack(CombatTrigger.OnPostAction, sim);
+            }
+            Check(heavyFx.GetEffectValue(EffectType.Poison) == 13, "행동 예고(시뮬레이션)는 상태를 바꾸지 않음");
+
+            AttackActionScope.Begin(rogue, new AttackActionInfo { ComboStage = 2, IsAutoAttack = true });
+            var killing = new AttackContext(rogue, heavy, "마지막 타격", 10f);
+            sting.OnAttack(CombatTrigger.OnPreAction, killing);
+            heavy.Stats.CurrentHP = 0;   // 이 타격으로 쓰러졌다
+            sting.OnAttack(CombatTrigger.OnPostAction, killing);
+            AttackActionScope.End();
+            Check(heavyFx.GetEffectValue(EffectType.Poison) == 13, "타격으로 쓰러진 대상엔 부여 안 함");
+        }
+
+        /// <summary>파이프라인 한 타격의 OnPreAction → OnPostAction 통지만 흉내 낸다 (피해 적용 없음).</summary>
+        private static void Hit(CharacterModifier modifier, Unit source, Unit target)
+        {
+            var ctx = new AttackContext(source, target, "타격", 10f);
+            modifier.OnAttack(CombatTrigger.OnPreAction, ctx);
+            modifier.OnAttack(CombatTrigger.OnPostAction, ctx);
         }
 
         // [tests-body]

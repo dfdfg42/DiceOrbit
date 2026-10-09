@@ -3,6 +3,7 @@ using DiceOrbit.Core;
 using DiceOrbit.Core.Pipeline;
 using DiceOrbit.Core.Zones;
 using DiceOrbit.Data;
+using DiceOrbit.Data.Modifiers.Job;
 using UnityEngine;
 
 namespace DiceOrbit.Data.Passives
@@ -22,8 +23,17 @@ namespace DiceOrbit.Data.Passives
 
         public override int Priority => 99;
 
+        /// <summary>지금 아군 1명당 % — 노련한 협공 보유 시 25 (2026-10-09 C, D3). 피해·구역 상태·설명이 같은 값을 쓴다.</summary>
+        private float PerAllyPercent
+            => EffectivePerAllyPercent(perAllyBonusPercent,
+                                       owner is Character rogue && JobModifierQueries.Has<VeteranFlankModifier>(rogue));
+
+        /// <summary>노련한 협공이면 max(기본, 25) (순수 — 자가 테스트 대상).</summary>
+        public static float EffectivePerAllyPercent(float basePercent, bool veteran)
+            => veteran ? Mathf.Max(basePercent, VeteranFlankModifier.PerAllyPercent) : basePercent;
+
         public override string GetDynamicDescription()
-            => $"같은 구역에 있는 다른 아군 1명마다 도적이 주는 공격 피해가 {perAllyBonusPercent:0.#}% 증가합니다.";
+            => $"같은 구역에 있는 다른 아군 1명마다 도적이 주는 공격 피해가 {PerAllyPercent:0.#}% 증가합니다.";
 
         /// <summary>패시브 구역 = 도적이 선 구역. 조회 시 구역 테두리에 쓰인다.</summary>
         public void CollectPassiveZones(List<int> zones)
@@ -35,7 +45,7 @@ namespace DiceOrbit.Data.Passives
         }
 
         public PassiveZoneStatus GetPassiveZoneStatus()
-            => FormatZoneStatus(owner is Character rogue ? CountOtherAlliesInMyZone(rogue) : 0, perAllyBonusPercent);
+            => FormatZoneStatus(owner is Character rogue ? CountOtherAlliesInMyZone(rogue) : 0, PerAllyPercent);
 
         /// <summary>지금 효과 한 줄 (순수 — PassiveZoneSelfTests).</summary>
         public static PassiveZoneStatus FormatZoneStatus(int allyCount, float perAllyPercent)
@@ -54,7 +64,7 @@ namespace DiceOrbit.Data.Passives
             int allyCount = CountOtherAlliesInMyZone(rogue);
             if (allyCount <= 0) return;
 
-            float percent = perAllyBonusPercent * allyCount;
+            float percent = PerAllyPercent * allyCount;
             context.OutputValue *= 1f + percent / 100f;
             if (!context.IsSimulation) Notify($"{PassiveName} +{percent:0.#}%");
         }
