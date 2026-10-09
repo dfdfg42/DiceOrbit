@@ -128,7 +128,7 @@ namespace DiceOrbit.EditorTools
         private static void TestRoundStatuses()
         {
             // AddEffect → EffectApplied → VfxService.EnsureInstance 가 만든 인스턴스를 정리하기 위해 사전 상태 기록
-            bool vfxExisted = DiceOrbit.Visuals.VfxService.Instance != null;
+            bool vfxExisted = UnityEngine.Object.FindFirstObjectByType<DiceOrbit.Visuals.VfxService>() != null;
             var attackerGo = new GameObject("RoundStatusAttacker"); attackerGo.SetActive(false);
             var otherGo    = new GameObject("RoundStatusOther");    otherGo.SetActive(false);
             var targetGo   = new GameObject("RoundStatusTarget");   targetGo.SetActive(false);
@@ -187,10 +187,11 @@ namespace DiceOrbit.EditorTools
         private static void TestStageTables()
         {
             var warrior = new WarriorGreatswordActive();
-            Check(Mathf.Approximately(warrior.GetStageMultiplier(0), 1.5f)
-               && Mathf.Approximately(warrior.GetStageMultiplier(1), 1.1f)
-               && Mathf.Approximately(warrior.GetStageMultiplier(2), 1.8f), "전사 배율 150/110/180%");
+            Check(Mathf.Approximately(warrior.GetStageMultiplier(0), 1.2f)
+               && Mathf.Approximately(warrior.GetStageMultiplier(1), 1.2f)
+               && Mathf.Approximately(warrior.GetStageMultiplier(2), 1.5f), "전사 배율 120/120/150%");
             Check(warrior.GetStageHits(0) == 1 && warrior.GetStageHits(2) == 1, "전사는 단타");
+            Check(warrior.GetStageName(0) == "대검 베기" && warrior.GetStageName(1) == "균열 베기", "전사 1·2단계 이름 (시트)");
 
             var rogue = new RogueAmbushActive();
             Check(rogue.GetStageHits(0) == 2 && rogue.GetStageHits(1) == 3 && rogue.GetStageHits(2) == 5, "도적 타수 2/3/5");

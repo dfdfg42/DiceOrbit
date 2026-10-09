@@ -7,24 +7,24 @@ namespace DiceOrbit.Data.CharacterActives
 {
     /// <summary>
     /// [전사 대검 콤보] 4 이상 주사위를 연속 사용할 때마다 강해지는 3단계 콤보 (2026-08-28 개편).
-    /// 1단계 균열 베기(단일) → 2단계 지진파(현+양옆) → 3단계 대지 가르기(전장 + 아군 방어도).
+    /// 1단계 대검 베기(현재 구역) → 2단계 균열 베기(현+양옆) → 3단계 대지 가르기(전장 + 아군 방어도). 수치는 마스터 시트 261003.
     /// 클래스명은 .asset SerializeReference 호환을 위해 유지한다.
     /// </summary>
     [System.Serializable]
     public class WarriorGreatswordActive : ComboActiveSkill
     {
         [Header("Designer Tuning — 단계 배율 (피해 = 공격력 × 배율)")]
-        [Tooltip("1단계 [균열 베기] 현재 구역 몬스터 하나")]
-        [SerializeField] private float stage1Multiplier = 1.5f;
-        [Tooltip("2단계 [지진파] 현재 구역과 양옆 인접 구역의 모든 몬스터")]
-        [SerializeField] private float stage2Multiplier = 1.1f;
+        [Tooltip("1단계 [대검 베기] 현재 구역의 몬스터")]
+        [SerializeField] private float stage1Multiplier = 1.2f;
+        [Tooltip("2단계 [균열 베기] 현재 구역과 양옆 구역의 몬스터")]
+        [SerializeField] private float stage2Multiplier = 1.2f;
         [Tooltip("3단계 [대지 가르기] 전장의 모든 몬스터")]
-        [SerializeField] private float stage3Multiplier = 1.8f;
+        [SerializeField] private float stage3Multiplier = 1.5f;
         [Tooltip("3단계 후 모든 아군에게 부여할 임시 방어도")]
-        [SerializeField] private int stage3AllyArmor = 10;
+        [SerializeField] private int stage3AllyArmor = 5;
 
         public override string GetStageName(int stage)
-            => stage switch { 0 => "균열 베기", 1 => "지진파", _ => "대지 가르기" };
+            => stage switch { 0 => "대검 베기", 1 => "균열 베기", _ => "대지 가르기" };
 
         public override float GetStageMultiplier(int stage)
             => stage switch { 0 => stage1Multiplier, 1 => stage2Multiplier, _ => stage3Multiplier };
@@ -57,9 +57,9 @@ namespace DiceOrbit.Data.CharacterActives
         public override string GetStageDescription(int stage)
             => stage switch
             {
-                0 => $"[균열 베기] 현재 구역의 몬스터 하나에게 공격력의 {stage1Multiplier * 100f:0.#}%만큼 피해를 줍니다.",
-                1 => $"[지진파] 현재 구역과 양옆 구역의 모든 몬스터에게 공격력의 {stage2Multiplier * 100f:0.#}%만큼 피해를 줍니다.",
-                _ => $"[대지 가르기] 전장의 모든 몬스터에게 공격력의 {stage3Multiplier * 100f:0.#}%만큼 피해를 주고 모든 아군이 방어도를 {stage3AllyArmor}만큼 얻습니다.",
+                0 => $"[대검 베기] 현재 구역의 몬스터에게 공격력의 {stage1Multiplier * 100f:0.#}%만큼 피해를 줍니다.",
+                1 => $"[균열 베기] 현재 구역과 양옆 구역의 몬스터에게 공격력의 {stage2Multiplier * 100f:0.#}%만큼 피해를 줍니다.",
+                _ => $"[대지 가르기] 모든 몬스터에게 공격력의 {stage3Multiplier * 100f:0.#}%만큼 피해를 주고 모든 아군에게 일시 방어도 {stage3AllyArmor}을 부여합니다.",
             };
     }
 }
