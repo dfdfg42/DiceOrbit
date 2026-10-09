@@ -205,9 +205,9 @@ namespace DiceOrbit.EditorTools
                && Mathf.Approximately(mage.GetStageMultiplier(2), 1.5f), "마법사 배율 120/120/150%");
 
             var alch = new AlchemistThrowActive();
-            Check(Mathf.Approximately(alch.GetStageMultiplier(0), 1.0f)
-               && Mathf.Approximately(alch.GetStageMultiplier(1), 0.9f)
-               && Mathf.Approximately(alch.GetStageMultiplier(2), 1.8f), "연금 배율 100/90/180%");
+            Check(Mathf.Approximately(alch.GetStageMultiplier(0), 1.2f)
+               && Mathf.Approximately(alch.GetStageMultiplier(1), 1.2f)
+               && Mathf.Approximately(alch.GetStageMultiplier(2), 1.5f), "연금 배율 120/120/150%");
         }
 
         private static void TestSelectionActiveSummaries()
