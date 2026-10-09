@@ -5,7 +5,7 @@ using DiceOrbit.Data;
 namespace DiceOrbit.Systems.Effects
 {
     /// <summary>
-    /// '다음 공격 행동' 1회에만 적용되는 1회성 상태의 공통 골격 (2026-08-28).
+    /// '다음 공격 행동' 1회에만 적용되는 1회성 상태의 공통 골격 (2026-08-28). 현재 사용처: 촉매.
     /// - 행동 스코프(AttackActionScope) 안: 행동의 모든 타격에 적용하고 End()에서 제거된다.
     /// - 스코프 밖(지연 발사체 등 폴백): 첫 적용 컨텍스트의 OnPostAction에서 스스로 제거한다.
     /// - 직접 체력 손실(중독)엔 절대 개입하지 않는다 (파이프라인이 통지를 건너뛰지만 이중 방어).
@@ -44,8 +44,34 @@ namespace DiceOrbit.Systems.Effects
         }
     }
 
-    /// <summary>감전 — 이 유닛이 다음에 '받는' 공격 행동의 피해 +Value% (기본 30). 행동 전체 적용 후 제거.</summary>
-    public class ShockStatus : OneShotActionStatus
+    /// <summary>
+    /// '부여된 라운드 동안' 모든 해당 공격에 적용되는 상태의 공통 골격 (2026-10-09, 시트 "이번 턴 동안").
+    /// 라운드 = 플레이어 턴 + 몬스터 턴. 소모되지 않으며, 제거는 CombatManager가
+    /// 몬스터 턴 종료·전투 시작에 StatusEffectManager.RemoveRoundStatuses()로 일괄 처리한다.
+    /// 직접 체력 손실(중독)엔 개입하지 않는다. 비중첩 — 재부여 시 큰 값을 유지한다(StatusEffectManager.AddEffect).
+    /// </summary>
+    public abstract class RoundStatus : StatusEffect
+    {
+        protected RoundStatus(EffectType type, int value)
+            : base(type, value, -1, isStackable: false) { }
+
+        /// <summary>이 컨텍스트에 개입하는가 (소스/대상 매칭은 자식이 정의).</summary>
+        protected abstract bool AppliesTo(AttackContext context);
+
+        /// <summary>수치 보정 (자식이 정의).</summary>
+        protected abstract void Modify(AttackContext context);
+
+        public override void OnAttack(CombatTrigger trigger, AttackContext context)
+        {
+            if (Owner == null || context.IsDirectHpLoss) return;
+            if (trigger != CombatTrigger.OnCalculateOutput) return;
+            if (!AppliesTo(context)) return;
+            Modify(context);
+        }
+    }
+
+    /// <summary>감전 — 이번 라운드 동안 이 유닛이 '받는' 공격 피해 +Value% (기본 25). 디버프 피해엔 적용 안 됨.</summary>
+    public class ShockStatus : RoundStatus
     {
         public ShockStatus(int value) : base(EffectType.Shock, value) { }
 
@@ -75,8 +101,8 @@ namespace DiceOrbit.Systems.Effects
             => context.OutputValue *= 1f + Value / 100f;
     }
 
-    /// <summary>고양 — 이 유닛의 다음 공격 행동 피해 +Value% (기본 30). 행동 전체 적용 후 제거.</summary>
-    public class InspireStatus : OneShotActionStatus
+    /// <summary>고양 — 이번 라운드 동안 이 유닛이 주는 공격 피해 +Value% (기본 25).</summary>
+    public class InspireStatus : RoundStatus
     {
         public InspireStatus(int value) : base(EffectType.Inspire, value) { }
 
@@ -87,8 +113,8 @@ namespace DiceOrbit.Systems.Effects
             => context.OutputValue *= 1f + Value / 100f;
     }
 
-    /// <summary>약화 — 이 유닛의 다음 공격 행동 피해 −Value% (기본 25). 행동 전체 적용 후 제거.</summary>
-    public class WeakenStatus : OneShotActionStatus
+    /// <summary>약화 — 이번 라운드 동안 이 유닛이 주는 공격 피해 −Value% (기본 25).</summary>
+    public class WeakenStatus : RoundStatus
     {
         public WeakenStatus(int value) : base(EffectType.Weaken, value) { }
 

@@ -2,7 +2,9 @@ using System.Linq;
 using System.Reflection;
 using DiceOrbit.Core;
 using DiceOrbit.Core.Combo;
+using DiceOrbit.Core.Pipeline;
 using DiceOrbit.Core.Tutorial;
+using DiceOrbit.Data;
 using DiceOrbit.Data.CharacterActives;
 using DiceOrbit.Data.Passives;
 using DiceOrbit.Systems.Effects;
@@ -32,6 +34,7 @@ namespace DiceOrbit.EditorTools
             TestPoisonSequence();
             TestCircularDistance();
             TestActionScopeBookkeeping();
+            TestRoundStatuses();
             TestStageTables();
             TestSelectionActiveSummaries();
             TestTutorialCombatProgress();
@@ -120,6 +123,61 @@ namespace DiceOrbit.EditorTools
             Check(AttackActionScope.CurrentActionId > first, "행동 ID 단조 증가");
             AttackActionScope.ResetAll();
             Check(!AttackActionScope.IsActive, "ResetAll 후 비활성");
+        }
+
+        private static void TestRoundStatuses()
+        {
+            var attackerGo = new GameObject("RoundStatusAttacker"); attackerGo.SetActive(false);
+            var otherGo    = new GameObject("RoundStatusOther");    otherGo.SetActive(false);
+            var targetGo   = new GameObject("RoundStatusTarget");   targetGo.SetActive(false);
+            var attacker = attackerGo.AddComponent<Character>();
+            var other    = otherGo.AddComponent<Character>();
+            var target   = targetGo.AddComponent<Monster>();
+
+            // 감전: 같은 라운드에 서로 다른 공격자 두 번 모두 +25%, 소모되지 않는다
+            var shock = new ShockStatus(25);
+            shock.SetOwner(target);
+            var hit1 = new AttackContext(attacker, target, "t1", 10f);
+            shock.OnAttack(CombatTrigger.OnCalculateOutput, hit1);
+            var hit2 = new AttackContext(other, target, "t2", 10f);
+            shock.OnAttack(CombatTrigger.OnCalculateOutput, hit2);
+            Check(Mathf.Approximately(hit1.OutputValue, 12.5f) && Mathf.Approximately(hit2.OutputValue, 12.5f),
+                  "감전은 같은 라운드의 공격 두 번 모두 +25%");
+
+            // 고양/약화: 주인이 주는 공격에만
+            var inspire = new InspireStatus(25); inspire.SetOwner(attacker);
+            var weaken  = new WeakenStatus(25);  weaken.SetOwner(attacker);
+            var own = new AttackContext(attacker, target, "own", 10f);
+            inspire.OnAttack(CombatTrigger.OnCalculateOutput, own);
+            Check(Mathf.Approximately(own.OutputValue, 12.5f), "고양은 주인의 공격 +25%");
+            var own2 = new AttackContext(attacker, target, "own2", 10f);
+            weaken.OnAttack(CombatTrigger.OnCalculateOutput, own2);
+            Check(Mathf.Approximately(own2.OutputValue, 7.5f), "약화는 주인의 공격 -25%");
+            var notOwn = new AttackContext(other, target, "notOwn", 10f);
+            inspire.OnAttack(CombatTrigger.OnCalculateOutput, notOwn);
+            Check(Mathf.Approximately(notOwn.OutputValue, 10f), "고양은 남의 공격엔 적용 안 됨");
+
+            // 직접 체력 손실(중독)엔 개입하지 않는다
+            var poison = new AttackContext(null, target, "poison", 10f) { IsDirectHpLoss = true };
+            shock.OnAttack(CombatTrigger.OnCalculateOutput, poison);
+            Check(Mathf.Approximately(poison.OutputValue, 10f), "감전은 중독 피해에 개입 안 함");
+
+            // 매니저: 재부여는 큰 값 유지, RemoveRoundStatuses는 라운드형만 제거
+            var mgr = targetGo.AddComponent<StatusEffectManager>();
+            mgr.Initialize(target);
+            mgr.AddEffect(new ShockStatus(15));
+            mgr.AddEffect(new ShockStatus(25));
+            Check(mgr.GetEffectValue(EffectType.Shock) == 25, "라운드형 재부여는 큰 값(25) 유지, 합산 안 함");
+            mgr.AddEffect(new ShockStatus(10));
+            Check(mgr.GetEffectValue(EffectType.Shock) == 25, "작은 값 재부여는 무시");
+            mgr.AddEffect(new CatalystStatus(25));
+            mgr.RemoveRoundStatuses();
+            Check(!mgr.HasEffect(EffectType.Shock), "라운드 종료 후 감전 제거");
+            Check(mgr.HasEffect(EffectType.Catalyst), "촉매(1회성)는 라운드 종료로 제거되지 않음");
+
+            UnityEngine.Object.DestroyImmediate(attackerGo);
+            UnityEngine.Object.DestroyImmediate(otherGo);
+            UnityEngine.Object.DestroyImmediate(targetGo);
         }
 
         private static void TestStageTables()

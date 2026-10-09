@@ -29,7 +29,10 @@ namespace DiceOrbit.Systems.Effects
             if (activeEffects.ContainsKey(newEffect.Type))
             {
                 var existing = activeEffects[newEffect.Type];
-                existing.AddStack(newEffect.Value); 
+                if (existing is RoundStatus)
+                    existing.Value = Mathf.Max(existing.Value, newEffect.Value);   // 비중첩: 큰 값 유지 (시트 미중첩 규칙)
+                else
+                    existing.AddStack(newEffect.Value);
                 existing.RefreshDuration(newEffect.Duration);
                 Debug.Log($"[Status] refreshed {newEffect.Type} to {name}");
             }
@@ -69,6 +72,13 @@ namespace DiceOrbit.Systems.Effects
         public bool HasEffect(EffectType type)
         {
             return activeEffects.ContainsKey(type);
+        }
+
+        /// <summary>라운드형 상태(감전·고양·약화)를 전부 제거 — 라운드 종료·전투 시작에 CombatManager가 호출.</summary>
+        public void RemoveRoundStatuses()
+        {
+            var keys = activeEffects.Where(kv => kv.Value is RoundStatus).Select(kv => kv.Key).ToList();
+            foreach (var key in keys) RemoveEffect(key);
         }
 
         public IReadOnlyCollection<StatusEffect> GetActiveEffects()
@@ -124,7 +134,7 @@ namespace DiceOrbit.Systems.Effects
                     // 중독은 정수 중첩만 갖는다 — duration 인자는 의도적으로 무시 (2026-08-28 재설계)
                     return new PoisonStatus(value);
 
-                // '다음 공격 행동' 1회성 상태 4종 — duration 무시(-1 고정), 행동 종료 시 제거 (2026-08-28)
+                // 촉매(1회성) + 감전·고양·약화(라운드형) — duration 무시(-1 고정), 제거는 각 골격 규칙을 따른다
                 case EffectType.Shock:
                     return new ShockStatus(value);
                 case EffectType.Catalyst:
