@@ -335,8 +335,11 @@ namespace DiceOrbit.EditorTools
             payback.RecordLoss(3);
             Check(payback.IsActiveInRound(4), "3라운드에 체력 손실 → 4라운드 활성");
             Check(!payback.IsActiveInRound(3) && !payback.IsActiveInRound(5), "같은 라운드·두 라운드 뒤엔 비활성");
+            payback.RecordLoss(4);
+            Check(payback.IsActiveInRound(4), "4라운드 새 손실(중독 틱 등)이 3라운드 기록을 지우지 않는다 → 4라운드 여전히 활성");
+            Check(payback.IsActiveInRound(5), "4라운드 손실 → 5라운드 활성");
             payback.ResetRounds();
-            Check(!payback.IsActiveInRound(4), "초기화 → 비활성");
+            Check(!payback.IsActiveInRound(4) && !payback.IsActiveInRound(5), "초기화 → 비활성");
         }
 
         private static void TestWarriorPaybackHooks()

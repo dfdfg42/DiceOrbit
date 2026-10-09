@@ -56,8 +56,9 @@ namespace DiceOrbit.Data.Modifiers.Job
     {
         public const float Percent = 15f;
 
-        [System.NonSerialized] private bool _hasLoss;
-        [System.NonSerialized] private int _lossRound;
+        // 최근 손실 라운드 2개 — 이번 라운드의 새 손실(중독 틱 등)이 직전 라운드 기록을 덮어쓰지 않게 한다.
+        [System.NonSerialized] private int _lastLossRound = int.MinValue;
+        [System.NonSerialized] private int _prevLossRound = int.MinValue;
 
         protected override string JobId => JobIds.Warrior;
         public override string ModifierName => "앙갚음(전사)";
@@ -68,18 +69,21 @@ namespace DiceOrbit.Data.Modifiers.Job
         /// <summary>round 라운드에 체력을 잃었다고 기록한다.</summary>
         public void RecordLoss(int round)
         {
-            _hasLoss = true;
-            _lossRound = round;
+            if (round == _lastLossRound) return;
+            _prevLossRound = _lastLossRound;
+            _lastLossRound = round;
         }
 
         /// <summary>round 라운드에 보너스가 켜져 있나 — 직전 라운드에 손실 기록이 있으면 (순수 — 자가 테스트 대상).</summary>
-        public bool IsActiveInRound(int round) => _hasLoss && _lossRound == round - 1;
+        public bool IsActiveInRound(int round)
+            => (_lastLossRound != int.MinValue && _lastLossRound == round - 1)
+            || (_prevLossRound != int.MinValue && _prevLossRound == round - 1);
 
         /// <summary>기록 삭제 (전투 시작).</summary>
         public void ResetRounds()
         {
-            _hasLoss = false;
-            _lossRound = 0;
+            _lastLossRound = int.MinValue;
+            _prevLossRound = int.MinValue;
         }
 
         private static int CurrentRound => CombatManager.Instance != null ? CombatManager.Instance.TurnCount : 0;
