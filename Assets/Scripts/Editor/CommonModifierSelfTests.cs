@@ -39,6 +39,8 @@ namespace DiceOrbit.EditorTools
                 TestAttackActionResultDefaults();
                 TestGrandFinaleOnlyStage3();
                 TestRescuePicksLowestHurtAlly();
+                TestFractureBonusOnlyForFirstUnarmoredTarget();
+                TestBasicTrainingAddsAttack();
                 // [tests-run]
             }
             finally
@@ -260,6 +262,55 @@ namespace DiceOrbit.EditorTools
                 var pick = RescueTeamModifier.PickLowestHp(new List<Character> { worst, tie, hurt });
                 Check(pick == worst || pick == tie, "동률이면 동률 중 하나 (무작위)");
             }
+        }
+
+        private static void TestFractureBonusOnlyForFirstUnarmoredTarget()
+        {
+            var attacker = NewCharacter("FractureAttacker");
+            var first = NewCharacter("FractureFirst");     // 대상은 Stats가 확실한 캐릭터로 대신한다 (균열은 대상 종류를 가리지 않는다)
+            var second = NewCharacter("FractureSecond");
+            var fracture = new FractureModifier();
+            attacker.Stats.Modifiers.Add(fracture);
+
+            AttackActionScope.ResetAll();
+            AttackActionScope.Begin(attacker, new AttackActionInfo { ComboStage = 0, IsAutoAttack = true });
+
+            var pre1 = new AttackContext(attacker, first, "균열", 10f);
+            fracture.OnAttack(CombatTrigger.OnPreAction, pre1);
+            var calc1 = new AttackContext(attacker, first, "균열", 10f);
+            fracture.OnAttack(CombatTrigger.OnCalculateOutput, calc1);
+            Check(Mathf.Approximately(calc1.OutputValue, 11.5f), $"처음부터 방어도 없는 첫 대상 +15% (실제 {calc1.OutputValue})");
+
+            var pre2 = new AttackContext(attacker, second, "균열", 10f);
+            fracture.OnAttack(CombatTrigger.OnPreAction, pre2);
+            var calc2 = new AttackContext(attacker, second, "균열", 10f);
+            fracture.OnAttack(CombatTrigger.OnCalculateOutput, calc2);
+            Check(Mathf.Approximately(calc2.OutputValue, 10f), "같은 행동의 두 번째 대상엔 보정 없음");
+
+            var calc1Again = new AttackContext(attacker, first, "균열", 10f);
+            fracture.OnAttack(CombatTrigger.OnCalculateOutput, calc1Again);
+            Check(Mathf.Approximately(calc1Again.OutputValue, 11.5f), "같은 행동 안 첫 대상의 다음 타격도 +15%");
+            AttackActionScope.End();
+
+            using (AttackActionScope.Simulate(attacker, new AttackActionInfo { ComboStage = 1, IsAutoAttack = true }))
+            {
+                second.Stats.TempArmor = 5;
+                var simArmored = new AttackContext(attacker, second, "예고", 10f) { IsSimulation = true };
+                fracture.OnAttack(CombatTrigger.OnCalculateOutput, simArmored);
+                Check(Mathf.Approximately(simArmored.OutputValue, 10f) && second.Stats.TempArmor == 5, "예고: 방어도 있는 대상은 보정 없음, 상태 변경 없음");
+
+                var simBare = new AttackContext(attacker, first, "예고", 10f) { IsSimulation = true };
+                fracture.OnAttack(CombatTrigger.OnCalculateOutput, simBare);
+                Check(Mathf.Approximately(simBare.OutputValue, 11.5f), "예고: 현재 방어도 0이면 +15%");
+            }
+        }
+
+        private static void TestBasicTrainingAddsAttack()
+        {
+            var ch = NewCharacter("TrainingHolder", attack: 10);
+            ch.Stats.Modifiers.Add(new BasicTrainingModifier());
+            Check(ch.Stats.EffectiveAttack == 12, "기본기 단련 장착 시 유효 공격력 +2");
+            Check(ch.Stats.Attack == 10, "기본 공격력 필드는 그대로 (세이브 재유도 보호)");
         }
 
         // [tests-body]

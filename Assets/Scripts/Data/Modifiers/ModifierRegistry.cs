@@ -27,6 +27,9 @@ namespace DiceOrbit.Data.Modifiers
             () => new Common.PaybackModifier(),
             // 콤보
             () => new Common.GrandFinaleModifier(),
+            () => new Common.FractureModifier(),
+            () => new Common.PoisonedWeaponModifier(),
+            () => new Common.BasicTrainingModifier(),
             // 생존
             () => new Common.OffenseDefenseModifier(),
         };
