@@ -125,3 +125,34 @@
    - 예비 충전·사전 준비·앙갚음으로 충전이 쌓이고(최대 3) 강화 공격 후 1 줄어듦, 아이콘 표시
    - 기동 장갑·저속 방호·공방 일체·대단원 방어도가 다음 플레이어 턴 시작에 사라짐
    - 독 바른 무기 중독 1, 구조대 회복 2, 사냥 처치 시 최대 체력 +2, 완강한 신체 +10이 이어하기 후에도 두 번 적용되지 않음
+
+## 6. 구현 결과 (2026-10-09)
+
+구현 커밋 (`git log --oneline 7208a4e2..HEAD`, 오래된 순):
+
+- `b7a89263` feat(status): 충전(ChargeStatus) — 최대 3스택, 강화 공격 +15%/스택, EffectType.Charge(끝에 추가) + 키워드 사전
+- `44e4c7ee` feat(combat): 캐릭터 일시 방어도를 플레이어 턴 시작에 0으로 — Stats.Owner 주입, UnitStats TODO 해소
+- `a264070d` feat(modifier): 베이스 확장 — AttackBonus·OnAcquired·같은 종류 중복 금지, Acquire/Add 분리, 유효 공격력 4곳 반영
+- `9fec6d22` feat(combat): 자동공격 새 통지 — 이동 완료·강화 조건 실패·공격 행동 종료(처치 수)·행동 종료, 강화 공격 후 충전 1 소비
+- `0648b289` refactor(modifier): 3중첩 제거 — CommonModifier, 7종·콤보 끊김 통지 삭제, 합류/독립 15%·저속 방호 4·대단원 25%, 앙갚음=충전, 공방 일체
+- `34e41492` feat(modifier): 보상·상점·디버그 획득은 Acquire(OnAcquired 1회), 세이브 복원은 Add 유지
+- `65a91538` feat(modifier): 위치 계열 — 듀얼(대상 양옆 구역 비면 +15%)·기동 장갑(구역 이동 시 방어도 4)·구조대(같은 구역 최저 체력 +2), GetZoneOfMonster
+- `b146bbca` feat(modifier): 주사위 계열 — 예비 충전(조건 실패 시 충전 1)·사전 준비(전투 시작 충전 1), 충전은 방송 전·전투 종료 시 제거
+- `9939a010` feat(modifier): 콤보 계열 — 대단원 방어도 4, 균열(첫 대상 방어도 -4/무방어 +15%)·독 바른 무기(대상마다 중독 1)·기본기 단련(공격력 +2)
+- `8798136d` feat(modifier): 생존 계열 — 완강한 신체(획득 시 최대 체력 +10)·자연 치유(턴 시작 +2)·사냥(처치당 최대 체력 +2)
+- `19281e8a` test(modifier): 레지스트리 17종·계열 분포 5/4/4/4·삭제 7종 부재 자가 테스트
+
+검증 상태
+
+- 헤드리스 컴파일: PASS (errors 0)
+- 에디터 자가 테스트 3종(Common Modifier · Reward Flow · Combat Redesign): 사용자 실행 대기 (pending user run). 메뉴 `DiceOrbit → Run Common Modifier Self-Tests` 등
+- 최종 감사 grep: 삭제된 7종 이름·`IComboBreakListener`·`StackableCommonModifier`·`StackCount(`·`IsPrimary(`는 테스트 파일의 삭제 확인 문자열을 제외하면 코드에 없음. 캐릭터 피해 경로는 전부 `EffectiveAttack`. `EffectType.Charge`는 enum 끝
+
+사용자 플레이 확인 목록 (§5-3)
+
+1. 합류/독립/듀얼 +15%가 피해 숫자·행동 예고에 반영되는지
+2. 예비 충전·사전 준비·앙갚음으로 충전이 쌓이고(최대 3) 강화 공격 후 1 줄어드는지, 아이콘이 표시되는지
+3. 기동 장갑·저속 방호·공방 일체·대단원 방어도가 다음 플레이어 턴 시작에 사라지는지
+4. 독 바른 무기 중독 1, 구조대 회복 2, 사냥 처치 시 최대 체력 +2가 동작하는지
+5. 완강한 신체 +10이 이어하기(세이브 복원) 후에도 두 번 적용되지 않는지
+6. 자연 치유가 플레이어 턴 시작에 체력 2를 회복하고 최대 체력을 넘지 않는지
