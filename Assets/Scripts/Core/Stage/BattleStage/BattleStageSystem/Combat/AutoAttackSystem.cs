@@ -152,7 +152,8 @@ namespace DiceOrbit.Core
         public string BasicAttackName => attackName;
 
         /// <summary>
-        /// 한 캐릭터의 공격 1회. 이번 턴에 이미 때렸으면 아무 일도 하지 않는다.
+        /// 한 캐릭터의 이동 후 처리 1회. 이번 턴에 이미 처리됐으면 아무 일도 하지 않는다.
+        /// 순서: 주사위 사용 통지 → 이동 완료 통지 → 공격(강화/기본) → 행동 종료 통지(공격이 없어도).
         /// diceValue가 게이트를 만족하면 현재 콤보 단계의 강화 공격이, 아니면 콤보가 끊기며 기본공격이 나간다.
         /// (2026-08-28 콤보 개편 — 단계 관리: ComboSystem / 단계 정의: ComboActiveSkill / 판정: PlanAttack)
         /// </summary>
@@ -165,15 +166,36 @@ namespace DiceOrbit.Core
             // 주사위 '사용' 사건 — 공격 성사 여부와 무관하게 통지 (저속 방호 등 공용 모디파이어).
             NotifyDiceUsed(character, diceValue);
 
+            // 이동 완료 사건 — 출발 구역은 이동 전에 기록한 경로의 첫 구역, 도착 구역은 지금 선 구역 (기동 장갑).
+            var zoneMgr = CombatZoneManager.Instance;
+            int toZone = zoneMgr != null ? zoneMgr.GetZoneOf(character) : -1;
+            int fromZone = passedZones != null && passedZones.Count > 0 ? passedZones[0] : toZone;
+            NotifyMoveFinished(character, fromZone, toZone);
+
+            yield return AttackRoutine(character, diceValue, passedZones);
+
+            // 이동+공격 처리 전체 종료 — 공격이 없었어도 통지 (구조대).
+            NotifyActionFinished(character);
+        }
+
+        /// <summary>공격 처리 — 계획(PlanAttack)대로 강화 공격 또는 기본공격을 실행한다.</summary>
+        private IEnumerator AttackRoutine(Character character, int diceValue, IReadOnlyList<int> passedZones)
+        {
             var combo = Combo.ComboSystem.EnsureInstance();
             var plan = PlanAttack(character, diceValue, passedZones);
 
             if (plan.Kind == AttackPlanKind.Basic)
             {
                 if (plan.EmpoweredIsNotCombo)
+                {
                     Debug.LogError($"[AutoAttack] '{character.Stats?.CharacterName}'의 강화 공격이 ComboActiveSkill이 아니다 — 기본공격으로 대체. 프리셋을 확인할 것.");
+                }
                 else
+                {
+                    // 강화 조건 실패 판정 직후 — 기본공격이 실제로 나가는지와 무관 (예비 충전).
+                    NotifyComboGateFailed(character);
                     combo.ResetCombo(character, Combo.ComboOutcome.BrokenByDice);   // 게이트 실패 — 콤보 즉시 초기화
+                }
 
                 yield return BasicAttackRoutine(character, diceValue, plan);
                 yield break;
@@ -188,11 +210,12 @@ namespace DiceOrbit.Core
             var comboSkill = plan.ComboSkill;
             int stage = plan.Stage;
             var targets = plan.Targets;
+            var attacked = new List<Unit>();
 
             character.OnSkillExecutionStarted();
             comboSkill.PlayCast(character);
 
-            // 한 단계의 모든 타격(다단×다중 대상)은 하나의 '공격 행동' — 촉매/고양/감전이 전체에 적용된다.
+            // 한 단계의 모든 타격(다단×다중 대상)은 하나의 '공격 행동' — 촉매/고양/감전/충전이 전체에 적용된다.
             Systems.Effects.AttackActionScope.Begin(character, plan.BuildActionInfo(diceValue));
 
             float perHit = ResolveHitDelay(comboSkill);
@@ -204,6 +227,7 @@ namespace DiceOrbit.Core
                     var target = targets[i];
                     if (target == null || !target.IsAlive) continue;
 
+                    if (!attacked.Contains(target)) attacked.Add(target);
                     comboSkill.ApplyStageHit(character, target, stage, h);
                     if (perHit > 0f) yield return new WaitForSeconds(perHit);
                 }
@@ -211,8 +235,16 @@ namespace DiceOrbit.Core
 
             Systems.Effects.AttackActionScope.End();
 
+            // 처치 수는 마무리 효과(중독 2배 등) 전에 센다 — 디버프 피해 처치는 사냥에 들어가지 않는다.
+            int kills = CountKills(attacked);
+
             // 마무리 효과(방어도 부여·중독 2배·고양 살포)는 행동 스코프 밖 — 다음 행동을 위한 상태다.
             comboSkill.OnStageCompleted(character, targets, stage);
+
+            // 강화 공격을 마친 뒤 충전 1 소비 — 직업 고유(마나흡수, C)의 "소비 후 획득"이 이 뒤 통지에서 이어진다.
+            Systems.Effects.ChargeStatus.ConsumeOne(character);
+
+            NotifyAttackActionFinished(character, new Data.Modifiers.Common.AttackActionResult(stage, attacked, kills));
             combo.ReportExecuted(character);
 
             if (attackInterval > 0f) yield return new WaitForSeconds(attackInterval);
@@ -234,6 +266,7 @@ namespace DiceOrbit.Core
             if (plan.HadCombo) NotifyComboBreak(character);
 
             var weapon = FindProjectileSource(character);
+            var attacked = new List<Unit>();
             Systems.Effects.AttackActionScope.Begin(character, plan.BuildActionInfo(diceValue));
 
             float perHit = ResolveHitDelay(weapon);
@@ -242,13 +275,29 @@ namespace DiceOrbit.Core
                 var target = targets[i];
                 if (target == null || !target.IsAlive) continue;
 
+                if (!attacked.Contains(target)) attacked.Add(target);
                 LaunchBasicHit(character, target, weapon);
                 if (perHit > 0f) yield return new WaitForSeconds(perHit);
             }
 
             Systems.Effects.AttackActionScope.End();
 
+            int kills = CountKills(attacked);
+            NotifyAttackActionFinished(character, new Data.Modifiers.Common.AttackActionResult(-1, attacked, kills));
+
             if (attackInterval > 0f) yield return new WaitForSeconds(attackInterval);
+        }
+
+        /// <summary>
+        /// 행동 중 타격을 시도한 대상 중 지금 죽어 있는(또는 이미 파괴된) 수 — 시도 시점엔 모두 살아 있었다.
+        /// 스코프 종료 직후에 불러야 마무리 효과·턴 사건 피해 처치가 섞이지 않는다.
+        /// </summary>
+        private static int CountKills(List<Unit> attacked)
+        {
+            int kills = 0;
+            foreach (var target in attacked)
+                if (target == null || !target.IsAlive) kills++;
+            return kills;
         }
 
         /// <summary>기본공격 1타. 발사체가 있으면 날아가 도착할 때 피해가 들어간다.</summary>
@@ -365,27 +414,45 @@ namespace DiceOrbit.Core
             return best;
         }
 
-        /// <summary>주사위 사용 사건을 캐릭터의 공용 모디파이어에 통지 (저속 방호 등).</summary>
+        /// <summary>
+        /// 캐릭터의 장착 모디파이어 중 리스너 T를 구현한 것에 통지한다.
+        /// 통지 중 장착 목록이 바뀌어도 안전하도록 복사본을 돈다.
+        /// </summary>
+        private static void NotifyModifiers<T>(Character character, System.Action<T> invoke) where T : class
+        {
+            var mods = character != null && character.Stats != null && character.Stats.Modifiers != null
+                ? character.Stats.Modifiers.Modifiers
+                : null;
+            if (mods == null || mods.Count == 0) return;
+
+            var snapshot = new List<Data.Modifiers.CharacterModifier>(mods);
+            foreach (var mod in snapshot)
+                if (mod is T listener) invoke(listener);
+        }
+
+        /// <summary>주사위 사용 사건 (저속 방호 등).</summary>
         private static void NotifyDiceUsed(Character character, int diceValue)
-        {
-            var mods = character?.Stats?.Modifiers?.Modifiers;
-            if (mods == null) return;
+            => NotifyModifiers<Data.Modifiers.Common.IDiceUseListener>(character, l => l.OnDiceUsed(character, diceValue));
 
-            foreach (var mod in mods)
-                if (mod is Data.Modifiers.Common.IDiceUseListener listener)
-                    listener.OnDiceUsed(character, diceValue);
-        }
+        /// <summary>이동 완료 사건 (기동 장갑).</summary>
+        private static void NotifyMoveFinished(Character character, int fromZone, int toZone)
+            => NotifyModifiers<Data.Modifiers.Common.IMoveFinishedListener>(character, l => l.OnMoveFinished(character, fromZone, toZone));
 
-        /// <summary>콤보 끊김(조건 불일치→기본공격 발생) 사건 통지 (안전장치 등).</summary>
+        /// <summary>강화 조건 실패 사건 (예비 충전).</summary>
+        private static void NotifyComboGateFailed(Character character)
+            => NotifyModifiers<Data.Modifiers.Common.IComboGateFailedListener>(character, l => l.OnComboGateFailed(character));
+
+        /// <summary>공격 행동 종료 사건 (대단원·독 바른 무기·공방 일체·사냥).</summary>
+        private static void NotifyAttackActionFinished(Character character, Data.Modifiers.Common.AttackActionResult result)
+            => NotifyModifiers<Data.Modifiers.Common.IAttackActionFinishedListener>(character, l => l.OnAttackActionFinished(character, result));
+
+        /// <summary>행동(이동+공격) 종료 사건 (구조대).</summary>
+        private static void NotifyActionFinished(Character character)
+            => NotifyModifiers<Data.Modifiers.Common.IActionFinishedListener>(character, l => l.OnActionFinished(character));
+
+        /// <summary>콤보 끊김(조건 불일치→기본공격 발생) 사건 통지 (안전장치 — Task 5에서 제거).</summary>
         private static void NotifyComboBreak(Character character)
-        {
-            var mods = character?.Stats?.Modifiers?.Modifiers;
-            if (mods == null) return;
-
-            foreach (var mod in mods)
-                if (mod is Data.Modifiers.Common.IComboBreakListener listener)
-                    listener.OnComboBrokenBasicAttack(character);
-        }
+            => NotifyModifiers<Data.Modifiers.Common.IComboBreakListener>(character, l => l.OnComboBrokenBasicAttack(character));
 
         /// <summary>캐릭터의 집합형 공격 구역 패시브 (마력 회로). 없으면 null.</summary>
         private static Data.Passives.IAttackZoneProvider FindAttackZoneProvider(Character character)

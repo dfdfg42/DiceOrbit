@@ -36,6 +36,7 @@ namespace DiceOrbit.EditorTools
                 TestDuplicateTypeCannotBeEquipped();
                 TestAcquireCallsOnAcquiredButAddDoesNot();
                 TestEffectiveAttackSumsBonuses();
+                TestAttackActionResultDefaults();
                 // [tests-run]
             }
             finally
@@ -198,6 +199,19 @@ namespace DiceOrbit.EditorTools
             Check(ch.Stats.EffectiveAttack == 10, "보너스 없으면 유효 공격력 = 기본 공격력");
             ch.Stats.Modifiers.Add(new BonusProbeModifier());
             Check(ch.Stats.EffectiveAttack == 12 && ch.Stats.Attack == 10, "보너스 +2 → 12, 저장 필드(Attack)는 그대로");
+        }
+
+        // ── 공격 행동 결과 ────────────────────────────────────
+
+        private static void TestAttackActionResultDefaults()
+        {
+            var empty = new AttackActionResult(-1, null, 0);
+            Check(empty.Targets != null && empty.Targets.Count == 0, "대상 목록 null → 빈 목록");
+            Check(!empty.IsEmpowered, "단계 -1 = 기본공격");
+
+            var monster = NewMonster("ResultTarget");
+            var finale = new AttackActionResult(2, new List<Unit> { monster }, 1);
+            Check(finale.IsEmpowered && finale.ComboStage == 2 && finale.Targets.Count == 1 && finale.Kills == 1, "강화 3단계 결과 보존");
         }
 
         // [tests-body]
