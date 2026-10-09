@@ -52,6 +52,9 @@ namespace DiceOrbit.EditorTools
                 TestVenomStingPerHit();
                 TestSteadfastFormationPercent();
                 TestComradeshipCondition();
+                TestWarriorPaybackRounds();
+                TestWarriorPaybackHooks();
+                TestEarthRune();
                 // [tests-run]
             }
             finally
@@ -314,6 +317,84 @@ namespace DiceOrbit.EditorTools
             warrior.Stats.Modifiers.Add(new ComradeshipModifier());
             Check(warrior.Stats.EffectiveAttack == 10 && warrior.Stats.Attack == 10,
                   "구역 판정 불가(매니저 없음) → 보너스 없음, 저장 필드는 그대로");
+        }
+
+        // ── 전사 생존·콤보 ────────────────────────────────────
+
+        private static void TestWarriorPaybackRounds()
+        {
+            var payback = new WarriorPaybackModifier();
+            Check(!payback.IsActiveInRound(1), "기록 없음 → 비활성 (전투 시작 판정 없음)");
+            payback.RecordLoss(3);
+            Check(payback.IsActiveInRound(4), "3라운드에 체력 손실 → 4라운드 활성");
+            Check(!payback.IsActiveInRound(3) && !payback.IsActiveInRound(5), "같은 라운드·두 라운드 뒤엔 비활성");
+            payback.ResetRounds();
+            Check(!payback.IsActiveInRound(4), "초기화 → 비활성");
+        }
+
+        private static void TestWarriorPaybackHooks()
+        {
+            var warrior = NewCharacter("PaybackWarrior", JobIds.Warrior);
+            var enemy = NewMonster("PaybackEnemy");
+            var payback = new WarriorPaybackModifier();
+            Check(payback.CanApplyTo(warrior) && !payback.CanApplyTo(NewCharacter("PaybackMage", JobIds.Mage)), "앙갚음(전사) = 전사 전용");
+            Check(payback.Family == ModifierFamily.Survival, "앙갚음(전사) = 생존 계열");
+            Check(payback.ModifierName != new PaybackModifier().ModifierName, "공용 앙갚음과 표시 이름이 구분된다");
+            warrior.Stats.Modifiers.Add(payback);
+
+            // 매니저 없음 = 지금 라운드 0
+            payback.OnAttack(CombatTrigger.OnPostAction, new AttackContext(enemy, warrior, "막힘", 5f) { IsEffected = false });
+            Check(!payback.IsActiveInRound(1), "방어도만 감소(IsEffected=false) → 기록 없음");
+            payback.OnAttack(CombatTrigger.OnPostAction, new AttackContext(enemy, warrior, "예고", 5f) { IsSimulation = true, IsEffected = true });
+            Check(!payback.IsActiveInRound(1), "시뮬레이션 → 기록 없음");
+            payback.OnAttack(CombatTrigger.OnPostAction, new AttackContext(null, warrior, "중독", 3f) { IsDirectHpLoss = true, IsEffected = true });
+            Check(payback.IsActiveInRound(1), "직접 체력 손실(중독)도 기록 — 0라운드 손실 → 1라운드 활성");
+
+            // 피해 보정 — 지금 라운드(0)에서 활성이려면 -1라운드 기록
+            payback.RecordLoss(-1);
+            AttackActionScope.ResetAll();
+            AttackActionScope.Begin(warrior, new AttackActionInfo { ComboStage = -1, IsAutoAttack = true });
+            var basic = new AttackContext(warrior, enemy, "기본", 10f);
+            payback.OnAttack(CombatTrigger.OnCalculateOutput, basic);
+            AttackActionScope.End();
+            Check(Mathf.Approximately(basic.OutputValue, 11.5f), $"활성 라운드의 공격 행동 피해 +15% (실제 {basic.OutputValue})");
+
+            var outside = new AttackContext(warrior, enemy, "유물", 10f);
+            payback.OnAttack(CombatTrigger.OnCalculateOutput, outside);
+            Check(Mathf.Approximately(outside.OutputValue, 10f), "행동 스코프 밖(유물·디버프) 피해엔 보정 없음");
+
+            payback.OnTurnEvent(CombatTrigger.OnPreAction, new TurnEventContext(warrior, warrior, EventPhase.CombatStart));
+            Check(!payback.IsActiveInRound(0), "CombatStart 방송 → 기록 초기화");
+        }
+
+        private static void TestEarthRune()
+        {
+            Check(WarriorGreatswordActive.AllyArmorFor(5, false) == 5 && WarriorGreatswordActive.AllyArmorFor(5, true) == 8,
+                  "대지 가르기 아군 방어도 5 → 8");
+            Check(WarriorGreatswordActive.AllyArmorFor(0, true) == 0, "방어도 부여가 꺼져 있으면(0) 룬도 0");
+
+            var skill = new WarriorGreatswordActive();
+            var warrior = NewCharacter("RuneWarrior", JobIds.Warrior);
+            var enemy = NewMonster("RuneEnemy");
+            var rune = new EarthRuneModifier();
+            Check(rune.CanApplyTo(warrior) && rune.Family == ModifierFamily.Combo, "대지의 룬 = 전사 전용·콤보");
+            Check(skill.GetStage3AllyArmor(warrior) == 5, "룬 없음: 방어도 5");
+            warrior.Stats.Modifiers.Add(rune);
+            Check(skill.GetStage3AllyArmor(warrior) == 8, "룬: 방어도 8");
+            Check(skill.GetStageDescription(warrior, 2).Contains("방어도 8"), "주인 기준 설명에도 방어도 8");
+
+            AttackActionScope.ResetAll();
+            AttackActionScope.Begin(warrior, new AttackActionInfo { ComboStage = 2, IsAutoAttack = true });
+            var stage3 = new AttackContext(warrior, enemy, "대지 가르기", 10f);
+            rune.OnAttack(CombatTrigger.OnCalculateOutput, stage3);
+            AttackActionScope.End();
+            Check(Mathf.Approximately(stage3.OutputValue, 11.5f), $"3단계 피해 +15% (실제 {stage3.OutputValue})");
+
+            AttackActionScope.Begin(warrior, new AttackActionInfo { ComboStage = 1, IsAutoAttack = true });
+            var stage2 = new AttackContext(warrior, enemy, "균열 베기", 10f);
+            rune.OnAttack(CombatTrigger.OnCalculateOutput, stage2);
+            AttackActionScope.End();
+            Check(Mathf.Approximately(stage2.OutputValue, 10f), "2단계엔 보정 없음");
         }
 
         // [tests-body]

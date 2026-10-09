@@ -41,6 +41,8 @@ namespace DiceOrbit.Data.Modifiers
             // 전사
             () => new Job.SteadfastFormationModifier(),
             () => new Job.ComradeshipModifier(),
+            () => new Job.WarriorPaybackModifier(),
+            () => new Job.EarthRuneModifier(),
             // 도적
             () => new Job.VeteranFlankModifier(),
             () => new Job.SpareDaggerModifier(),
