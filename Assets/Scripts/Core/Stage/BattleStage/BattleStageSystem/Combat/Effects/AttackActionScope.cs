@@ -13,7 +13,7 @@ namespace DiceOrbit.Systems.Effects
     /// 해당 컨텍스트 종료 시 스스로를 제거한다.
     /// </summary>
     /// <summary>
-    /// 현재 공격 행동의 실행 정보 — 공용 모디파이어(경계 돌파/관성 타격/연쇄 반응 등)가 조건 판정에 읽는다.
+    /// 현재 공격 행동의 실행 정보 — 공용 모디파이어(대단원·충전 소비 등)가 조건 판정에 읽는다.
     /// 캐릭터 자동공격만 채우고, 몬스터 행동은 기본값(IsAutoAttack=false)으로 남는다.
     /// </summary>
     public struct AttackActionInfo

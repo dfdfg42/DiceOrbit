@@ -124,6 +124,18 @@ namespace DiceOrbit.Core.Zones
         }
 
         /// <summary>
+        /// 몬스터가 스폰 시 배정된 구역 번호. 배정되지 않았으면 -1 (듀얼의 '대상 양옆 구역' 판정용).
+        /// 원 배정은 사망 후에도 유지되므로 죽은 몬스터도 원래 구역을 돌려준다.
+        /// </summary>
+        public int GetZoneOfMonster(Monster monster)
+        {
+            if (monster == null) return -1;
+            foreach (var pair in _assignedOwners)
+                if (pair.Value == monster) return pair.Key;
+            return -1;
+        }
+
+        /// <summary>
         /// 이 구역의 주인 몬스터. 배정된 몬스터가 없거나 죽었으면 null —
         /// 옆 구역이 흡수하지 않고 중립지대로 남는다(딜이 나가지 않는 피난처).
         /// </summary>

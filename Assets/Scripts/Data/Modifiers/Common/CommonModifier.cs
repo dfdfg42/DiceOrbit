@@ -47,12 +47,16 @@ namespace DiceOrbit.Data.Modifiers.Common
             if (target == null || target.Stats == null || !target.IsAlive || amount <= 0) return;
             if (target.Stats.CurrentHP >= target.Stats.MaxHP) return;
 
+            int before = target.Stats.CurrentHP;
             if (CombatPipeline.Instance != null)
                 CombatPipeline.Instance.Process(new HealContext(owner, target, ModifierName, amount));
             else
                 target.Stats.Heal(amount);
 
-            UI.CombatNotifier.Notify(target, $"{ModifierName} 체력 +{amount}", new Color(0.55f, 1f, 0.6f));
+            // 버블은 요청량이 아니라 실제로 회복된 양 (최대 체력에서 잘릴 수 있다). 0이면 띄우지 않는다.
+            int healed = target.Stats.CurrentHP - before;
+            if (healed > 0)
+                UI.CombatNotifier.Notify(target, $"{ModifierName} 체력 +{healed}", new Color(0.55f, 1f, 0.6f));
         }
 
         /// <summary>owner의 최대 체력·현재 체력을 amount만큼 영구히 올린다 + 버블 (완강한 신체·사냥).</summary>

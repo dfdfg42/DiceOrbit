@@ -17,6 +17,9 @@ namespace DiceOrbit.Data.Modifiers
             // 위치
             () => new Common.JointTacticsModifier(),
             () => new Common.LoneWolfModifier(),
+            () => new Common.DuelModifier(),
+            () => new Common.MobileArmorModifier(),
+            () => new Common.RescueTeamModifier(),
             // 주사위
             () => new Common.LowRollGuardModifier(),
             () => new Common.PaybackModifier(),

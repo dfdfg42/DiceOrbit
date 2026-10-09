@@ -38,6 +38,7 @@ namespace DiceOrbit.EditorTools
                 TestEffectiveAttackSumsBonuses();
                 TestAttackActionResultDefaults();
                 TestGrandFinaleOnlyStage3();
+                TestRescuePicksLowestHurtAlly();
                 // [tests-run]
             }
             finally
@@ -237,6 +238,28 @@ namespace DiceOrbit.EditorTools
             finale.OnAttack(CombatTrigger.OnCalculateOutput, stage2);
             AttackActionScope.End();
             Check(Mathf.Approximately(stage2.OutputValue, 10f), "2단계엔 보정 없음");
+        }
+
+        // ── 위치 계열 ─────────────────────────────────────────
+
+        private static void TestRescuePicksLowestHurtAlly()
+        {
+            var full = NewCharacter("RescueFull", hp: 50);
+            var hurt = NewCharacter("RescueHurt", hp: 50);
+            var worst = NewCharacter("RescueWorst", hp: 50);
+            hurt.Stats.CurrentHP = 30;
+            worst.Stats.CurrentHP = 20;
+
+            Check(RescueTeamModifier.PickLowestHp(new List<Character> { full, hurt, worst }) == worst, "현재 체력이 가장 낮은 아군");
+            Check(RescueTeamModifier.PickLowestHp(new List<Character> { full }) == null, "최대 체력인 아군은 대상에서 제외");
+
+            var tie = NewCharacter("RescueTie", hp: 50);
+            tie.Stats.CurrentHP = 20;
+            for (int i = 0; i < 10; i++)
+            {
+                var pick = RescueTeamModifier.PickLowestHp(new List<Character> { worst, tie, hurt });
+                Check(pick == worst || pick == tie, "동률이면 동률 중 하나 (무작위)");
+            }
         }
 
         // [tests-body]
