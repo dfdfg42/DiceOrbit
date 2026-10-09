@@ -52,8 +52,8 @@ namespace DiceOrbit.Data.CharacterActives
             int armor = GetStage3AllyArmor(source);
             if (armor <= 0) return;
 
-            // 대지 가르기 — 살아 있는 모든 아군에게 임시 방어도. 캐릭터 방어도는 소모될 때까지 유지되므로
-            // '최소한 다음 적 공격까지'가 자연히 보장된다.
+            // 대지 가르기 — 살아 있는 모든 아군에게 임시 방어도. 캐릭터 방어도는 다음 플레이어 턴 시작에
+            // 초기화되므로(B의 D2) 이번 몬스터 턴의 공격을 막는 데 쓰인다.
             foreach (var ally in AllLivingAllies())
             {
                 if (ally == null || ally.Stats == null) continue;
