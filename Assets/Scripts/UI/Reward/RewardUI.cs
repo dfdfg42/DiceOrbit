@@ -604,7 +604,7 @@ namespace DiceOrbit.UI
             var offer = _bundle.ModifierOffers[_selectedOffer];
             if (!offer.CanApplyTo(_selectedCharacter)) return;
 
-            _selectedCharacter.Stats.Modifiers.Add(offer);
+            _selectedCharacter.Stats.Modifiers.Acquire(offer);
             Debug.Log($"[Reward] {RewardPartyPortrait.DisplayName(_selectedCharacter)} ← '{offer.ModifierName}' 장착");
             StartCoroutine(ResolveBeat("장착!"));
         }

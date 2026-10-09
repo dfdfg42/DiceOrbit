@@ -50,7 +50,7 @@ public class BattleStageDebugManager : MonoBehaviour
 
                         if (modifiers != null)
                         {
-                            modifiers.Add(new DiceOrbit.Data.Modifiers.Common.JointTacticsModifier());
+                            modifiers.Acquire(new DiceOrbit.Data.Modifiers.Common.JointTacticsModifier());
                             Debug.Log($"[Debug] 선두 캐릭터({firstCharacter.Stats.CharacterName})에게 '합류 전술' 모디파이어를 추가했습니다!");
                         }
                         else
