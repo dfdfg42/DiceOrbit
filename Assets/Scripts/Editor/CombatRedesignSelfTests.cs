@@ -127,6 +127,8 @@ namespace DiceOrbit.EditorTools
 
         private static void TestRoundStatuses()
         {
+            // AddEffect → EffectApplied → VfxService.EnsureInstance 가 만든 인스턴스를 정리하기 위해 사전 상태 기록
+            bool vfxExisted = DiceOrbit.Visuals.VfxService.Instance != null;
             var attackerGo = new GameObject("RoundStatusAttacker"); attackerGo.SetActive(false);
             var otherGo    = new GameObject("RoundStatusOther");    otherGo.SetActive(false);
             var targetGo   = new GameObject("RoundStatusTarget");   targetGo.SetActive(false);
@@ -178,6 +180,8 @@ namespace DiceOrbit.EditorTools
             UnityEngine.Object.DestroyImmediate(attackerGo);
             UnityEngine.Object.DestroyImmediate(otherGo);
             UnityEngine.Object.DestroyImmediate(targetGo);
+            if (!vfxExisted && DiceOrbit.Visuals.VfxService.Instance != null)
+                UnityEngine.Object.DestroyImmediate(DiceOrbit.Visuals.VfxService.Instance.gameObject);
         }
 
         private static void TestStageTables()

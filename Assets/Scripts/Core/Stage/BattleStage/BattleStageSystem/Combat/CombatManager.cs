@@ -229,6 +229,7 @@ namespace DiceOrbit.Core
             // 콤보/행동 스코프는 전투 단위 상태 — 시작 시 깨끗하게 (스펙 2026-08-28 §1 규칙 9)
             Combo.ComboSystem.EnsureInstance().ResetAll();
             Systems.Effects.AttackActionScope.ResetAll();
+            ExpireRoundStatuses();
 
             OnCombatStart?.Invoke();
             DiceOrbit.Visuals.VfxService.Play(DiceOrbit.Visuals.VfxTags.CombatStart,
@@ -698,6 +699,7 @@ namespace DiceOrbit.Core
             if (IsCombatFinished()) yield break;
             {
                 TileTurnEnd(); // Loop back to player
+                ExpireRoundStatuses();
             }
 
             if (IsCombatFinished()) yield break;
@@ -706,6 +708,23 @@ namespace DiceOrbit.Core
                 // "플레이어 턴" 안내 → StartPlayerTurn
                 yield return AnnounceAndStartPlayerTurn();
             }
+        }
+
+        /// <summary>
+        /// 라운드형 상태(감전·고양·약화) 일괄 제거 — 시트 "이번 턴 동안" = 플레이어 턴 + 몬스터 턴.
+        /// 캐릭터는 전투 사이에 살아남으므로 전투 시작에도 호출해 이전 전투의 고양이 새지 않게 한다.
+        /// </summary>
+        private void ExpireRoundStatuses()
+        {
+            var party = PartyManager.Instance;
+            if (party != null && party.Party != null)
+                foreach (var character in party.Party)
+                    if (character != null && character.StatusEffects != null)
+                        character.StatusEffects.RemoveRoundStatuses();
+
+            foreach (var monster in activeMonsters.ToList())
+                if (monster != null && monster.StatusEffects != null)
+                    monster.StatusEffects.RemoveRoundStatuses();
         }
 
         private void TileTurnEnd()
