@@ -200,9 +200,9 @@ namespace DiceOrbit.EditorTools
             Check(Mathf.Approximately(rogue.GetStageMultiplier(2) * rogue.GetStageHits(2), 4.0f), "죽음의 촉매 총 400%");
 
             var mage = new MageEnergyBallActive();
-            Check(Mathf.Approximately(mage.GetStageMultiplier(0), 1.4f)
-               && Mathf.Approximately(mage.GetStageMultiplier(1), 1.1f)
-               && Mathf.Approximately(mage.GetStageMultiplier(2), 1.8f), "마법사 배율 140/110/180%");
+            Check(Mathf.Approximately(mage.GetStageMultiplier(0), 1.2f)
+               && Mathf.Approximately(mage.GetStageMultiplier(1), 1.2f)
+               && Mathf.Approximately(mage.GetStageMultiplier(2), 1.5f), "마법사 배율 120/120/150%");
 
             var alch = new AlchemistThrowActive();
             Check(Mathf.Approximately(alch.GetStageMultiplier(0), 1.0f)
