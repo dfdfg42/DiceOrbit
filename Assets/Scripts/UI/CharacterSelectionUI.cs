@@ -219,7 +219,7 @@ namespace DiceOrbit.UI
 
             if (card != null)
             {
-                card.Setup(character, OnCharacterSelectedRequested);
+                card.Setup(character, OnCharacterSelectedRequested, currentCards.Count);
             }
 
             return card;
@@ -228,6 +228,11 @@ namespace DiceOrbit.UI
         private IEnumerator PlayCharacterCardIntro(List<CharacterCard> cards)
         {
             yield return null;
+
+            // Capture laid-out bottle positions, even when no render has driven the canvas yet.
+            Canvas.ForceUpdateCanvases();
+            if (cardContainer is RectTransform containerRect)
+                LayoutRebuilder.ForceRebuildLayoutImmediate(containerRect);
 
             const float staggerDelay = 0.08f;
 

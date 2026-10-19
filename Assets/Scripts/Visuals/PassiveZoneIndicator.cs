@@ -189,9 +189,12 @@ namespace DiceOrbit.Visuals
             visual.Core.sortingOrder = order + 1;
 
             visual.Lighten.sprite = plate.sprite;
+            // Keep a scene's floor treatment when highlighting; do not bring back the original painted border.
+            visual.Lighten.sharedMaterial = plate.sharedMaterial;
             visual.Lighten.sortingLayerID = plate.sortingLayerID;
             visual.Lighten.sortingOrder = plate.sortingOrder + 1;
             visual.Lighten.transform.SetPositionAndRotation(plate.transform.position + Vector3.up * 0.002f, plate.transform.rotation);
+            visual.Lighten.transform.localScale = plate.transform.lossyScale;
             return true;
         }
 

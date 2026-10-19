@@ -16,7 +16,7 @@ namespace DiceOrbit.UI
         [SerializeField] private Image portraitImage;
         [SerializeField] private TextMeshProUGUI nameText;
         [SerializeField] private TextMeshProUGUI descriptionText;
-        [SerializeField] private TextMeshProUGUI statsText;
+        [SerializeField] private RectTransform bottleLabel;
         [SerializeField] private Button selectButton;
 
         [Header("Portrait Sprite")]
@@ -34,6 +34,17 @@ namespace DiceOrbit.UI
         [SerializeField] private Image selectButtonImage;
         [SerializeField] private Sprite defaultSelectButtonSprite;
         [SerializeField] private List<SelectButtonSpriteOption> selectButtonSprites = new List<SelectButtonSpriteOption>();
+
+        [Header("Bottle Positions (Left / Center / Right)")]
+        [SerializeField] private BottleAppearance[] bottleAppearances = new BottleAppearance[0];
+
+        [System.Serializable]
+        private class BottleAppearance
+        {
+            public Sprite sprite;
+            public Vector2 namePosition;
+            public float nameAngle;
+        }
 
         [Header("Intro Animation")]
         [SerializeField] private float introOffsetY = 750f; //350
@@ -201,13 +212,14 @@ namespace DiceOrbit.UI
         /// <summary>
         /// 카드 설정
         /// </summary>
-        public void Setup(Core.CharacterPreset preset, System.Action<CharacterCard, Core.CharacterPreset> callback)
+        public void Setup(Core.CharacterPreset preset, System.Action<CharacterCard, Core.CharacterPreset> callback, int displayIndex = 1)
         {
             character = preset;
             //Debug.Log($"[CharacterCard] preset name = '{preset?.CharacterName}'");
             onSelected = callback;
 
             ApplySelectButtonSprite(preset);
+            ApplyBottleAppearance(displayIndex);
             
             // UI 업데이트
             var resolvedPortrait = ResolvePortraitSprite(preset);
@@ -226,10 +238,19 @@ namespace DiceOrbit.UI
             {
                 descriptionText.text = preset.Description;
             }
-            
-            if (statsText != null)
+        }
+
+        private void ApplyBottleAppearance(int displayIndex)
+        {
+            if (bottleAppearances == null || bottleAppearances.Length == 0) return;
+            var appearance = bottleAppearances[Mathf.Clamp(displayIndex, 0, bottleAppearances.Length - 1)];
+            if (appearance == null || appearance.sprite == null) return;
+            var image = selectButtonImage != null ? selectButtonImage : selectButton != null ? selectButton.image : null;
+            if (image != null) image.sprite = appearance.sprite;
+            if (bottleLabel != null)
             {
-                statsText.text = $"HP: {preset.MaxHP}";
+                bottleLabel.anchoredPosition = appearance.namePosition;
+                bottleLabel.localRotation = Quaternion.Euler(0f, 0f, appearance.nameAngle);
             }
         }
 

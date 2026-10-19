@@ -22,6 +22,10 @@ namespace DiceOrbit.Visuals
 
         [Tooltip("플레이트 높이. 타일 바닥(0)보다 아래여야 타일이 위에 올라앉는다")]
         [SerializeField] private float plateY = -0.02f;
+        [Tooltip("선택 사항: 씬 배경에 맞춘 구역 재질. 비어 있으면 기존 스프라이트 재질을 사용한다. 생성 전에 설정한다.")]
+        public Material PlateMaterial;
+        [Tooltip("영역 스프라이트 크기. 기본값 1은 기존 씬의 크기를 유지한다.")]
+        [Min(0.01f)] public float PlateScale = 1f;
         [Header("틴트")]
         [SerializeField, Range(0f, 1f)] private float ownerSaturation = 0.32f;
         [SerializeField, Range(0f, 1f)] private float ownerAlpha = 0.85f;
@@ -114,9 +118,11 @@ namespace DiceOrbit.Visuals
                 go.transform.SetParent(transform, false);
                 go.transform.position = new Vector3(0f, plateY, 0f);
                 go.transform.rotation = PlateRotation(startDeg);
+                go.transform.localScale = Vector3.one * PlateScale;
 
                 var sr = go.AddComponent<SpriteRenderer>();
                 sr.sprite = sprite;
+                if (PlateMaterial != null) sr.sharedMaterial = PlateMaterial;
                 sr.color = new Color(1f, 1f, 1f, 0f);
                 sr.enabled = false;
                 _plates[zone] = sr;

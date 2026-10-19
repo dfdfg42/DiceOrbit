@@ -122,6 +122,7 @@ namespace DiceOrbit.UI
         /// </summary>
         public void ClearDice()
         {
+            rollAnimator?.CancelAnimation();
             selectedElement = null;
 
             foreach (var element in diceElements)
@@ -159,6 +160,7 @@ namespace DiceOrbit.UI
 
         public void HandleDiceElementClicked(DiceElement element)
         {
+            if (rollAnimator != null && rollAnimator.IsPlaying) return;
             if (element == null || element.Data == null || element.Data.State != DiceState.Available) return;
             // 튜토리얼 잠금: 지정 눈 외에는 선택 불가
             if (_tutorialLockValue.HasValue && element.Data.Value != _tutorialLockValue.Value) return;
@@ -263,6 +265,7 @@ namespace DiceOrbit.UI
 
         public void SetPanelVisible(bool visible)
         {
+            if (!visible) rollAnimator?.CancelAnimation();
             panelVisible = visible;
 
             if (panelCanvasGroup == null)

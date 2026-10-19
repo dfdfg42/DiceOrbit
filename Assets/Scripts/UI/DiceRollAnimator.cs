@@ -1,419 +1,166 @@
-using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
 
 namespace DiceOrbit.UI
 {
-    /// <summary>
-    /// 턴 시작 시 주사위 획득 연출 애니메이터
-    /// 화면 중앙에서 일렬 팝인 → 순서대로 점프 → 슬롯으로 이동
-    /// </summary>
+    /// <summary>Rounded 3D dice: center tumble, readable result hold, then delivery to the real UI slots.</summary>
     public class DiceRollAnimator : MonoBehaviour
     {
-        [Header("Spawn Settings")]
-        [Tooltip("Canvas 중앙 기준 세로 오프셋 (양수 = 위, 음수 = 아래)")]
-        [SerializeField] private float centerYOffset = 0f;
-        [Tooltip("주사위 간 가로 간격 (px)")]
-        [SerializeField] private float diceSpacing = 120f;
-
-        [Header("Pop In")]
-        [Tooltip("중앙에서 팝인 되는 시간")]
-        [SerializeField] private float popInDuration = 0.18f;
-
-        [Header("Jump & Spin (Step 1)")]
-        [Tooltip("위로 점프하며 솟구치는 시간")]
-        [SerializeField] private float jumpUpDuration = 0.25f;
-        [Tooltip("점프 높이 (px)")]
-        [SerializeField] private float jumpHeight = 150f;
-        [Tooltip("이동 중 회전 횟수 (360도 * N)")]
-        [SerializeField] private float rotationCycles = 2f;
-
-        [Header("Pause (Step 2)")]
-        [Tooltip("공중에서 멈추는 시간")]
-        [SerializeField] private float pauseDuration = 0.12f;
-
-        [Header("Zoom In (Step 3)")]
-        [Tooltip("슬롯으로 빠르게 빨려 들어가는 시간")]
-        [SerializeField] private float zoomInDuration = 0.22f;
-        [Tooltip("주사위 간 출발 딜레이")]
-        [SerializeField] private float delayBetweenDice = 0.12f;
-
-    [Header("Pre-Arrival Number Shuffle")]
-    [Tooltip("이동 중 숫자 랜덤 변경 연출 사용 여부")]
-    [SerializeField] private bool useTravelShuffle = true;
-    [Tooltip("랜덤 숫자 갱신 간격")]
-    [SerializeField] private float shuffleInterval = 0.03f;
-    [Tooltip("연출용 최소 눈금")]
-    [SerializeField] private int shuffleMinValue = 1;
-    [Tooltip("연출용 최대 눈금")]
-    [SerializeField] private int shuffleMaxValue = 6;
-
-        [Header("Arrive Bounce")]
-        [Tooltip("도착 시 bounce 스케일 최대값")]
-        [SerializeField] private float bounceScale = 1.25f;
-        [Tooltip("bounce 애니메이션 시간")]
-        [SerializeField] private float bounceDuration = 0.15f;
-
-        // 애니메이션 완료 콜백
+        [SerializeField] float centerYOffset;
+        [Header("3D Roll")]
+        [SerializeField, Min(.2f)] float tumbleDuration = 1.05f;
+        [SerializeField, Min(0)] float resultHoldDuration = .48f;
+        [SerializeField, Min(.1f)] float slotTravelDuration = .42f;
+        [SerializeField, Min(40)] float presentationSize = 112f;
         public System.Action OnAnimationComplete;
+        public bool IsPlaying { get; private set; }
 
-        private Canvas rootCanvas;
-    private readonly Dictionary<DiceElement, Coroutine> activeShuffleRoutines = new Dictionary<DiceElement, Coroutine>();
-
-        private void Awake()
+        sealed class Slot
         {
-            rootCanvas = GetComponentInParent<Canvas>();
-            if (rootCanvas == null)
-                rootCanvas = FindFirstObjectByType<Canvas>();
+            internal DiceElement element;
+            internal RectTransform rect;
+            internal CanvasGroup group;
+            internal float alpha;
+            internal bool interactable, raycasts;
+            internal Vector3 scale;
         }
 
-        /// <summary>
-        /// 주사위 획득 애니메이션 전체 시퀀스 실행
-        /// </summary>
-        /// <param name="elements">생성된 DiceElement 목록 (이미 diceContainer 하위에 있는 상태)</param>
-        /// <param name="diceContainer">최종 목적지 컨테이너</param>
+        readonly List<Slot> slots = new List<Slot>();
+        Coroutine sequence;
+        DiceRollStage stage;
+        RectTransform canvasRect;
+
         public void PlayRollAnimation(List<DiceElement> elements, Transform diceContainer)
         {
-            StartCoroutine(RollSequence(elements, diceContainer));
+            CancelAnimation();
+            if (elements == null || elements.Count == 0)
+            { OnAnimationComplete?.Invoke(); return; }
+            Canvas canvas = GetComponentInParent<Canvas>()?.rootCanvas;
+            if (!isActiveAndEnabled || canvas == null || diceContainer == null)
+            { OnAnimationComplete?.Invoke(); return; }
+            canvasRect = (RectTransform)canvas.transform;
+            // Keep real elements in their layout: no reparenting, no temporary numbers, no gameplay RNG.
+            foreach (var element in elements)
+            {
+                if (element == null || element.Data == null) continue;
+                var group = element.GetComponent<CanvasGroup>() ?? element.gameObject.AddComponent<CanvasGroup>();
+                slots.Add(new Slot { element = element, rect = (RectTransform)element.transform, group = group,
+                    alpha = group.alpha, interactable = group.interactable, raycasts = group.blocksRaycasts,
+                    scale = element.transform.localScale });
+                group.alpha = 0; group.interactable = false; group.blocksRaycasts = false;
+            }
+            if (slots.Count == 0) { OnAnimationComplete?.Invoke(); return; }
+            IsPlaying = true;
+            sequence = StartCoroutine(RollSequence(canvas, diceContainer));
         }
 
-        private IEnumerator RollSequence(List<DiceElement> elements, Transform diceContainer)
+        IEnumerator RollSequence(Canvas canvas, Transform container)
         {
-            if (elements == null || elements.Count == 0)
+            yield return null;
+            Canvas.ForceUpdateCanvases();
+            if (container is RectTransform layout) LayoutRebuilder.ForceRebuildLayoutImmediate(layout);
+            if (!AllSlotsAlive()) { CancelAnimation(); yield break; }
+            stage = new DiceRollStage(canvas);
+            foreach (var slot in slots) stage.Add(slot.element);
+            float rollDuration = Mathf.Max(.2f, tumbleDuration);
+            float travelDuration = Mathf.Max(.1f, slotTravelDuration);
+            float rollEnd = rollDuration + (slots.Count - 1) * .055f;
+            float flightStart = rollEnd + Mathf.Max(0, resultHoldDuration);
+            float end = flightStart + (slots.Count - 1) * .055f + travelDuration + .16f;
+            float elapsed = 0;
+            while (elapsed < end)
             {
-                OnAnimationComplete?.Invoke();
-                yield break;
-            }
-
-            int count = elements.Count;
-
-            // RectTransform 참조 수집
-            var rects = new RectTransform[count];
-            for (int i = 0; i < count; i++)
-                rects[i] = elements[i].GetComponent<RectTransform>();
-
-            // ─── 1단계: 슬롯 최종 위치 저장 (컨테이너 레이아웃이 결정된 후 1프레임 대기) ───
-            yield return null; // Layout 계산 대기
-
-            var slotPositions = new Vector2[count];
-            var originalAnchorMins = new Vector2[count];
-            var originalAnchorMaxs = new Vector2[count];
-            var originalPivots = new Vector2[count];
-            var originalSizes = new Vector2[count];
-            
-            for (int i = 0; i < count; i++)
-            {
-                // ClearDice()가 애니메이션 도중 호출되면 element가 파괴될 수 있음
-                if (rects[i] == null)
+                if (!AllSlotsAlive()) { CancelAnimation(); yield break; }
+                stage.Resize();
+                int columns = Mathf.Min(6, slots.Count);
+                int rows = Mathf.CeilToInt((float)slots.Count / columns);
+                float size = Mathf.Min(presentationSize, canvasRect.rect.height * .115f,
+                    canvasRect.rect.width * .76f / (columns * 1.7f + 1), canvasRect.rect.height / (rows * 2.1f + 2));
+                for (int i = 0; i < slots.Count; i++)
                 {
-                    OnAnimationComplete?.Invoke();
-                    yield break;
+                    Slot slot = slots[i];
+                    int row = i / columns;
+                    int rowCount = Mathf.Min(columns, slots.Count - row * columns);
+                    Vector2 center = new Vector2(-canvasRect.rect.width * .11f + (i % columns - (rowCount - 1) * .5f) * size * 1.65f,
+                        centerYOffset + 35 + ((rows - 1) * .5f - row) * size * 1.75f);
+                    float start = flightStart + i * .055f;
+                    if (elapsed < start)
+                    {
+                        float t = Mathf.Clamp01((elapsed - i * .055f) / rollDuration);
+                        float remaining = Mathf.Pow(1 - t, 2.6f);
+                        // All axes settle to zero so the result face looks straight at the camera.
+                        Quaternion rotation = Quaternion.Euler(remaining * (640 + i * 29), remaining * (490 + i * 47), remaining * 155);
+                        float height = BounceHeight(t) * size;
+                        Vector2 position = center + new Vector2((i % 2 == 0 ? -1 : 1) * size * .8f * remaining, 0);
+                        float appear = Mathf.SmoothStep(0, 1, t / .13f);
+                        float settle = t > .86f ? 1 + Mathf.Sin((t - .86f) / .14f * Mathf.PI) * .035f : 1;
+                        stage.Pose(i, position, size * appear * settle, rotation, height);
+                        stage.RefreshResult(i, slot.element.Data.Value);
+                    }
+                    else
+                    {
+                        float t = Mathf.Clamp01((elapsed - start) / travelDuration);
+                        float eased = t * t * (3 - 2 * t);
+                        Vector2 target = (Vector2)canvasRect.InverseTransformPoint(slot.rect.TransformPoint(slot.rect.rect.center)) - canvasRect.rect.center;
+                        Vector3 slotWidth = canvasRect.InverseTransformVector(slot.rect.TransformVector(Vector3.right * slot.rect.rect.width));
+                        float finalSize = slotWidth.magnitude;
+                        Vector2 position = Vector2.Lerp(center, target, eased) + Vector2.up * (Mathf.Sin(t * Mathf.PI) * size * .35f);
+                        stage.Pose(i, position, Mathf.Lerp(size, finalSize, eased), Quaternion.identity, 0, t < 1 ? 1 : 0);
+                        if (t >= 1)
+                        {
+                            slot.group.alpha = slot.alpha;
+                            float arrival = Mathf.Clamp01((elapsed - start - travelDuration) / .16f);
+                            slot.rect.localScale = slot.scale * (1 + Mathf.Sin(arrival * Mathf.PI) * .10f);
+                        }
+                    }
                 }
-                slotPositions[i] = rects[i].anchoredPosition;
-                originalAnchorMins[i] = rects[i].anchorMin;
-                originalAnchorMaxs[i] = rects[i].anchorMax;
-                originalPivots[i] = rects[i].pivot;
-                originalSizes[i] = rects[i].sizeDelta;
+                yield return null;
+                elapsed += Time.deltaTime;
             }
-
-            // ─── 2단계: Canvas 루트로 이동, 화면 중앙에 일렬 배치 ───
-            Canvas canvas = rootCanvas;
-            RectTransform canvasRect = canvas.GetComponent<RectTransform>();
-            Vector2 canvasSize = canvasRect.sizeDelta;
-
-            float totalWidth = (count - 1) * diceSpacing;
-            float startX = -totalWidth / 2f;
-
-            for (int i = 0; i < count; i++)
-            {
-                // Canvas 루트로 reparent
-                rects[i].SetParent(canvas.transform, false);
-                rects[i].SetAsLastSibling();
-
-                // 중앙 배치를 위해 Anchor와 Pivot을 (0.5, 0.5) 정중앙으로 강제 설정
-                rects[i].anchorMin = new Vector2(0.5f, 0.5f);
-                rects[i].anchorMax = new Vector2(0.5f, 0.5f);
-                rects[i].pivot = new Vector2(0.5f, 0.5f);
-
-                // 스케일 0에서 시작
-                rects[i].localScale = Vector3.zero;
-
-                // 화면 중앙 기준 위치
-                rects[i].anchoredPosition = new Vector2(startX + i * diceSpacing, centerYOffset);
-
-                // 드래그 불가 상태 (CanvasGroup)
-                var cg = elements[i].GetComponent<CanvasGroup>();
-                if (cg != null) cg.blocksRaycasts = false;
-
-                // 처음 등장 시점부터 숫자 셔플 시작
-                StartContinuousShuffle(elements[i]);
-            }
-
-            // ─── 3단계: 동시에 팝인 (스케일 0 → 1, EaseOutBack) ───
-            yield return StartCoroutine(PopIn(rects, popInDuration));
-
-            // 잠깐 간격
-            yield return new WaitForSeconds(0.05f);
-
-            // ─── 4단계: 하나씩 순서대로 슬롯으로 이동 ───
-            // 각 Coroutine을 순서 딜레이를 두고 발사
-            for (int i = 0; i < count; i++)
-            {
-                int idx = i; // 클로저용
-                StartCoroutine(MoveToSlot(
-                    rects[idx],
-                    elements[idx],
-                    diceContainer,
-                    slotPositions[idx],
-                    originalAnchorMins[idx],
-                    originalAnchorMaxs[idx],
-                    originalPivots[idx],
-                    originalSizes[idx],
-                    idx * delayBetweenDice
-                ));
-            }
-
-            // 마지막 주사위가 도착할 때까지 대기
-            float totalWait = (count - 1) * delayBetweenDice + jumpUpDuration + pauseDuration + zoomInDuration + bounceDuration + 0.1f;
-            yield return new WaitForSeconds(totalWait);
-
-            StopAllContinuousShuffle(true);
-
+            sequence = null;
+            RestoreAndDispose();
             OnAnimationComplete?.Invoke();
         }
 
-        // ─── 동시 팝인 ───
-        private IEnumerator PopIn(RectTransform[] rects, float duration)
+        static float BounceHeight(float t)
         {
-            float elapsed = 0f;
-            while (elapsed < duration)
+            if (t < .44f) return 1.05f * (1 - Mathf.Pow(t / .44f, 2));
+            if (t < .76f) return .34f * Mathf.Sin((t - .44f) / .32f * Mathf.PI);
+            if (t < .94f) return .10f * Mathf.Sin((t - .76f) / .18f * Mathf.PI);
+            return 0;
+        }
+
+        bool AllSlotsAlive()
+        {
+            foreach (var slot in slots) if (slot.element == null || slot.group == null) return false;
+            return true;
+        }
+
+        public void CancelAnimation()
+        {
+            if (sequence != null) { StopCoroutine(sequence); sequence = null; }
+            RestoreAndDispose();
+        }
+
+        void RestoreAndDispose()
+        {
+            stage?.Dispose(); stage = null;
+            foreach (var slot in slots)
             {
-                elapsed += Time.deltaTime;
-                float t = Mathf.Clamp01(elapsed / duration);
-                float scale = EaseOutBack(t);
-                foreach (var r in rects)
-                    if (r != null) r.localScale = Vector3.one * scale;
-                yield return null;
+                if (slot.element == null || slot.group == null) continue;
+                slot.group.alpha = slot.alpha;
+                slot.group.interactable = slot.interactable;
+                slot.group.blocksRaycasts = slot.raycasts;
+                slot.rect.localScale = slot.scale;
+                slot.element.RefreshDisplayFromData();
             }
-            foreach (var r in rects)
-                if (r != null) r.localScale = Vector3.one;
+            slots.Clear();
+            IsPlaying = false;
         }
 
-        // ─── 개별 주사위 슬롯 이동 (3단계 시퀀스) ───
-        private IEnumerator MoveToSlot(RectTransform rect, DiceElement element, Transform container, Vector2 localSlotPos, 
-            Vector2 origAnchorMin, Vector2 origAnchorMax, Vector2 origPivot, Vector2 origSize, float initialDelay)
-        {
-            if (initialDelay > 0f)
-                yield return new WaitForSeconds(initialDelay);
-
-            if (rect == null) yield break;
-
-            // 1. 공중 점프 & 회전
-            Vector2 spawnPos = rect.anchoredPosition;
-            Vector2 midAirPos = spawnPos + Vector2.up * jumpHeight;
-
-            float elapsed = 0f;
-            while (elapsed < jumpUpDuration)
-            {
-                elapsed += Time.deltaTime;
-                float t = Mathf.Clamp01(elapsed / jumpUpDuration);
-                float smoothT = EaseOutQuad(t);
-
-                rect.anchoredPosition = Vector2.Lerp(spawnPos, midAirPos, smoothT);
-                rect.localRotation = Quaternion.Euler(0, 0, t * 360f * rotationCycles);
-                yield return null;
-            }
-
-            rect.anchoredPosition = midAirPos;
-            rect.localRotation = Quaternion.Euler(0, 0, 360f * rotationCycles);
-
-            // 2. 공중 일시정지
-            if (pauseDuration > 0)
-                yield return new WaitForSeconds(pauseDuration);
-
-            if (rect == null) yield break;
-
-            // 3. 슬롯으로 빠르게 Zoom In
-            // 슬롯의 Canvas 기준 절대 위치를 계산
-            RectTransform containerRect = container as RectTransform;
-            Vector2 targetCanvasPos = GetCanvasLocalPosition(containerRect, localSlotPos);
-
-            elapsed = 0f;
-
-            while (elapsed < zoomInDuration)
-            {
-                elapsed += Time.deltaTime;
-                float t = Mathf.Clamp01(elapsed / zoomInDuration);
-                float smoothT = EaseInQuad(t);
-
-                rect.anchoredPosition = Vector2.Lerp(midAirPos, targetCanvasPos, smoothT);
-                
-                // 슬롯에 도착할 때 회전도 정위치로 (0도)
-                rect.localRotation = Quaternion.Lerp(Quaternion.Euler(0, 0, 360f * rotationCycles), Quaternion.identity, smoothT);
-
-                yield return null;
-            }
-
-            rect.anchoredPosition = targetCanvasPos;
-            rect.localRotation = Quaternion.identity;
-
-            // 연출 종료: 실제 데이터 값으로 즉시 복구
-            StopContinuousShuffle(element, true);
-
-            // ─── 도착 후 컨테이너로 복귀 ───
-            rect.SetParent(container, false);
-            // 앵커와 피벗 원상복구
-            rect.anchorMin = origAnchorMin;
-            rect.anchorMax = origAnchorMax;
-            rect.pivot = origPivot;
-            rect.sizeDelta = origSize;
-            
-            rect.anchoredPosition = localSlotPos;
-            rect.localScale = Vector3.one;
-
-            // ─── Bounce ───
-            yield return StartCoroutine(Bounce(rect, bounceDuration));
-
-            // 드래그 활성화
-            var cg = element.GetComponent<CanvasGroup>();
-            if (cg != null) cg.blocksRaycasts = true;
-        }
-
-        private void StartContinuousShuffle(DiceElement element)
-        {
-            if (!useTravelShuffle || element == null)
-                return;
-
-            StopContinuousShuffle(element, false);
-            activeShuffleRoutines[element] = StartCoroutine(CoShuffleDisplay(element));
-        }
-
-        private void StopContinuousShuffle(DiceElement element, bool restoreRealValue)
-        {
-            if (element == null)
-                return;
-
-            if (activeShuffleRoutines.TryGetValue(element, out Coroutine routine) && routine != null)
-            {
-                StopCoroutine(routine);
-            }
-
-            activeShuffleRoutines.Remove(element);
-
-            if (restoreRealValue)
-            {
-                element.RefreshDisplayFromData();
-            }
-        }
-
-        private void StopAllContinuousShuffle(bool restoreRealValue)
-        {
-            if (activeShuffleRoutines.Count == 0)
-                return;
-
-            var keys = new List<DiceElement>(activeShuffleRoutines.Keys);
-            for (int i = 0; i < keys.Count; i++)
-            {
-                StopContinuousShuffle(keys[i], restoreRealValue);
-            }
-        }
-
-        private IEnumerator CoShuffleDisplay(DiceElement element)
-        {
-            int minValue = Mathf.Min(shuffleMinValue, shuffleMaxValue);
-            int maxValue = Mathf.Max(shuffleMinValue, shuffleMaxValue);
-            float safeShuffleInterval = Mathf.Max(0.01f, shuffleInterval);
-            WaitForSeconds wait = new WaitForSeconds(safeShuffleInterval);
-
-            while (element != null)
-            {
-                int randomValue = Random.Range(minValue, maxValue + 1);
-                element.SetDisplayValue(randomValue);
-                yield return wait;
-            }
-        }
-
-        private void OnDisable()
-        {
-            StopAllContinuousShuffle(true);
-        }
-
-        // ─── 도착 bounce ───
-        private IEnumerator Bounce(RectTransform rect, float duration)
-        {
-            float half = duration * 0.5f;
-            float elapsed = 0f;
-
-            // 커지기
-            while (elapsed < half)
-            {
-                elapsed += Time.deltaTime;
-                float t = Mathf.Clamp01(elapsed / half);
-                rect.localScale = Vector3.one * Mathf.Lerp(1f, bounceScale, t);
-                yield return null;
-            }
-
-            elapsed = 0f;
-            // 줄어들기
-            while (elapsed < half)
-            {
-                elapsed += Time.deltaTime;
-                float t = Mathf.Clamp01(elapsed / half);
-                rect.localScale = Vector3.one * Mathf.Lerp(bounceScale, 1f, t);
-                yield return null;
-            }
-
-            rect.localScale = Vector3.one;
-        }
-
-        // ─── Container 내 로컬 위치 → Canvas 절대 앵커 위치 변환 ───
-        private Vector2 GetCanvasLocalPosition(RectTransform containerRect, Vector2 localInContainer)
-        {
-            // container의 월드 코너를 구한 뒤 Canvas local로 변환
-            Vector3[] corners = new Vector3[4];
-            containerRect.GetWorldCorners(corners);
-
-            // 컨테이너 pivot 기준 월드 포지션
-            Vector3 containerWorldPos = containerRect.TransformPoint(localInContainer);
-
-            // Canvas RectTransform
-            RectTransform canvasRect = rootCanvas.GetComponent<RectTransform>();
-            Vector2 canvasLocal;
-            RectTransformUtility.ScreenPointToLocalPointInRectangle(
-                canvasRect,
-                RectTransformUtility.WorldToScreenPoint(null, containerWorldPos),
-                rootCanvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : Camera.main,
-                out canvasLocal
-            );
-            return canvasLocal;
-        }
-
-        // ─── Easing 함수들 ───
-
-        /// <summary>EaseOutQuad - 점프 감속</summary>
-        private static float EaseOutQuad(float t)
-        {
-            return 1f - (1f - t) * (1f - t);
-        }
-
-        /// <summary>EaseInQuad - 줌 가속</summary>
-        private static float EaseInQuad(float t)
-        {
-            return t * t;
-        }
-
-        /// <summary>EaseOutBack - 살짝 튀어오르는 팝인</summary>
-        private static float EaseOutBack(float t)
-        {
-            const float c1 = 1.70158f;
-            const float c3 = c1 + 1f;
-            return 1f + c3 * Mathf.Pow(t - 1f, 3f) + c1 * Mathf.Pow(t - 1f, 2f);
-        }
-
-        /// <summary>EaseInOutQuad - 부드러운 이동 (Legacy)</summary>
-        private static float EaseInOutQuad(float t)
-        {
-            return t < 0.5f ? 2f * t * t : 1f - Mathf.Pow(-2f * t + 2f, 2f) / 2f;
-        }
+        void OnDisable() => CancelAnimation();
+        void OnDestroy() => CancelAnimation();
     }
 }
